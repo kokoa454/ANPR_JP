@@ -1,7 +1,8 @@
 import DATA_SET_OCR 
 import DATA_SET_DETECT
 import TRAIN
-import TEST
+import TEST_DETECT
+import TEST_OCR
 
 def main():
     print("【ANRP_JP】\n")
@@ -121,11 +122,14 @@ def main():
                 if dataSetNumber not in [0, 1]:
                     print("0~1の数字を入力してください。\n")
                     continue
+                elif dataSetNumber == 0:
+                    TEST_DETECT.TEST_DETECT(confNumber)
+                elif dataSetNumber == 1:
+                    TEST_OCR.TEST_OCR(confNumber)
             except ValueError:
                 print("数字を入力してください。\n")
                 continue
 
-            TEST.TEST(confNumber, dataSetNumber)
             print("\n")
 
         elif selectedNum == 4:
