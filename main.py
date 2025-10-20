@@ -1,5 +1,5 @@
-import LICENSE_PLATE 
-import DATA_SET
+import DATA_SET_OCR 
+import DATA_SET_DETECT
 import TRAIN
 import TEST
 
@@ -8,8 +8,8 @@ def main():
     
     while True:
         print("""\n作業番号 (
-        0: ナンバープレート生成
-        1: データセット生成
+        0: 検知用データセット生成
+        1: OCR用データセット生成
         2: 学習
         3: テスト
         4: 終了
@@ -29,6 +29,30 @@ def main():
 
         if selectedNum == 0:
             try:
+                apiKey = input("RoboflowのAPIキー?: ")
+
+                if apiKey == "":
+                    print("APIキーを入力してください。\n")
+                    continue
+            except Exception:
+                print("APIキーを入力してください。\n")
+                continue
+
+            try:
+                projectId = input("RoboflowのプロジェクトID?: ")
+
+                if projectId == "":
+                    print("プロジェクトIDを入力してください。\n")
+                    continue
+            except Exception:
+                print("プロジェクトIDを入力してください。\n")
+                continue
+                    
+            DATA_SET_DETECT.DATA_SET_DETECT(apiKey, projectId)
+            print("\n")
+
+        elif selectedNum == 1:
+            try:
                 trainingNumber = int(input("ナンバープレート数?: "))
 
                 if trainingNumber < 1:
@@ -38,23 +62,9 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            LICENSE_PLATE.LICENSE_PLATE(trainingNumber)
+            DATA_SET_OCR.DATA_SET_OCR(trainingNumber)
             print("\n")
-
-        elif selectedNum == 1:
-            try:
-                trainingNumber = int(input("データセット数?: "))
-
-                if trainingNumber < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
-            except ValueError:
-                print("数字を入力してください。\n")
-                continue
-
-            DATA_SET.DATA_SET(trainingNumber)
-            print("\n")
-
+        
         elif selectedNum == 2:
             try:
                 trainingNumber = int(input("Epoch数?: "))
@@ -66,7 +76,23 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            TRAIN.TRAIN(trainingNumber)
+            try:
+                print(
+                    """\n学習するデータセット番号 (
+                    0: 位置検知用
+                    1: OCR用
+                    )\n"""
+                )
+                dataSetNumber = int(input("学習するデータセット番号?: "))
+
+                if dataSetNumber not in [0, 1]:
+                    print("0~1の数字を入力してください。\n")
+                    continue
+            except ValueError:
+                print("数字を入力してください。\n")
+                continue
+
+            TRAIN.TRAIN(dataSetNumber, trainingNumber)
             print("\n")
 
         elif selectedNum == 3:
@@ -83,7 +109,23 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            TEST.TEST(confNumber)
+            try:
+                print(
+                    """\nテストするデータセット番号 (
+                    0: 位置検知用
+                    1: OCR用
+                    )\n"""
+                )
+                dataSetNumber = int(input("テストするデータセット番号?: "))
+
+                if dataSetNumber not in [0, 1]:
+                    print("0~1の数字を入力してください。\n")
+                    continue
+            except ValueError:
+                print("数字を入力してください。\n")
+                continue
+
+            TEST.TEST(confNumber, dataSetNumber)
             print("\n")
 
         elif selectedNum == 4:
