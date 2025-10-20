@@ -1,6 +1,7 @@
 __package__ = "TRAIN"
 
-from DATA_SET import DATA_SET
+import DATA_SET_DETECT
+import DATA_SET_OCR
 from ultralytics import YOLO
 import os
 import re
@@ -11,14 +12,36 @@ class TRAIN:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
     MODEL_NAME = "yolo11n"
-    DATA_PATH = f"{DATA_SET.DATA_SET_DIR}/data.yaml"
+    DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
+    DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
+    DATA_PATH = None
     PATIENCE = 10
     BATCH_SIZE = 16
     IMGSZ = 640
     NAME = "license_plate_11n"
     PROJECT_PATH = "yolo_output"
 
-    def __init__(self, trainingNumber):
+    def __init__(self, dataSetNumber, trainingNumber):
+        dataSetNumber = int(dataSetNumber)
+
+        if dataSetNumber == 0:
+            if os.path.exists(self.DATA_DETECT_PATH):
+                self.DATA_PATH = self.DATA_DETECT_PATH
+                self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
+                self.NAME = f"{self.NAME}_detect"
+                self.PROJECT_PATH = f"{self.PROJECT_PATH}_detect"
+            else:
+                raise Exception("ERROR: 検知用データセットがありません。")
+
+        elif dataSetNumber == 1:
+            if os.path.exists(self.DATA_OCR_PATH):
+                self.DATA_PATH = self.DATA_OCR_PATH
+                self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_ocr"
+                self.NAME = f"{self.NAME}_ocr"
+                self.PROJECT_PATH = f"{self.PROJECT_PATH}_ocr"
+            else:
+                raise Exception("ERROR: OCR用データセットがありません。")
+
         trainingNumber = int(trainingNumber)
         print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {self.BATCH_SIZE}, Image Size: {self.IMGSZ}, Name: {self.NAME})")
 
@@ -29,7 +52,7 @@ class TRAIN:
             if os.path.exists(self.OUTPUT_DIR):
                 folderNames = os.listdir(self.OUTPUT_DIR)
                 
-                pattern = re.compile(r'^(license_plate_11n)(\d+)$') 
+                pattern = re.compile(rf'^({self.NAME})(\d+)$') 
                 
                 numbered_folders = []
                 for name in folderNames:
@@ -56,16 +79,16 @@ class TRAIN:
                     self.MODEL = YOLO(self.MODEL_TO_LOAD)
                     print(f"前回の学習結果（{self.MODEL_TO_LOAD}）を読み込みました。")
 
-                elif os.path.exists(os.path.join(self.OUTPUT_DIR, "license_plate_11n", "weights", "best.pt")):
-                    self.MODEL = YOLO(os.path.join(self.OUTPUT_DIR, "license_plate_11n", "weights", "best.pt"))
-                    print(f"前回の学習結果(license_plate_11n/weights/best.pt)を読み込みました。")
+                elif os.path.exists(os.path.join(self.OUTPUT_DIR, self.NAME, "weights", "best.pt")):
+                    self.MODEL = YOLO(os.path.join(self.OUTPUT_DIR, self.NAME, "weights", "best.pt"))
+                    print(f"前回の学習結果({self.NAME}/weights/best.pt)を読み込みました。")
 
                 else:
-                    self.MODEL = YOLO("yolo11n.pt")
-                    print(f"既存の重みが見つからなかったため、yolo11n.pt で新規に学習します。")
+                    self.MODEL = YOLO(f"{self.MODEL_NAME}.pt")
+                    print(f"既存の重みが見つからなかったため、{self.MODEL_NAME}.pt で新規に学習します。")
 
             else:
-                self.MODEL = YOLO("yolo11n.pt")
+                self.MODEL = YOLO(f"{self.MODEL_NAME}.pt")
                 print(f"新規に学習します。")
                 
         except OSError:

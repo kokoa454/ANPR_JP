@@ -5,20 +5,33 @@ import cv2
 import os
 import TRAIN
 import re
- 
+
 class TEST:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
     TEST_DIR = "./test"
+    OUTPUT_DIR = TRAIN.TRAIN.OUTPUT_DIR
+    MODEL_NAME = "yolo11n"
+    NAME = "license_plate_11n"
 
-    def __init__(self, confNumber):
+    def __init__(self, confNumber, dataSetNumber):
         confNumber = float(confNumber) / 100.0
+        dataSetNumber = int(dataSetNumber)
+
+        if dataSetNumber == 0:
+            self.NAME = f"{self.NAME}_detect"
+            self.TEST_DIR = f"{self.TEST_DIR}_detect"
+            self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
+        elif dataSetNumber == 1:
+            self.NAME = f"{self.NAME}_ocr"
+            self.TEST_DIR = f"{self.TEST_DIR}_ocr"
+            self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_ocr"
 
         try:
-            if os.path.exists(TRAIN.TRAIN.OUTPUT_DIR):
-                folderNames = os.listdir(TRAIN.TRAIN.OUTPUT_DIR)
+            if os.path.exists(self.OUTPUT_DIR):
+                folderNames = os.listdir(self.OUTPUT_DIR)
                 
-                pattern = re.compile(r'^(license_plate_11n)(\d+)$') 
+                pattern = re.compile(rf'^({self.NAME})(\d+)$') 
                 
                 numbered_folders = []
                 for name in folderNames:
@@ -31,7 +44,7 @@ class TEST:
                     latest_folder_name = max(numbered_folders)[1] 
                     
                     self.LAST_PT_PATH = os.path.join(
-                        TRAIN.TRAIN.OUTPUT_DIR,
+                        self.OUTPUT_DIR,
                         latest_folder_name,
                         "weights",
                         "best.pt"
@@ -45,9 +58,9 @@ class TEST:
                     self.MODEL = YOLO(self.MODEL_TO_LOAD)
                     print(f"前回の学習結果（{self.MODEL_TO_LOAD}）を読み込みました。")
 
-                elif os.path.exists(os.path.join(TRAIN.TRAIN.OUTPUT_DIR, "license_plate_11n", "weights", "best.pt")):
-                    self.MODEL = YOLO(os.path.join(TRAIN.TRAIN.OUTPUT_DIR, "license_plate_11n", "weights", "best.pt"))
-                    print(f"前回の学習結果(license_plate_11n/weights/best.pt)を読み込みました。")
+                elif os.path.exists(os.path.join(self.OUTPUT_DIR, self.NAME, "weights", "best.pt")):
+                    self.MODEL = YOLO(os.path.join(self.OUTPUT_DIR, self.NAME, "weights", "best.pt"))
+                    print(f"前回の学習結果({self.NAME}/weights/best.pt)を読み込みました。")
 
                 else:
                     print("ERROR: 学習結果がありません。学習を行ってください。")
