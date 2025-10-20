@@ -1,9 +1,9 @@
 /fonts
-/license_plate_images
 /__pycache__
-/fiftyone_cache
-/fiftyone_db
-/data_set
-/yolo_output
+/data_set_detect
+/data_set_ocr
+/yolo_output_detect
+/yolo_output_ocr
+/test_detect
+/test_ocr
 yolo11n.pt
-/test
