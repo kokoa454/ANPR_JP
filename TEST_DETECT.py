@@ -1,4 +1,4 @@
-__package__ = "TEST"
+__package__ = "TEST_DETECT"
 
 from ultralytics import YOLO
 import cv2
@@ -6,26 +6,16 @@ import os
 import TRAIN
 import re
 
-class TEST:
+class TEST_DETECT:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
-    TEST_DIR = "./test"
-    OUTPUT_DIR = TRAIN.TRAIN.OUTPUT_DIR
+    TEST_DIR = "./test_detect"
+    OUTPUT_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_detect"
     MODEL_NAME = "yolo11n"
-    NAME = "license_plate_11n"
+    NAME = "license_plate_11n_detect"
 
-    def __init__(self, confNumber, dataSetNumber):
+    def __init__(self, confNumber):
         confNumber = float(confNumber) / 100.0
-        dataSetNumber = int(dataSetNumber)
-
-        if dataSetNumber == 0:
-            self.NAME = f"{self.NAME}_detect"
-            self.TEST_DIR = f"{self.TEST_DIR}_detect"
-            self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
-        elif dataSetNumber == 1:
-            self.NAME = f"{self.NAME}_ocr"
-            self.TEST_DIR = f"{self.TEST_DIR}_ocr"
-            self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_ocr"
 
         try:
             if os.path.exists(self.OUTPUT_DIR):
