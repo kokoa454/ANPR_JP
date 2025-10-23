@@ -30,6 +30,7 @@ class TRAIN:
                 self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
                 self.NAME = f"{self.NAME}_detect"
                 self.PROJECT_PATH = f"{self.PROJECT_PATH}_detect"
+                self.MODEL_NAME = "yolo11n-seg"
             else:
                 raise Exception("ERROR: 検知用データセットがありません。")
 

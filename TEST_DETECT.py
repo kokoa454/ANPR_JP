@@ -11,12 +11,17 @@ class TEST_DETECT:
     LAST_PT_PATH = None
     TEST_DIR = "./test_detect"
     OUTPUT_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_detect"
-    MODEL_NAME = "yolo11n"
+    MODEL_NAME = "yolo11n-seg"
     NAME = "license_plate_11n_detect"
+    MODEL = None
 
     def __init__(self, confNumber):
         confNumber = float(confNumber) / 100.0
 
+        self.loadModel()
+        self.runTest(confNumber)
+        
+    def loadModel(self):
         try:
             if os.path.exists(self.OUTPUT_DIR):
                 folderNames = os.listdir(self.OUTPUT_DIR)
@@ -65,6 +70,7 @@ class TEST_DETECT:
         except FileNotFoundError:
             raise RuntimeError("ERROR: モデルが見つかりません。")
         
+    def runTest(self, confNumber):
         try:
             if not os.path.exists(self.TEST_DIR):
                 print("ERROR: テスト画像を追加してください。")
@@ -89,6 +95,8 @@ class TEST_DETECT:
 
             for file in os.listdir(self.TEST_DIR + "/test_images"):
                 image = cv2.imread(os.path.join(self.TEST_DIR, "test_images", file))
+                overlay = image.copy()
+                
                 result = self.MODEL(
                     image,
                     conf = confNumber,
@@ -97,9 +105,40 @@ class TEST_DETECT:
 
                 detections = result[0].boxes.xyxy
                 licensePlateNumber = len(detections)
+                masks = result[0].masks
 
+                if masks is not None:
+                    segmentMasks = masks.data.cpu().numpy()
+                    
+                    for i, mask in enumerate(segmentMasks):
+                        resizedMask = cv2.resize(
+                            mask,
+                            (image.shape[1], image.shape[0]),
+                            interpolation=cv2.INTER_NEAREST
+                        )
+
+                        maskBoolean = resizedMask > 0.5
+                        color = (0, 255, 0)
+
+                        for channel in range(3):
+                            overlay[:, :, channel][maskBoolean] = (
+                                0.5 * overlay[:, :, channel][maskBoolean] + 0.5 * color[channel]
+                            )
+                        
+                        boundingBox = detections[i]
+                        x1, y1, x2, y2 = map(int, boundingBox)
+                        cv2.rectangle(
+                            overlay,
+                            (x1, y1),
+                            (x2, y2),
+                            (255, 0, 0),
+                            2
+                        )
+                
+                finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
+                
                 cv2.putText(
-                    image,
+                    finalImage,
                     f"Number of License Plates: {str(licensePlateNumber)}",
                     (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -108,13 +147,9 @@ class TEST_DETECT:
                     2
                 )
 
-                for r in detections:
-                    x1, y1, x2, y2 = map(int, r[:4])
-                    cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
                 cv2.imwrite(
                     os.path.join(self.TEST_DIR + "/results_images", "result_" + file),
-                    image
+                    finalImage
                 )
 
         except OSError:

@@ -30,7 +30,7 @@ class DATA_SET_DETECT:
             raise Exception("ERROR: APIキーが正しくありません。")
 
         try:
-            project = rf.workspace("augmented-startups").project(projectId)
+            project = rf.workspace("questions").project(projectId)
         except Exception as e:
             raise Exception("ERROR: プロジェクトIDが正しくありません。")
 
