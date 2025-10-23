@@ -7,3 +7,4 @@
 /test_detect
 /test_ocr
 yolo11n.pt
+yolo11n-seg.pt
