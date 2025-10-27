@@ -21,74 +21,30 @@ class TEST_OCR:
     MODEL_OCR = None
     NAME_DETECT = "license_plate_11n_detect"
     NAME_OCR = "license_plate_11n_ocr"
-
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
     def __init__(self, confNumber):
         confNumber = float(confNumber) / 100.0
         
-        def extract_plate_parts(text):
-            officeCode = ""
-            classNumber = ""
-            hiragana = ""
-            registrationNumber = ""
-            
-            if not text:
-                return "", "", "", ""
-
-            matchedIndex = 0
-            for i, char in enumerate(text):
-                if char.isdigit():
-                    officeCode = text[:i]
-                    matchedIndex = i
-                    break
-                elif i >= len(text) - 1:
-                    return text, "", "", ""
-            
-            if not officeCode:
-                return text, "", "", ""
-
-            remainder = text[matchedIndex:]
-            
-            if len(remainder) >= 2 and remainder[0].isdigit() and remainder[1].isdigit():
-                
-                if len(remainder) >= 3 and remainder[2].isdigit():
-                    if len(remainder) >= 4 and not remainder[3].isdigit():
-                        classNumber = remainder[:3]
-                        hiragana = remainder[3]
-                        registrationNumber = remainder[4:]
-                    else:
-                        classNumber = remainder[:3] 
-                        registrationNumber = remainder[3:]
-                
-                elif len(remainder) >= 3 and not remainder[2].isdigit():
-                    classNumber = remainder[:2]
-                    hiragana = remainder[2]
-                    registrationNumber = remainder[3:]
-                    
-                else:
-                    return officeCode, remainder, "", ""
-            
-            if len(registrationNumber) == 4:
-                registrationNumber = f"{registrationNumber[:2]}-{registrationNumber[2:]}"
-
-            return officeCode, classNumber, hiragana, registrationNumber
+        self.loadModel()
+        self.runTest(confNumber)
         
+    def loadModel(self):
         try:
             if os.path.exists(self.OUTPUT_DETECT_DIR):
                 folderNames = os.listdir(self.OUTPUT_DETECT_DIR)
                 pattern = re.compile(rf'^({self.NAME_DETECT})(\d+)$')
-                numbered_folders = []
+                numberedFolders = []
                 for name in folderNames:
                     match = pattern.match(name)
                     if match:
                         number = int(match.group(2))
-                        numbered_folders.append((number, name))
-                if numbered_folders:
-                    latest_folder_name = max(numbered_folders)[1] 
+                        numberedFolders.append((number, name))
+                if numberedFolders:
+                    latestFolderName = max(numberedFolders)[1] 
                     self.LAST_PT_PATH_DETECT = os.path.join(
                         self.OUTPUT_DETECT_DIR,
-                        latest_folder_name,
+                        latestFolderName,
                         "weights",
                         "best.pt"
                     )
@@ -115,17 +71,17 @@ class TEST_OCR:
             if os.path.exists(self.OUTPUT_OCR_DIR):
                 folderNames = os.listdir(self.OUTPUT_OCR_DIR)
                 pattern = re.compile(rf'^({self.NAME_OCR})(\d+)$')
-                numbered_folders = []
+                numberedFolders = []
                 for name in folderNames:
                     match = pattern.match(name)
                     if match:
                         number = int(match.group(2))
-                        numbered_folders.append((number, name))
-                if numbered_folders:
-                    latest_folder_name = max(numbered_folders)[1] 
+                        numberedFolders.append((number, name))
+                if numberedFolders:
+                    latestFolderName = max(numberedFolders)[1] 
                     self.LAST_PT_PATH_OCR = os.path.join(
                         self.OUTPUT_OCR_DIR,
-                        latest_folder_name,
+                        latestFolderName,
                         "weights",
                         "best.pt"
                     )
@@ -148,90 +104,157 @@ class TEST_OCR:
         except FileNotFoundError:
             raise RuntimeError("ERROR: OCRモデルが見つかりません。")
 
+    def runTest(self, confNumber):
         try:
-            if not os.path.exists(self.TEST_DIR):
-                print("ERROR: テスト画像を追加してください。")
-                os.makedirs(self.TEST_DIR + "/test_images")
-                return
-            if not os.path.exists(self.TEST_DIR + "/test_images"):
-                print("ERROR: テスト画像を追加してください。")
-                os.makedirs(self.TEST_DIR + "/test_images")
-                return
-            if os.listdir(self.TEST_DIR + "/test_images") == []:
+            testImagesDir = os.path.join(self.TEST_DIR, "test_images")
+            resultImagesDir = os.path.join(self.TEST_DIR, "results_images")
+
+            if not os.path.exists(testImagesDir):
+                os.makedirs(testImagesDir)
                 print("ERROR: テスト画像を追加してください。")
                 return
-            if not os.path.exists(self.TEST_DIR + "/results_images"):
-                os.makedirs(self.TEST_DIR + "/results_images")
+            if not os.listdir(testImagesDir):
+                print("ERROR: テスト画像を追加してください。")
+                return
+            if not os.path.exists(resultImagesDir):
+                os.makedirs(resultImagesDir)
             else:
-                for file in os.listdir(self.TEST_DIR + "/results_images"):
-                    os.remove(os.path.join(self.TEST_DIR + "/results_images", file))
+                for f in os.listdir(resultImagesDir):
+                    os.remove(os.path.join(resultImagesDir, f))
 
-            font = ImageFont.truetype(self.FONT_PATH, 32)
+            font = ImageFont.truetype(self.FONT_PATH, 24) 
 
-            for file in os.listdir(self.TEST_DIR + "/test_images"):
-                image = cv2.imread(os.path.join(self.TEST_DIR, "test_images", file))
+            for file in os.listdir(testImagesDir):
+                image = cv2.imread(os.path.join(testImagesDir, file))
+                overlay = image.copy()
+
                 detectResult = self.MODEL_DETECT(image, conf=confNumber, save=False)
                 detections = detectResult[0].boxes.xyxy
+                classes = detectResult[0].boxes.cls
+                masks = detectResult[0].masks
                 licensePlateNumber = len(detections)
+                
+                pilImageOverlay = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
+                drawOverlay = ImageDraw.Draw(pilImageOverlay)
 
-                image_pil = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-                draw = ImageDraw.Draw(image_pil)
-                draw.text((10, 10), f"Number of License Plates: {licensePlateNumber}", font=font, fill=(0, 255, 0))
+                if masks is not None and licensePlateNumber > 0:
+                    segmentMasks = masks.data.cpu().numpy()
+                    for i, mask in enumerate(segmentMasks):
+                        boundingBox = detections[i]
+                        typeOfVehicleId = int(classes[i])
+                        
+                        x1, y1, x2, y2 = map(int, boundingBox)
 
-                for r in detections:
-                    x1, y1, x2, y2 = map(int, r[:4])
-                    
-                    draw.rectangle([(x1, y1), (x2, y2)], outline=(0, 255, 0), width=3)
-                    
-                    plateImage = image[y1:y2, x1:x2]
-                    
-                    ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, save=False)
+                        resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
+                        maskBoolean = resizedMask > 0.5
+                        mask8bit = (maskBoolean * 255).astype(np.uint8)
+                        mask8bit = cv2.medianBlur(mask8bit, 5)
+                        mask8bit = cv2.morphologyEx(mask8bit, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
 
-                    detectedChars = []
-                    for ocrR in ocrResult:
-                        boxes = ocrR.boxes
-                        classIds = boxes.cls
-                        xyxy = boxes.xyxy
-                        for i in range(len(classIds)):
-                            classId = int(classIds[i])
-                            className = self.MODEL_OCR.names[classId]
-                            centerX = (int(xyxy[i][0]) + int(xyxy[i][2])) / 2
-                            centerY = (int(xyxy[i][1]) + int(xyxy[i][3])) / 2
-                            
-                            detectedChars.append((centerX, className, centerY)) 
+                        contours, _ = cv2.findContours(mask8bit, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                        sourcePoints = None
 
-                    upperRow = []
-                    lowerRow = []
+                        if contours:
+                            mainContour = max(contours, key=cv2.contourArea)
+                            rectangle = cv2.minAreaRect(mainContour)
+                            box = cv2.boxPoints(rectangle)
+                            sourcePoints = np.float32(box)
+                            sourcePoints = self.sortPoints(sourcePoints)
 
-                    plateImageHeight = y2 - y1
-                    plateImageCenterY = plateImageHeight / 2
-                    
-                    for centerX, className, centerY in detectedChars:
-                        if centerY < plateImageCenterY:
-                            upperRow.append((centerX, className))
+                        if sourcePoints is not None:
+                            plateImage = self.perspectiveTransform(image, sourcePoints)
                         else:
-                            lowerRow.append((centerX, className))
+                            plateImage = image[y1:y2, x1:x2]
 
-                    upperRow.sort(key=lambda x: x[0])
-                    lowerRow.sort(key=lambda x: x[0])
-                    
-                    plateTextUpper = "".join([c[1] for c in upperRow])
-                    plateTextLower = "".join([c[1] for c in lowerRow])
-                    plateText = plateTextUpper + plateTextLower
-                    
-                    city, type_num, kana, reg_num = extract_plate_parts(plateText)
-                    
-                    if city:
-                        formattedText = f"{city} {type_num} {kana} {reg_num}"
-                        formattedText = formattedText.strip()
-                        formattedText = ' '.join(formattedText.split())
-                    else:
-                        formattedText = plateText
+                        cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
-                    draw.text((x1, y1 - 30), formattedText, font=font, fill=(0, 255, 255)) 
+                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, save=False)
+                        detectedChars = []
+                        for ocrR in ocrResult:
+                            boxes = ocrR.boxes
+                            classIds = boxes.cls
+                            xyxy = boxes.xyxy
+                            for j in range(len(classIds)):
+                                classId = int(classIds[j])
+                                className = self.MODEL_OCR.names[classId]
+                                centerX = (xyxy[j][0] + xyxy[j][2]) / 2
+                                centerY = (xyxy[j][1] + xyxy[j][3]) / 2
+                                if classId >= 4: 
+                                    detectedChars.append((centerX, className, centerY))
 
-                image = cv2.cvtColor(np.array(image_pil), cv2.COLOR_RGB2BGR)
-                cv2.imwrite(os.path.join(self.TEST_DIR + "/results_images", "result_" + file), image)
+                        upperRowChars, lowerRowChars = [], []
+                        h = plateImage.shape[0]
+                        centerY = h / 2
+                        for cx, ch, cy in detectedChars:
+                            (upperRowChars if cy < centerY else lowerRowChars).append((cx, ch))
+                        upperRowChars.sort(key=lambda x: x[0])
+                        lowerRowChars.sort(key=lambda x: x[0])
 
-        except OSError:
-            raise RuntimeError("ERROR: テスト画像の読み込みに失敗しました。")
+                        upperRow = "".join([c[1] for c in upperRowChars])
+                        lowerRow = "".join([c[1] for c in lowerRowChars])
+                        
+                        typeOfVehicleName = self.MODEL_DETECT.names[typeOfVehicleId] 
+
+                        plateText = self.formatLicensePlateText(typeOfVehicleName, upperRow, lowerRow)
+                        
+                        self.drawMultilineText(drawOverlay, (x1, y1 - 50), plateText, font, (0, 255, 255))
+
+
+                overlay = cv2.cvtColor(np.array(pilImageOverlay), cv2.COLOR_RGB2BGR)
+                finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
+                cv2.putText(finalImage, f"number of license plates: {licensePlateNumber}", (10, 50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
+                cv2.imwrite(os.path.join(resultImagesDir, "result_" + file), finalImage)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise RuntimeError(f"テスト実行エラー: {e}")
+
+    def sortPoints(self, points):
+        points = sorted(points, key=lambda x: (x[1], x[0]))
+        top = sorted(points[:2], key=lambda x: x[0])
+        bottom = sorted(points[2:], key=lambda x: x[0], reverse=True)
+        return np.array([top[0], top[1], bottom[0], bottom[1]], dtype="float32")
+
+    def perspectiveTransform(self, image, sourcePoints):
+        TARGET_WIDTH = 440
+        TARGET_HEIGHT = 220
+
+        destination = np.array([
+            [0, 0], 
+            [TARGET_WIDTH - 1, 0],
+            [TARGET_WIDTH - 1, TARGET_HEIGHT - 1],
+            [0, TARGET_HEIGHT - 1]
+        ], dtype="float32")
+
+        homographyMatrix, _ = cv2.findHomography(sourcePoints, destination, cv2.RANSAC, 5.0)
+        
+        warpedPerspective = cv2.warpPerspective(
+            image, 
+            homographyMatrix, 
+            (TARGET_WIDTH, TARGET_HEIGHT),
+            flags=cv2.INTER_CUBIC
+        )
+        
+        finalImage = warpedPerspective
+            
+        return finalImage
+
+    def formatLicensePlateText(self, typeOfVehicleName, upperRow, lowerRow):
+        upperText = upperRow
+        lowerText = lowerRow
+        
+        return f"{typeOfVehicleName}\n{upperText}\n{lowerText}"
+
+    def drawMultilineText(self, draw, position, text, font, fill):
+        x, y = position
+        try:
+            bbox = font.getbbox("AA") 
+            lineHeight = bbox[3] - bbox[1]
+        except Exception:
+            lineHeight = font.size * 1.5 
+            
+        for line in text.split('\n'):
+            draw.text((x, y), line, font=font, fill=fill)
+            y += lineHeight
