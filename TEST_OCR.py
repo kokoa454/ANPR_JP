@@ -4,6 +4,7 @@ from ultralytics import YOLO
 import cv2
 import os
 import TRAIN
+import DATA_SET_OCR
 import re
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
@@ -130,7 +131,6 @@ class TEST_OCR:
 
                 detectResult = self.MODEL_DETECT(image, conf=confNumber, save=False)
                 detections = detectResult[0].boxes.xyxy
-                classes = detectResult[0].boxes.cls
                 masks = detectResult[0].masks
                 licensePlateNumber = len(detections)
                 
@@ -141,7 +141,6 @@ class TEST_OCR:
                     segmentMasks = masks.data.cpu().numpy()
                     for i, mask in enumerate(segmentMasks):
                         boundingBox = detections[i]
-                        typeOfVehicleId = int(classes[i])
                         
                         x1, y1, x2, y2 = map(int, boundingBox)
 
@@ -170,6 +169,13 @@ class TEST_OCR:
 
                         ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, save=False)
                         detectedChars = []
+                        classes = ocrResult[0].boxes.cls
+
+                        if len(classes) == 0:
+                            continue
+
+                        typeOfVehicleId = int(classes[0])
+
                         for ocrR in ocrResult:
                             boxes = ocrR.boxes
                             classIds = boxes.cls
@@ -185,20 +191,21 @@ class TEST_OCR:
                         upperRowChars, lowerRowChars = [], []
                         h = plateImage.shape[0]
                         centerY = h / 2
+
                         for cx, ch, cy in detectedChars:
                             (upperRowChars if cy < centerY else lowerRowChars).append((cx, ch))
+
                         upperRowChars.sort(key=lambda x: x[0])
                         lowerRowChars.sort(key=lambda x: x[0])
 
                         upperRow = "".join([c[1] for c in upperRowChars])
                         lowerRow = "".join([c[1] for c in lowerRowChars])
                         
-                        typeOfVehicleName = self.MODEL_DETECT.names[typeOfVehicleId] 
+                        typeOfVehicleName = self.MODEL_OCR.names[typeOfVehicleId]
 
                         plateText = self.formatLicensePlateText(typeOfVehicleName, upperRow, lowerRow)
                         
-                        self.drawMultilineText(drawOverlay, (x1, y1 - 50), plateText, font, (0, 255, 255))
-
+                        self.drawMultilineText(drawOverlay, (x1, y1 - 50), plateText, font, (255, 0, 0))
 
                 overlay = cv2.cvtColor(np.array(pilImageOverlay), cv2.COLOR_RGB2BGR)
                 finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
@@ -218,8 +225,8 @@ class TEST_OCR:
         return np.array([top[0], top[1], bottom[0], bottom[1]], dtype="float32")
 
     def perspectiveTransform(self, image, sourcePoints):
-        TARGET_WIDTH = 440
-        TARGET_HEIGHT = 220
+        TARGET_WIDTH = 440 * 2
+        TARGET_HEIGHT = 220 * 2
 
         destination = np.array([
             [0, 0], 
@@ -242,10 +249,42 @@ class TEST_OCR:
         return finalImage
 
     def formatLicensePlateText(self, typeOfVehicleName, upperRow, lowerRow):
-        upperText = upperRow
-        lowerText = lowerRow
-        
-        return f"{typeOfVehicleName}\n{upperText}\n{lowerText}"
+        officeCode = ""
+        classNum = ""
+        hiraganaCode = ""
+        regiNum = ""
+
+        if typeOfVehicleName == "" or typeOfVehicleName is None or typeOfVehicleName not in DATA_SET_OCR.DATA_SET_OCR.TYPE_OF_VEHICLE_LIST:
+            typeOfVehicleName = "????"
+
+        for char in upperRow:
+            if char.isdigit() or char in DATA_SET_OCR.DATA_SET_OCR.ALPHABET_LIST:
+                classNum += char
+            else:
+                officeCode += char
+
+        for char in lowerRow:
+            if char.isdigit() or char == '-' or char == '・':
+                regiNum += char
+            else:
+                hiraganaCode += char
+
+        officeCode = "".join(officeCode)
+        if officeCode == "" or officeCode not in DATA_SET_OCR.DATA_SET_OCR.OFFICE_CODE_LIST:
+            officeCode = "??"
+
+        classNum = "".join(classNum)
+        if classNum == "" or len(classNum) != 3:
+            classNum = "???"
+
+        if hiraganaCode == "" or hiraganaCode not in DATA_SET_OCR.DATA_SET_OCR.HIRAGANA_LIST_ALL:
+            hiraganaCode = "?"
+
+        regiNum = "".join(regiNum)
+        if regiNum == "" or (len(regiNum) != 4 and len(regiNum) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', regiNum) is None:
+            regiNum = "????"
+
+        return f"{typeOfVehicleName}\n\n{officeCode} {classNum} {hiraganaCode} {regiNum}"
 
     def drawMultilineText(self, draw, position, text, font, fill):
         x, y = position
