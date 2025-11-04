@@ -19,7 +19,7 @@ class TRAIN:
     PATIENCE = 10
     BATCH_SIZE = 16
     IMGSZ = 640
-    NAME = "license_plate_11n"
+    NAME = "number_plate_11n"
     PROJECT_PATH = "yolo_output"
 
     def __init__(self, dataSetNumber, trainingNumber):

@@ -5,7 +5,7 @@ import TEST_DETECT
 import TEST_OCR
 
 def generateYoloModel():
-    print("【ANRP_JP】\n")
+    print("【ANPR_JP】\n")
     
     while True:
         print("""\n作業番号 (

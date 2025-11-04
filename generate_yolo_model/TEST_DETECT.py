@@ -13,7 +13,7 @@ class TEST_DETECT:
     TEST_DIR = "./test_detect"
     OUTPUT_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_detect"
     MODEL_NAME = "yolo11n-seg"
-    NAME = "license_plate_11n_detect"
+    NAME = "number_plate_11n_detect"
     MODEL = None
 
     def __init__(self, confNumber):
@@ -107,7 +107,7 @@ class TEST_DETECT:
                 )
 
                 detections = result[0].boxes.xyxy
-                licensePlateNumber = len(detections)
+                numberPlateNumber = len(detections)
                 masks = result[0].masks
 
                 # 推論結果のセグメンテーションマスク描画
@@ -143,7 +143,7 @@ class TEST_DETECT:
                 
                 cv2.putText(
                     finalImage,
-                    f"Number of License Plates: {str(licensePlateNumber)}",
+                    f"Number of Number Plates: {str(numberPlateNumber)}",
                     (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1.5,

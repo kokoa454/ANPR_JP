@@ -21,8 +21,8 @@ class TEST_OCR:
     MODEL_NAME = "yolo11n"
     MODEL_DETECT = None
     MODEL_OCR = None
-    NAME_DETECT = "license_plate_11n_detect"
-    NAME_OCR = "license_plate_11n_ocr"
+    NAME_DETECT = "number_plate_11n_detect"
+    NAME_OCR = "number_plate_11n_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
     def __init__(self, confNumber):
@@ -135,12 +135,12 @@ class TEST_OCR:
                 detectResult = self.MODEL_DETECT(image, conf=confNumber, save=False)
                 detections = detectResult[0].boxes.xyxy
                 masks = detectResult[0].masks
-                licensePlateNumber = len(detections)
+                numberPlateNumber = len(detections)
                 
                 pilImageOverlay = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
                 drawOverlay = ImageDraw.Draw(pilImageOverlay)
 
-                if masks is not None and licensePlateNumber > 0:
+                if masks is not None and numberPlateNumber > 0:
                     segmentMasks = masks.data.cpu().numpy()
                     for i, mask in enumerate(segmentMasks):
                         boundingBox = detections[i]
@@ -212,13 +212,13 @@ class TEST_OCR:
                         
                         typeOfVehicleName = self.MODEL_OCR.names[typeOfVehicleId]
 
-                        plateText = self.formatLicensePlateText(typeOfVehicleName, upperRow, lowerRow)
+                        plateText = self.formatNumberPlateText(typeOfVehicleName, upperRow, lowerRow)
                         
                         self.drawMultilineText(drawOverlay, (x1, y1 - 50), plateText, font, (255, 0, 0))
 
                 overlay = cv2.cvtColor(np.array(pilImageOverlay), cv2.COLOR_RGB2BGR)
                 finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
-                cv2.putText(finalImage, f"number of license plates: {licensePlateNumber}", (10, 50),
+                cv2.putText(finalImage, f"Number of Number Plates: {numberPlateNumber}", (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
                 cv2.imwrite(os.path.join(resultImagesDir, "result_" + file), finalImage)
 
@@ -257,7 +257,7 @@ class TEST_OCR:
             
         return finalImage
 
-    def formatLicensePlateText(self, typeOfVehicleName, upperRow, lowerRow):
+    def formatNumberPlateText(self, typeOfVehicleName, upperRow, lowerRow):
         officeCode = ""
         classNum = ""
         hiraganaCode = ""
