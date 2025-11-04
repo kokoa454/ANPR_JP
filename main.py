@@ -9,13 +9,14 @@ def main():
     
     while True:
         print("""\n作業番号 (
-        0: 検知用データセット生成
+        0: 位置検知用データセット生成
         1: OCR用データセット生成
         2: 学習
         3: テスト
         4: 終了
         )\n""")
 
+        # -- 作業番号入力 --
         try:
             selectedNum = int(input("作業番号?: "))
             
@@ -28,6 +29,7 @@ def main():
 
         print("\n")
 
+        # -- 検知用データセット生成 --
         if selectedNum == 0:
             try:
                 apiKey = input("RoboflowのAPIキー?: ")
@@ -52,6 +54,7 @@ def main():
             DATA_SET_DETECT.DATA_SET_DETECT(apiKey, projectId)
             print("\n")
 
+        # -- OCR用データセット生成 --
         elif selectedNum == 1:
             try:
                 trainingNumber = int(input("ナンバープレート数?: "))
@@ -66,6 +69,7 @@ def main():
             DATA_SET_OCR.DATA_SET_OCR(trainingNumber)
             print("\n")
         
+        # -- 学習 --
         elif selectedNum == 2:
             try:
                 trainingNumber = int(input("Epoch数?: "))
@@ -96,6 +100,7 @@ def main():
             TRAIN.TRAIN(dataSetNumber, trainingNumber)
             print("\n")
 
+        # -- テスト --
         elif selectedNum == 3:
             try:
                 confNumber = int(input("推論精度(%)?: "))
@@ -132,9 +137,11 @@ def main():
 
             print("\n")
 
+        # -- 終了 --
         elif selectedNum == 4:
             break
     
+        # -- 入力エラー --
         else:
             print("0~4の数字を入力してください。\n")
 

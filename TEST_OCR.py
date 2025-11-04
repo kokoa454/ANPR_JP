@@ -9,6 +9,7 @@ import re
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
+# -- OCR用テストクラス --
 class TEST_OCR:
     MODEL_TO_LOAD_DETECT = None
     MODEL_TO_LOAD_OCR = None
@@ -125,10 +126,12 @@ class TEST_OCR:
 
             font = ImageFont.truetype(self.FONT_PATH, 24) 
 
+            # 推論実行開始
             for file in os.listdir(testImagesDir):
                 image = cv2.imread(os.path.join(testImagesDir, file))
                 overlay = image.copy()
-
+                
+                # 位置検知推論結果取得
                 detectResult = self.MODEL_DETECT(image, conf=confNumber, save=False)
                 detections = detectResult[0].boxes.xyxy
                 masks = detectResult[0].masks
@@ -144,12 +147,14 @@ class TEST_OCR:
                         
                         x1, y1, x2, y2 = map(int, boundingBox)
 
+                        # ライセンスプレートの切り抜き
                         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
                         maskBoolean = resizedMask > 0.5
                         mask8bit = (maskBoolean * 255).astype(np.uint8)
                         mask8bit = cv2.medianBlur(mask8bit, 5)
                         mask8bit = cv2.morphologyEx(mask8bit, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
 
+                        # 凸包判定
                         contours, _ = cv2.findContours(mask8bit, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                         sourcePoints = None
 
@@ -160,6 +165,7 @@ class TEST_OCR:
                             sourcePoints = np.float32(box)
                             sourcePoints = self.sortPoints(sourcePoints)
 
+                        # 射影変換または単純切り抜き
                         if sourcePoints is not None:
                             plateImage = self.perspectiveTransform(image, sourcePoints)
                         else:
@@ -167,6 +173,7 @@ class TEST_OCR:
 
                         cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
+                        # OCR推論結果取得
                         ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, save=False)
                         detectedChars = []
                         classes = ocrResult[0].boxes.cls
@@ -176,6 +183,7 @@ class TEST_OCR:
 
                         typeOfVehicleId = int(classes[0])
 
+                        # OCR推論結果解析
                         for ocrR in ocrResult:
                             boxes = ocrR.boxes
                             classIds = boxes.cls
@@ -188,6 +196,7 @@ class TEST_OCR:
                                 if classId >= 4: 
                                     detectedChars.append((centerX, className, centerY))
 
+                        # 文字列整形
                         upperRowChars, lowerRowChars = [], []
                         h = plateImage.shape[0]
                         centerY = h / 2
@@ -270,7 +279,7 @@ class TEST_OCR:
                 hiraganaCode += char
 
         officeCode = "".join(officeCode)
-        if officeCode == "" or officeCode not in DATA_SET_OCR.DATA_SET_OCR.OFFICE_CODE_LIST:
+        if officeCode == "" or officeCode not in DATA_SET_OCR.DATA_SET_OCR.PLACE_CODE_LIST:
             officeCode = "??"
 
         classNum = "".join(classNum)

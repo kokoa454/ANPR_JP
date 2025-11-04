@@ -4,6 +4,7 @@ import os
 from roboflow import Roboflow
 import shutil
 
+# -- 位置検知用データセット生成クラス --
 class DATA_SET_DETECT:
     API_KEY = None
     PROJECT_ID = None
@@ -24,25 +25,28 @@ class DATA_SET_DETECT:
         print("位置検知用データセットをダウンロードしました。")
 
     def downloadDataSet(self, apiKey, projectId):
+        # RoboflowのAPIキー設定
         try:
             rf = Roboflow(api_key = apiKey)
-        except Exception as e:
+        except Exception:
             raise Exception("ERROR: APIキーが正しくありません。")
 
+        # Roboflowのプロジェクト取得
         try:
             project = rf.workspace("questions").project(projectId)
-        except Exception as e:
+        except Exception:
             raise Exception("ERROR: プロジェクトIDが正しくありません。")
 
+        # データセットのダウンロード
         version = project.version(2)
         dataset = version.download("yolov11")
 
+        # フォルダのリネーム
         if os.path.exists(dataset.location):
             try:
                 os.rename(dataset.location, self.DATA_SET_DETECT_DIR)
                 print(f"フォルダを{dataset.location}から{self.DATA_SET_DETECT_DIR}へリネームしました。")
-            except Exception as e:
+            except Exception:
                 raise Exception("ERROR: フォルダのリネーム中にエラーが発生しました。")
 
         return
-    

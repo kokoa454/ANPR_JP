@@ -6,6 +6,7 @@ import os
 import TRAIN
 import re
 
+# -- 位置検知用テストクラス --
 class TEST_DETECT:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
@@ -93,10 +94,12 @@ class TEST_DETECT:
                 for file in os.listdir(self.TEST_DIR + "/results_images"):
                     os.remove(os.path.join(self.TEST_DIR + "/results_images", file))
 
+            # 推論実行開始
             for file in os.listdir(self.TEST_DIR + "/test_images"):
                 image = cv2.imread(os.path.join(self.TEST_DIR, "test_images", file))
                 overlay = image.copy()
                 
+                # 推論結果取得
                 result = self.MODEL(
                     image,
                     conf = confNumber,
@@ -107,6 +110,7 @@ class TEST_DETECT:
                 licensePlateNumber = len(detections)
                 masks = result[0].masks
 
+                # 推論結果のセグメンテーションマスク描画
                 if masks is not None:
                     segmentMasks = masks.data.cpu().numpy()
                     

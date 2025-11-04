@@ -7,6 +7,7 @@ import os
 import re
 import torch
 
+# -- 学習用クラス --
 class TRAIN:
     OUTPUT_DIR = "./yolo_output"
     MODEL_TO_LOAD = None
@@ -97,6 +98,7 @@ class TRAIN:
         except FileNotFoundError:
             raise RuntimeError("ERROR: モデルが見つかりません。")
 
+        # 学習の実行
         try:
             if(torch.cuda.is_available()): # ultralyticsをインストール後、pytorchがcpu版の場合、pytorchだけを一度消し、pytorchだけを新たに再インストール(cuda13.0だったらcu130)を行う必要がある
                 device = 0

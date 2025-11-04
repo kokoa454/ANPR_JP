@@ -6,10 +6,12 @@ import os
 import numpy as np
 import shutil
 
+# -- OCR用データセット生成クラス --
 class DATA_SET_OCR:
     DATA_SET_OCR_DIR = "./data_set_ocr"
     YOLO_DATA_YAML_PATH = DATA_SET_OCR_DIR + "/data.yaml"
     
+    # 車種別リストと対応ローマ字
     TYPE_OF_VEHICLE_LIST = ["普通_自家用", "普通_事業用", "軽_自家用", "軽_事業用"]
     TYPE_OF_VEHICLE_ROMAN = {
         "普通_自家用": "F_JIKAYO",
@@ -18,12 +20,31 @@ class DATA_SET_OCR:
         "軽_事業用": "K_JIGYOYO"
     }
 
+    # ナンバープレート寸法
     LICENSE_PLATE_WIDTH = 440
     LICENSE_PLATE_HEIGHT = 220
+
+    # ナンバープレート背景色リスト
+    LICENSE_PLATE_BG_COLOR_LIST = [
+            ("white", (240, 240, 240)),
+            ("green", (0, 60, 0)),
+            ("yellow", (255, 255, 0)),
+            ("black", (0, 0, 0))
+    ]
+
+    # ナンバープレート文字色リスト
+    LICENSE_PLATE_TEXT_COLOR_LIST = [
+            ("green", (0, 60, 0)),
+            ("white", (240, 240, 240)),
+            ("black", (0, 0, 0)),
+            ("yellow", (255, 255, 0))
+    ]
     
+    # 分類番号のアルファベットリスト
     ALPHABET_LIST = ["A", "C", "F", "H", "K", "L", "M", "P", "X", "Y"]
     
-    OFFICE_CODE_LIST = [
+    # 地名コード
+    PLACE_CODE_LIST = [
         "札幌","函館","旭川","室蘭","苫小牧","釧路","知床","帯広","十勝","北見",
         "青森","弘前","八戸",
         "盛岡","平泉", "岩手",
@@ -71,11 +92,13 @@ class DATA_SET_OCR:
         "沖縄"
     ]
 
+    # ひらがなリスト
     HIRAGANA_LIST_F_JIKAYO = ["さ", "す", "せ", "そ", "た", "ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "ほ", "ま", "み", "む", "め", "も", "や", "ゆ", "ら", "り", "る", "ろ"]
     HIRAGANA_LIST_F_JIGYOYO = ["あ", "い", "う", "え", "か", "き", "く", "け", "こ", "れ", "わ"]
     HIRAGANA_LIST_K_JIKAYO = ["あ", "い", "う", "え", "か", "き", "く", "け", "こ", "さ", "す", "せ", "そ", "た", "ち", "つ", "て", "と", "な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "ほ", "ま", "み", "む", "め", "も", "や", "ゆ", "よ", "ら", "る", "ろ"]
     HIRAGANA_LIST_K_JIGYOYO = ["り", "れ", "わ"]
 
+    # 全てのひらがなリスト
     HIRAGANA_LIST_ALL = [
         "あ", "い", "う", "え",
         "か", "き", "く", "け", "こ",
@@ -89,16 +112,19 @@ class DATA_SET_OCR:
         "わ",
     ]
 
+    # 特殊文字リスト
     SPECIAL_CHARACTER_LIST = ["・", "-"]
 
+    # YOLO用クラス名リスト
     CHARACTER_NAMES = []
     CHARACTER_NAMES.extend(TYPE_OF_VEHICLE_LIST)
-    CHARACTER_NAMES.extend(OFFICE_CODE_LIST)
+    CHARACTER_NAMES.extend(PLACE_CODE_LIST)
     CHARACTER_NAMES.extend([str(i) for i in range(10)])
     CHARACTER_NAMES.extend(ALPHABET_LIST)
     CHARACTER_NAMES.extend(HIRAGANA_LIST_ALL)
     CHARACTER_NAMES.extend(SPECIAL_CHARACTER_LIST)
 
+    # YOLO用クラスIDリスト
     NAME_TO_ID = {name: i for i, name in enumerate(CHARACTER_NAMES)}
     
     def __init__(self, trainingNumber):
@@ -120,20 +146,23 @@ class DATA_SET_OCR:
         vehicleTypesNumber = len(self.TYPE_OF_VEHICLE_LIST)
         fileNameLength = len(str(trainingNumber)) + 1
 
+        # トレーニングデータ生成
         for typeOfVehicle in range(vehicleTypesNumber):
             currentImageCount = 0
+
             for imageNumber in range(1, trainNumber + 1):
-                plateBackGroundColor = self.getPlateBackgroundColor(typeOfVehicle)
-                plateTextColor = self.getPlateTextColor(typeOfVehicle)
-                officeCode = self.getOfficeCode()
-                classNumber = self.getClassNumber(typeOfVehicle)
+                licensePlateBGColor = self.getPlateBackgroundColor(typeOfVehicle)
+                licensePlateTextColor = self.getPlateTextColor(typeOfVehicle)
+                placeCode = self.getPlaceCode()
+                classNum = self.getClassNum(typeOfVehicle)
                 hiraganaCode = self.getHiraganaCode(typeOfVehicle)
-                registrationNumber = self.getRegistrationNumber()
+                regNum = self.getRegNum()
 
                 fileName = f"train_{self.TYPE_OF_VEHICLE_ROMAN[self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]]}_{imageNumber:0{fileNameLength}}" 
-                self.generatePlate(fileName, "train", typeOfVehicle, plateBackGroundColor, plateTextColor, officeCode, classNumber, hiraganaCode, registrationNumber)
+                self.generatePlate(fileName, "train", typeOfVehicle, licensePlateBGColor, licensePlateTextColor, placeCode, classNum, hiraganaCode, regNum)
 
                 currentImageCount += 1
+
                 progress = int(currentImageCount / trainNumber * 50)
                 bar = "█" * progress + "-" * (50 - progress)
                 print(f"\r[{bar}] {currentImageCount}/{trainNumber} | {self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]} | train", end="", flush=True)
@@ -141,18 +170,21 @@ class DATA_SET_OCR:
             print("\n")
 
             currentImageCount = 0
+
+            # バリデーションデータ生成
             for imageNumber in range(1, validationNumber + 1):
-                plateBackGroundColor = self.getPlateBackgroundColor(typeOfVehicle)
-                plateTextColor = self.getPlateTextColor(typeOfVehicle)
-                officeCode = self.getOfficeCode()
-                classNumber = self.getClassNumber(typeOfVehicle)
+                licensePlateBGColor = self.getPlateBackgroundColor(typeOfVehicle)
+                licensePlateTextColor = self.getPlateTextColor(typeOfVehicle)
+                placeCode = self.getPlaceCode()
+                classNum = self.getClassNum(typeOfVehicle)
                 hiraganaCode = self.getHiraganaCode(typeOfVehicle)
-                registrationNumber = self.getRegistrationNumber()
+                regNum = self.getRegNum()
 
                 fileName = f"valid_{self.TYPE_OF_VEHICLE_ROMAN[self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]]}_{imageNumber:0{fileNameLength}}" 
-                self.generatePlate(fileName, "valid", typeOfVehicle, plateBackGroundColor, plateTextColor, officeCode, classNumber, hiraganaCode, registrationNumber)
+                self.generatePlate(fileName, "valid", typeOfVehicle, licensePlateBGColor, licensePlateTextColor, placeCode, classNum, hiraganaCode, regNum)
 
                 currentImageCount += 1
+
                 progress = int(currentImageCount / validationNumber * 50)
                 bar = "█" * progress + "-" * (50 - progress)
                 print(f"\r[{bar}] {currentImageCount}/{validationNumber} | {self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]} | valid", end="", flush=True)
@@ -178,108 +210,81 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         print(f"data.yamlを {DATA_SET_OCR.YOLO_DATA_YAML_PATH} に作成しました。")
         
     def getPlateBackgroundColor(self, typeOfVehicle):
-        colorList = [
-            ("white", (240, 240, 240)),
-            ("green", (0, 60, 0)),
-            ("yellow", (255, 255, 0)),
-            ("black", (0, 0, 0))
-        ]
-        return colorList[typeOfVehicle]
+        return self.LICENSE_PLATE_BG_COLOR_LIST[typeOfVehicle]
 
     def getPlateTextColor(self, typeOfVehicle):
-        colorList = [
-            ("green", (0, 60, 0)),
-            ("white", (240, 240, 240)),
-            ("black", (0, 0, 0)),
-            ("yellow", (255, 255, 0))
-        ]
-        return colorList[typeOfVehicle]
+        return self.LICENSE_PLATE_TEXT_COLOR_LIST[typeOfVehicle]
     
-    def getOfficeCode(self):
-        return random.choice(DATA_SET_OCR.OFFICE_CODE_LIST)
+    def getPlaceCode(self):
+        return random.choice(self.PLACE_CODE_LIST)
 
-    def getClassNumber(self, typeOfVehicle):
-        alphabetList = DATA_SET_OCR.ALPHABET_LIST
-        
+    def getClassNum(self, typeOfVehicle):        
         if typeOfVehicle in (0, 1):
-            classNumber = str(random.choice([1, 2, 3, 8, 9, 0]))
-            
+            classNum = str(random.choice([1, 2, 3, 8, 9, 0]))
             randomNum = random.randint(0, 1)
 
             if randomNum == 0:
-                classNumber += str(random.randint(0, 9))
-
+                classNum += str(random.randint(0, 9))
             else:
                 randomNum = random.randint(0, 2)
                 
                 if randomNum == 0:
-                    classNumber += str(random.randint(0, 9))
-                    classNumber += str(random.randint(0, 9))
-
+                    classNum += str(random.randint(0, 9))
+                    classNum += str(random.randint(0, 9))
                 elif randomNum == 1:
-                    classNumber += str(random.randint(0, 9))
-                    classNumber += random.choice(alphabetList)
-
+                    classNum += str(random.randint(0, 9))
+                    classNum += random.choice(self.ALPHABET_LIST)
                 else:
-                    classNumber += random.choice(alphabetList)
-                    classNumber += random.choice(alphabetList)
+                    classNum += random.choice(self.ALPHABET_LIST)
+                    classNum += random.choice(self.ALPHABET_LIST)
 
         else:
-            classNumber = str(random.choice([4, 5, 6, 7, 8]))
+            classNum = str(random.choice([4, 5, 6, 7, 8]))
             randomNum = random.randint(0, 1)
             
             if randomNum == 0:
-                classNumber += str(random.randint(0, 9))
+                classNum += str(random.randint(0, 9))
             else:
                 randomNum = random.randint(0, 2)
-                if randomNum == 0:
-                    classNumber += str(random.randint(0, 9))
-                    classNumber += str(random.randint(0, 9))
-                elif randomNum == 1:
-                    classNumber += str(random.randint(0, 9))
-                    classNumber += random.choice(alphabetList)
-                else:
-                    classNumber += random.choice(alphabetList)
-                    classNumber += random.choice(alphabetList)
 
-        return classNumber
+                if randomNum == 0:
+                    classNum += str(random.randint(0, 9))
+                    classNum += str(random.randint(0, 9))
+                elif randomNum == 1:
+                    classNum += str(random.randint(0, 9))
+                    classNum += random.choice(self.ALPHABET_LIST)
+                else:
+                    classNum += random.choice(self.ALPHABET_LIST)
+                    classNum += random.choice(self.ALPHABET_LIST)
+
+        return classNum
 
     def getHiraganaCode(self, typeOfVehicle):
         if typeOfVehicle == 0:
-            hiraganaList = DATA_SET_OCR.HIRAGANA_LIST_F_JIKAYO
+            hiraganaList = self.HIRAGANA_LIST_F_JIKAYO
         elif typeOfVehicle == 1:
-            hiraganaList = DATA_SET_OCR.HIRAGANA_LIST_F_JIGYOYO
+            hiraganaList = self.HIRAGANA_LIST_F_JIGYOYO
         elif typeOfVehicle == 2:
-            hiraganaList = DATA_SET_OCR.HIRAGANA_LIST_K_JIKAYO
+            hiraganaList = self.HIRAGANA_LIST_K_JIKAYO
         else:
-            hiraganaList = DATA_SET_OCR.HIRAGANA_LIST_K_JIGYOYO
-            
+            hiraganaList = self.HIRAGANA_LIST_K_JIGYOYO
+
         return random.choice(hiraganaList)
 
-    def getRegistrationNumber(self):
-        prefixRegistrationNumber = random.randint(1, 99)
+    def getRegNum(self):
+        prefixRegNum = random.randint(1, 99)
         
-        if prefixRegistrationNumber < 10:
-            registrationNumber = "・" + str(prefixRegistrationNumber)
+        if prefixRegNum < 10:
+            regNum = self.SPECIAL_CHARACTER_LIST[0] + str(prefixRegNum)
         else:
-            registrationNumber = str(prefixRegistrationNumber)
+            regNum = str(prefixRegNum)
 
-        registrationNumber += "-"
-        registrationNumber += f"{random.randint(0, 99):02d}"
+        regNum += self.SPECIAL_CHARACTER_LIST[1]
+        regNum += f"{random.randint(0, 99):02d}"
 
-        return registrationNumber
+        return regNum
 
-    def getYoloBboxFromAbsolute(self, xMin, yMin, xMax, yMax, width, height):
-        xCenter = ((xMin + xMax) / 2) / width
-        yCenter = ((yMin + yMax) / 2) / height
-        w = (xMax - xMin) / width
-        h = (yMax - yMin) / height
-        return xCenter, yCenter, w, h
-
-    def generatePlate(self, fileName, trainOrValid, typeOfVehicle, plateBackgroundColor, plateTextColor, officeCode, classNumber, hiraganaCode, registrationNumber):
-        HEIGHT = self.LICENSE_PLATE_HEIGHT
-        WIDTH = self.LICENSE_PLATE_WIDTH
-
+    def generatePlate(self, fileName, trainOrValid, typeOfVehicle, licensePlateBGColor, licensePlateTextColor, placeCode, classNum, hiraganaCode, regNum):
         FONT_HIRAGINO = "./fonts/HiraginoMaruGothicProNW4.otf"
         FONT_TRM = "./fonts/TrmFontJB.ttf"
         FONT_FZ = "./fonts/FZcarnumberJA-OTF_ver10.otf"
@@ -295,20 +300,24 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
 
         yoloLabels = []
         
-        img = Image.new("RGB", (WIDTH, HEIGHT), plateBackgroundColor[1])
+        # ナンバープレート画像生成
+        img = Image.new("RGB", (self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT), licensePlateBGColor[1])
         draw = ImageDraw.Draw(img)
 
-        draw.rectangle([(0, 0), (WIDTH - 1, HEIGHT - 1)], outline = COLOR_FOR_FRAME, width = MARGIN)
+        # ナンバープレート枠とネジ描画
+        draw.rectangle([(0, 0), (self.LICENSE_PLATE_WIDTH - 1, self.LICENSE_PLATE_HEIGHT - 1)], outline = COLOR_FOR_FRAME, width = MARGIN)
         draw.ellipse([(80 - RADIUS, 30 - RADIUS), (80 + RADIUS, 30 + RADIUS)], fill = COLOR_FOR_FRAME)
         draw.ellipse([(360 - RADIUS, 30 - RADIUS), (360 + RADIUS, 30 + RADIUS)], fill = COLOR_FOR_FRAME)
 
+        # YOLOにナンバープレートの種類をラベル付け
         licensePlateType = self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]
         licensePlateTypeId = self.NAME_TO_ID[licensePlateType]
         plateXCenter, plateYCenter, plateW, plateH = self.getYoloBboxFromAbsolute(
-            0, 0, WIDTH, HEIGHT, WIDTH, HEIGHT
-            )
+            0, 0, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
+        )
         yoloLabels.append(f"{licensePlateTypeId} {plateXCenter:.6f} {plateYCenter:.6f} {plateW:.6f} {plateH:.6f}")
 
+        # 地名コード描画開始
         for font in [FONT_HIRAGINO, FONT_TRM, FONT_FZ]:
             if not os.path.exists(font):
                 raise FileNotFoundError(f"ERROR: フォントファイル '{font}' が見つかりません。")
@@ -316,69 +325,70 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         dummyImg = Image.new("RGB", (1, 1))
         dummyDraw = ImageDraw.Draw(dummyImg)
 
-        fontOfficeCode = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_OFFICE)
-        positionForOfficeCode = [105, 10]
+        fontPlaceCode = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_OFFICE)
+        positionForPlaceCode = [105, 10]
         
-        if len(officeCode) < 2:
-            positionForOfficeCode[0] = 120
-            draw.text(positionForOfficeCode, officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE), fill=plateTextColor[1])
-            bboxOffice = draw.textbbox(positionForOfficeCode, officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE))
+        if len(placeCode) < 2:
+            positionForPlaceCode[0] = 120
+            draw.text(positionForPlaceCode, placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE), fill=licensePlateTextColor[1])
+            bboxPlace = draw.textbbox(positionForPlaceCode, placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE))
         
-        elif len(officeCode) <= 2:
-            positionForOfficeCode[0] = 105
-            draw.text(positionForOfficeCode, officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE), fill=plateTextColor[1])
-            bboxOffice = draw.textbbox(positionForOfficeCode, officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE))
+        elif len(placeCode) <= 2:
+            positionForPlaceCode[0] = 105
+            draw.text(positionForPlaceCode, placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE), fill=licensePlateTextColor[1])
+            bboxPlace = draw.textbbox(positionForPlaceCode, placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE))
             
         else:
-            compressRatio = 0.7 if len(officeCode) == 3 else 0.55
-            positionForOfficeCode[0] = 105
+            compressRatio = 0.7 if len(placeCode) == 3 else 0.55
+            positionForPlaceCode[0] = 105
 
-            bbox = dummyDraw.textbbox((0, 0), officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE))
+            bbox = dummyDraw.textbbox((0, 0), placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE))
             textWidth = bbox[2] - bbox[0]
             textHeight = bbox[3] - bbox[1]
 
             textImage = Image.new("RGBA", (textWidth, textHeight), (0, 0, 0, 0))
             textDraw = ImageDraw.Draw(textImage)
-            textDraw.text((0, 0), officeCode, font=fontOfficeCode, stroke_width=int(THICKNESS_OFFICE), fill=plateTextColor[1])
+            textDraw.text((0, 0), placeCode, font=fontPlaceCode, stroke_width=int(THICKNESS_OFFICE), fill=licensePlateTextColor[1])
 
             newWidth = int(textImage.width * compressRatio)
             resizedTextImage = textImage.resize((newWidth, textImage.height), Image.Resampling.LANCZOS)
 
-            img.paste(resizedTextImage, positionForOfficeCode, resizedTextImage)
+            img.paste(resizedTextImage, positionForPlaceCode, resizedTextImage)
             
-            bboxOffice = (positionForOfficeCode[0], positionForOfficeCode[1], positionForOfficeCode[0] + newWidth, positionForOfficeCode[1] + textImage.height)
+            bboxPlace = (positionForPlaceCode[0], positionForPlaceCode[1], positionForPlaceCode[0] + newWidth, positionForPlaceCode[1] + textImage.height)
 
-        officeCodeClassId = self.NAME_TO_ID[officeCode]
-        officeCodeXCenter, officeCodeYCenter, officeCodeW, officeCodeH = self.getYoloBboxFromAbsolute(
-            bboxOffice[0], bboxOffice[1], bboxOffice[2], bboxOffice[3], WIDTH, HEIGHT
+        # YOLOに地名コードのラベル付け
+        placeCodeClassId = self.NAME_TO_ID[placeCode]
+        placeCodeXCenter, placeCodeYCenter, placeCodeWidth, placeCodeHeight = self.getYoloBboxFromAbsolute(
+            bboxPlace[0], bboxPlace[1], bboxPlace[2], bboxPlace[3], self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
         )
-        yoloLabels.append(f"{officeCodeClassId} {officeCodeXCenter:.6f} {officeCodeYCenter:.6f} {officeCodeW:.6f} {officeCodeH:.6f}")
+        yoloLabels.append(f"{placeCodeClassId} {placeCodeXCenter:.6f} {placeCodeYCenter:.6f} {placeCodeWidth:.6f} {placeCodeHeight:.6f}")
 
 
-        fontClassNumber = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_CLASS)
-        positionForClassNumber = [230, 10]
+        # 分類番号描画開始
+        fontClassNum = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_CLASS)
+        positionForClassNum = [230, 10]
         CHAR_SPACING = 36
 
-        if len(classNumber) == 2:
-            positionForClassNumber[0] = 260
+        if len(classNum) == 2:
+            positionForClassNum[0] = 260
             
-        hasSpecialChar = any(char in classNumber for char in ["M", "W", "H", "X"]) and len(classNumber) == 3
+        hasSpecialChar = any(char in classNum for char in ["M", "W", "H", "X"]) and len(classNum) == 3
         
-        currentX = positionForClassNumber[0]
-        yPos = positionForClassNumber[1]
+        currentX = positionForClassNum[0]
+        yPos = positionForClassNum[1]
 
-        for char in classNumber:
-            charClassId = self.NAME_TO_ID[char]
-            
+        for char in classNum:
+            # 横幅が大きい文字の場合は圧縮して描画
             if hasSpecialChar and char in ["M", "W", "H", "X"]:
-                bboxChar = dummyDraw.textbbox((0, 0), char, font=fontClassNumber, stroke_width=int(THICKNESS_CLASS))
+                bboxChar = dummyDraw.textbbox((0, 0), char, font=fontClassNum, stroke_width=int(THICKNESS_CLASS))
                 textWidth = bboxChar[2] - bboxChar[0]
                 textHeight = bboxChar[3] - bboxChar[1]
 
                 padding = 10
                 textImage = Image.new("RGBA", (textWidth, textHeight + padding), (0, 0, 0, 0))
                 textDraw = ImageDraw.Draw(textImage)
-                textDraw.text((0, 0), char, font=fontClassNumber, stroke_width=int(THICKNESS_CLASS), fill=plateTextColor[1])
+                textDraw.text((0, 0), char, font=fontClassNum, stroke_width=int(THICKNESS_CLASS), fill=licensePlateTextColor[1])
 
                 compressRatio = 0.9
                 newWidth = int(textImage.width * compressRatio)
@@ -391,15 +401,18 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
                 xMax = int(currentX) + newWidth
                 yMax = yPos + textImage.height
             else:
-                draw.text((currentX, yPos), char, font=fontClassNumber, stroke_width=int(THICKNESS_CLASS), fill=plateTextColor[1])
-                bbox = draw.textbbox((currentX, yPos), char, font=fontClassNumber, stroke_width=int(THICKNESS_CLASS))
+                draw.text((currentX, yPos), char, font=fontClassNum, stroke_width=int(THICKNESS_CLASS), fill=licensePlateTextColor[1])
+                bbox = draw.textbbox((currentX, yPos), char, font=fontClassNum, stroke_width=int(THICKNESS_CLASS))
                 xMin, yMin, xMax, yMax = bbox
 
-            xCenter, yCenter, w, h = self.getYoloBboxFromAbsolute(xMin, yMin, xMax, yMax, WIDTH, HEIGHT)
-            yoloLabels.append(f"{charClassId} {xCenter:.6f} {yCenter:.6f} {w:.6f} {h:.6f}")
-            
+            # YOLOに分類番号のラベル付け
+            classNumClassId = self.NAME_TO_ID[char]
+            classNumXCenter, classNumYCenter, classNumWidth, classNumHeight = self.getYoloBboxFromAbsolute(xMin, yMin, xMax, yMax, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT)
+            yoloLabels.append(f"{classNumClassId} {classNumXCenter:.6f} {classNumYCenter:.6f} {classNumWidth:.6f} {classNumHeight:.6f}")
+
             currentX += CHAR_SPACING
 
+        # ひらがなコード描画開始
         positionForHiraganaCode = [20, 110]
         fontSizeForHiraganaCode = 55
         fontHiraganaCode = ImageFont.truetype(FONT_FZ, fontSizeForHiraganaCode)
@@ -409,106 +422,115 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             fontSizeForHiraganaCode = 180
             fontHiraganaCode = ImageFont.truetype(FONT_TRM, fontSizeForHiraganaCode)
 
-        draw.text(positionForHiraganaCode, hiraganaCode, font=fontHiraganaCode, fill=plateTextColor[1])
+        draw.text(positionForHiraganaCode, hiraganaCode, font=fontHiraganaCode, fill=licensePlateTextColor[1])
 
+        # YOLOにひらがなコードのラベル付け
         bboxHiragana = draw.textbbox(positionForHiraganaCode, hiraganaCode, font=fontHiraganaCode)
-        hiraganaClassId = self.NAME_TO_ID[hiraganaCode]
-        hiraganaXCenter, hiraganaYCenter, hiraganaW, hiraganaH = self.getYoloBboxFromAbsolute(
-            bboxHiragana[0], bboxHiragana[1], bboxHiragana[2], bboxHiragana[3], WIDTH, HEIGHT
+        hiraganaCodeClassId = self.NAME_TO_ID[hiraganaCode]
+        hiraganaCodeXCenter, hiraganaCodeYCenter, hiraganaCodeWidth, hiraganaCodeHeight = self.getYoloBboxFromAbsolute(
+            bboxHiragana[0], bboxHiragana[1], bboxHiragana[2], bboxHiragana[3], self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
         )
-        yoloLabels.append(f"{hiraganaClassId} {hiraganaXCenter:.6f} {hiraganaYCenter:.6f} {hiraganaW:.6f} {hiraganaH:.6f}")
+        yoloLabels.append(f"{hiraganaCodeClassId} {hiraganaCodeXCenter:.6f} {hiraganaCodeYCenter:.6f} {hiraganaCodeWidth:.6f} {hiraganaCodeHeight:.6f}")
 
-
-        fontSizeForRegistrationNumber = 130
-        fontRegistrationNumber = ImageFont.truetype(FONT_TRM, fontSizeForRegistrationNumber)
-        positionForRegistrationNumber = [80, 80]
+        # 登録番号描画開始
+        fontSizeForRegNum = 130
+        fontRegNum = ImageFont.truetype(FONT_TRM, fontSizeForRegNum)
+        positionForRegNum = [80, 80]
         REGISTRATION_NUMBER_WIDTH = 60
         
-        currentX = positionForRegistrationNumber[0]
-        yPos = positionForRegistrationNumber[1]
+        currentX = positionForRegNum[0]
+        yPos = positionForRegNum[1]
 
-        for char in registrationNumber:
-            charClassId = self.NAME_TO_ID[char]
+        for char in regNum:
+            regNumClassId = self.NAME_TO_ID[char]
             
             xPos = currentX
 
-            if char == '-':
-                lineWidth = 10
-                lineLength = 30
-                centerX = xPos + REGISTRATION_NUMBER_WIDTH / 2
-                centerY = yPos + fontSizeForRegistrationNumber / 2
-                
-                draw.line(
-                    (centerX - lineLength/2, centerY, centerX + lineLength/2, centerY),
-                    fill=plateTextColor[1], width=lineWidth
-                )
-
-                xMinHyphen = centerX - lineLength/2
-                yMinHyphen = centerY - lineWidth/2
-                xMaxHyphen = centerX + lineLength/2
-                yMaxHyphen = centerY + lineWidth/2
-                
-                xCenter, yCenter, w, h = self.getYoloBboxFromAbsolute(
-                    xMinHyphen, yMinHyphen, xMaxHyphen, yMaxHyphen, WIDTH, HEIGHT
-                )
-                yoloLabels.append(f"{charClassId} {xCenter:.6f} {yCenter:.6f} {w:.6f} {h:.6f}")
-                currentX += REGISTRATION_NUMBER_WIDTH
-                continue
-
-            elif char == '・':
+            if char == self.SPECIAL_CHARACTER_LIST[0]:
                 dotRadius = 6
                 dotCenterX = xPos + REGISTRATION_NUMBER_WIDTH / 2
-                dotCenterY = yPos + fontSizeForRegistrationNumber * 0.4
+                dotCenterY = yPos + fontSizeForRegNum * 0.4
                 
                 draw.ellipse(
                     [(dotCenterX - dotRadius, dotCenterY - dotRadius),
                     (dotCenterX + dotRadius, dotCenterY + dotRadius)],
-                    fill=plateTextColor[1]
+                    fill=licensePlateTextColor[1]
                 )
                 
                 xMinDot = dotCenterX - dotRadius
                 yMinDot = dotCenterY - dotRadius
                 xMaxDot = dotCenterX + dotRadius
                 yMaxDot = dotCenterY + dotRadius
-                
-                xCenter, yCenter, w, h = self.getYoloBboxFromAbsolute(
-                    xMinDot, yMinDot, xMaxDot, yMaxDot, WIDTH, HEIGHT
+
+                regNumXCenter, regNumYCenter, regNumWidth, regNumHeight = self.getYoloBboxFromAbsolute(
+                    xMinDot, yMinDot, xMaxDot, yMaxDot, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
                 )
-                yoloLabels.append(f"{charClassId} {xCenter:.6f} {yCenter:.6f} {w:.6f} {h:.6f}")
+                yoloLabels.append(f"{regNumClassId} {regNumXCenter:.6f} {regNumYCenter:.6f} {regNumWidth:.6f} {regNumHeight:.6f}")
                 currentX += REGISTRATION_NUMBER_WIDTH
-                continue
 
-            draw.text((xPos, yPos), char, font=fontRegistrationNumber, fill=plateTextColor[1])
-            
-            bboxRegistrationChar = draw.textbbox((xPos, yPos), char, font=fontRegistrationNumber)
-            
-            xCenter, yCenter, w, h = self.getYoloBboxFromAbsolute(
-                bboxRegistrationChar[0], bboxRegistrationChar[1], bboxRegistrationChar[2], bboxRegistrationChar[3], WIDTH, HEIGHT
-            )
-            yoloLabels.append(f"{charClassId} {xCenter:.6f} {yCenter:.6f} {w:.6f} {h:.6f}")
-            currentX += REGISTRATION_NUMBER_WIDTH
+            elif char == self.SPECIAL_CHARACTER_LIST[1]:
+                lineWidth = 10
+                lineLength = 30
+                centerX = xPos + REGISTRATION_NUMBER_WIDTH / 2
+                centerY = yPos + fontSizeForRegNum / 2
+                
+                draw.line(
+                    (centerX - lineLength/2, centerY, centerX + lineLength/2, centerY),
+                    fill=licensePlateTextColor[1], width=lineWidth
+                )
 
+                xMinHyphen = centerX - lineLength/2
+                yMinHyphen = centerY - lineWidth/2
+                xMaxHyphen = centerX + lineLength/2
+                yMaxHyphen = centerY + lineWidth/2
+
+                regNumXCenter, regNumYCenter, regNumWidth, regNumHeight = self.getYoloBboxFromAbsolute(
+                    xMinHyphen, yMinHyphen, xMaxHyphen, yMaxHyphen, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
+                )
+                yoloLabels.append(f"{regNumClassId} {regNumXCenter:.6f} {regNumYCenter:.6f} {regNumWidth:.6f} {regNumHeight:.6f}")
+                currentX += REGISTRATION_NUMBER_WIDTH
+
+            else:
+                draw.text((xPos, yPos), char, font=fontRegNum, fill=licensePlateTextColor[1])
+                
+                bboxRegistrationChar = draw.textbbox((xPos, yPos), char, font=fontRegNum)
+
+                regNumXCenter, regNumYCenter, regNumWidth, regNumHeight = self.getYoloBboxFromAbsolute(
+                    bboxRegistrationChar[0], bboxRegistrationChar[1], bboxRegistrationChar[2], bboxRegistrationChar[3], self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT
+                )
+                yoloLabels.append(f"{regNumClassId} {regNumXCenter:.6f} {regNumYCenter:.6f} {regNumWidth:.6f} {regNumHeight:.6f}")
+                currentX += REGISTRATION_NUMBER_WIDTH
+
+        # 画像加工処理
+        # ガウシアンノイズ付与
         levelOfGaussianNoise = random.randint(0, 50)
         img = self.makeGaussianNoise(img, levelOfGaussianNoise)
 
+        # ぼかし付与
         levelOfBlur = random.randint(0, 4)
         img = self.makeBlur(img, levelOfBlur)
 
+        # モーションブラー付与
         levelOfMotionBlur = random.randint(0, 5)
         img = self.makeMotionBlur(img, levelOfMotionBlur)
 
+        # ペッパー・ソルトノイズ付与
         levelOfPepperAndSaltNoise = random.randint(0, 2)
         img = self.makePepperAndSaltNoise(img, levelOfPepperAndSaltNoise)
 
+        # 回転付与
         levelOfRotation = random.uniform(-10, 10)
         img = self.rotateImage(img, levelOfRotation)
 
+        # 明るさ調整
         levelOfBrightness = random.uniform(0.5, 1.3)
         img = self.changeBrightness(img, levelOfBrightness)
 
+        # コントラスト調整
         levelOfContrast = random.uniform(0.5, 1.3)
         img = self.changeContrast(img, levelOfContrast)
 
+        # 射影変換付与
         levelOfPerspectiveUp = random.uniform(-40, 40)
         levelOfPerspectiveDown = random.uniform(-40, 40)
         levelOfPerspectiveRight = random.uniform(-40, 40)
@@ -522,8 +544,10 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             levelOfPerspectiveLeft
         )
         
-        yoloLabels = self.transformYoloBbox(yoloLabels, perspective, WIDTH, HEIGHT)
+        # YOLOラベルの射影変換後の座標に更新
+        yoloLabels = self.transformYoloBbox(yoloLabels, perspective, self.LICENSE_PLATE_WIDTH, self.LICENSE_PLATE_HEIGHT)
         
+        # 画像とラベルの保存
         if trainOrValid == "train":
             imagePath = f"{self.DATA_SET_OCR_DIR}/train/images/{fileName}.png"
             labelPath = f"{self.DATA_SET_OCR_DIR}/train/labels/{fileName}.txt"
@@ -541,22 +565,26 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         noisyImgArray = npImage.astype('int16') + noise
         noisyImgArray = np.clip(noisyImgArray, 0, 255).astype('uint8')
         noisyImage = Image.fromarray(noisyImgArray)
+
         return noisyImage
 
     def makeBlur(self, licensePlateImage, levelOfBlur):
         if levelOfBlur == 0:
             return licensePlateImage
         blurredImage = licensePlateImage.filter(ImageFilter.GaussianBlur(radius=levelOfBlur))
+
         return blurredImage
     
     def makeMotionBlur(self, licensePlateImage, levelOfMotionBlur):
         if levelOfMotionBlur == 0:
             return licensePlateImage
         blurredImage = licensePlateImage.filter(ImageFilter.BoxBlur(radius=levelOfMotionBlur))
+
         return blurredImage
     
     def makePepperAndSaltNoise(self, licensePlateImage, levelOfPepperAndSaltNoise):
         if levelOfPepperAndSaltNoise == 0:
+
             return licensePlateImage
 
         npImage = np.array(licensePlateImage)
@@ -571,38 +599,41 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         coordinates = [np.random.randint(0, i - 1, int(pepperNumber)) for i in npImage.shape]
         npImage[coordinates[0], coordinates[1], :] = 0
 
-        noisyImage = Image.fromarray(npImage)
-        return noisyImage
+        return Image.fromarray(npImage)
     
     def rotateImage(self, licensePlateImage, levelOfRotation):
         fillColorR = random.randint(0, 255)
         fillColorG = random.randint(0, 255)
         fillColorB = random.randint(0, 255)
+
         return licensePlateImage.rotate(levelOfRotation, expand=True, fillcolor=(fillColorR, fillColorG, fillColorB))
 
     def changeBrightness(self, licensePlateImage, levelOfBrightness):
         enhancer = ImageEnhance.Brightness(licensePlateImage)
-        enhancedImage = enhancer.enhance(levelOfBrightness)
-        return enhancedImage
+
+        return enhancer.enhance(levelOfBrightness)
     
     def changeContrast(self, licensePlateImage, levelOfContrast):
         enhancer = ImageEnhance.Contrast(licensePlateImage)
-        enhancedImage = enhancer.enhance(levelOfContrast)
-        return enhancedImage
-    
+
+        return enhancer.enhance(levelOfContrast)
+
     def makePerspectiveTransform(self, licensePlateImage, levelOfPerspectiveUp, levelOfPerspectiveDown, levelOfPerspectiveRight, levelOfPerspectiveLeft):
         width, height = licensePlateImage.size
         
+        # 射影変換の最大オフセット計算
         maxRandomOffset = int(max(width, height) * 0.12)
         
+        # 射影変換の各オフセット計算
         maxOffsetUp = int(abs(levelOfPerspectiveUp) / 45 * maxRandomOffset)
         maxOffsetDown = int(abs(levelOfPerspectiveDown) / 45 * maxRandomOffset)
         maxOffsetRight = int(abs(levelOfPerspectiveRight) / 45 * maxRandomOffset)
         maxOffsetLeft = int(abs(levelOfPerspectiveLeft) / 45 * maxRandomOffset)
         
+        # 射影変換の最大オフセットが0ならば、射影変換しない
         if maxOffsetUp < 1 and maxOffsetDown < 1 and maxOffsetRight < 1 and maxOffsetLeft < 1:
-            H = np.eye(3)
-            return licensePlateImage, H
+            homographyMatrix = np.eye(3)
+            return licensePlateImage, homographyMatrix
 
         topLeftXOffset = random.randint(-maxOffsetLeft, maxOffsetLeft)
         topLeftYOffset = random.randint(-maxOffsetUp, maxOffsetUp)
@@ -616,6 +647,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         bottomLeftXOffset = random.randint(-maxOffsetLeft, maxOffsetLeft)
         bottomLeftYOffset = random.randint(-maxOffsetDown, maxOffsetDown)
         
+        # 射影変換の対象点
         sourcePointsAbs = [
             0, 0, 
             width, 0, 
@@ -623,6 +655,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             0, height
         ]
         
+        # 射影変換の目標点
         targetPointsAbs = [
             0 + topLeftXOffset, 0 + topLeftYOffset,
             width + topRightXOffset, 0 + topRightYOffset,
@@ -630,6 +663,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             0 + bottomLeftXOffset, height + bottomLeftYOffset
         ]
 
+        # 射影変換の計算
         coeffs = self.calculatePerspectiveCoeffs(sourcePointsAbs, targetPointsAbs)
         
         fillColorR = random.randint(0, 255)
@@ -637,6 +671,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         fillColorB = random.randint(0, 255)
         fillcolor = (fillColorR, fillColorG, fillColorB)
         
+        # 射影変換の適用
         try:
             transformedImage = licensePlateImage.transform(
                 (width, height),
@@ -652,14 +687,15 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
                 fillcolor=fillcolor
             )
         
+        # 逆行列の計算
         homographyInverseMatrix = np.array([
             [coeffs[0], coeffs[1], coeffs[2]],
             [coeffs[3], coeffs[4], coeffs[5]],
             [coeffs[6], coeffs[7], 1.0]
         ])
-        H = np.linalg.inv(homographyInverseMatrix)
+        homographyMatrix = np.linalg.inv(homographyInverseMatrix)
         
-        return transformedImage, H
+        return transformedImage, homographyMatrix
 
     def transformYoloBbox(self, yoloLabels, perspective, width, height):
         newYoloLabels = []
@@ -669,10 +705,10 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             classId = parts[0]
             xCenter, yCenter, w, h = [float(p) for p in parts[1:]]
             
-            xMinNorm = xCenter - w/2
-            yMinNorm = yCenter - h/2
-            xMaxNorm = xCenter + w/2
-            yMaxNorm = yCenter + h/2
+            xMinNorm = xCenter - w / 2
+            yMinNorm = yCenter - h / 2
+            xMaxNorm = xCenter + w / 2
+            yMaxNorm = yCenter + h / 2
 
             xMinAbs = xMinNorm * width
             yMinAbs = yMinNorm * height
@@ -738,3 +774,12 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             return (1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0)
 
         return tuple(coeffs)
+    
+    def getYoloBboxFromAbsolute(self, xMin, yMin, xMax, yMax, width, height):
+        xCenter = ((xMin + xMax) / 2) / width
+        yCenter = ((yMin + yMax) / 2) / height
+
+        w = (xMax - xMin) / width
+        h = (yMax - yMin) / height
+        
+        return xCenter, yCenter, w, h
