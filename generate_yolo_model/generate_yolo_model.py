@@ -4,7 +4,7 @@ import TRAIN
 import TEST_DETECT
 import TEST_OCR
 
-def main():
+def generateYoloModel():
     print("【ANRP_JP】\n")
     
     while True:
@@ -145,4 +145,4 @@ def main():
         else:
             print("0~4の数字を入力してください。\n")
 
-main()
+generateYoloModel()
