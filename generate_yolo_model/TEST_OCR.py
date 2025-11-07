@@ -214,7 +214,7 @@ class TEST_OCR:
 
                         plateText = self.formatNumberPlateText(typeOfVehicleName, upperRow, lowerRow)
                         
-                        self.drawMultilineText(drawOverlay, (x1, y1 - 50), plateText, font, (255, 0, 0))
+                        self.drawMultilineText(drawOverlay, (x1, y1 - 150), plateText, font, (255, 0, 0), 45)
 
                 overlay = cv2.cvtColor(np.array(pilImageOverlay), cv2.COLOR_RGB2BGR)
                 finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
@@ -295,8 +295,9 @@ class TEST_OCR:
 
         return f"{typeOfVehicleName}\n\n{officeCode} {classNum} {hiraganaCode} {regiNum}"
 
-    def drawMultilineText(self, draw, position, text, font, fill):
+    def drawMultilineText(self, draw, position, text, font, fill, fontSize):
         x, y = position
+        font = ImageFont.truetype(self.FONT_PATH, fontSize)
         try:
             bbox = font.getbbox("AA") 
             lineHeight = bbox[3] - bbox[1]
