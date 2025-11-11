@@ -1,16 +1,16 @@
 <mxfile host="65bd71144e">
     <diagram id="DPwa2SHwuw495MocNYNu" name="入口用">
-        <mxGraphModel dx="2320" dy="1426" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="812" dy="728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="2" value="- officeCode: str&lt;div&gt;- classNum: str&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- hiraganaCode: str&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- regiNum: str&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="2" value="- regionCode: str&lt;div&gt;- classNum: str&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- hiraganaCode: str&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- registNum: str&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="1000" width="240" height="80" as="geometry"/>
                 </mxCell>
-                <mxCell id="3" value="LicensePlate" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="3" value="NumberPlate" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="960" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="4" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;- __formatLPText(officeCode: str, classNum: str, hiraganaCode: str, regiNum: str): str&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="4" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;- __formatNPText(regionCode: str, classNum: str, hiraganaCode: str, registNum: str): str&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="1080" width="240" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="5" value="記号" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -49,7 +49,7 @@
                 <mxCell id="26" value="- image: Image" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="560" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="27" value="LicensePlateRecognizer" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="27" value="Number&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;PlateRecognizer&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="520" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="28" value="&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;+ detectLP(image: Image): Results&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
@@ -58,10 +58,10 @@
                 <mxCell id="29" value="- detectResults: Results" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="760" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="30" value="LicensePlateTextRecognizer" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="30" value="NumberPlateTextRecognizer" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="720" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="31" value="&lt;div&gt;+ detectLPText(detectResults: Results): LicensePlate&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- __detectConvexHull(): list&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- __transformPerspective(): Image&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="31" value="&lt;div&gt;+ detectNPText(detectResults: Results): NumberPlate&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;- __detectConvexHull(): list&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- __transformPerspective(): Image&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="800" width="240" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="32" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
@@ -70,7 +70,7 @@
                 <mxCell id="33" value="CarLocalDataStore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="680" y="540" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="34" value="&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ openFile(dataType: str): void&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ closeFIle(&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent;&quot;&gt;dataType: str&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;): void&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ readCarCountData(): void&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ readLPTextData(): void&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateLPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="34" value="&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ openFile(dataType: str): void&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ closeFIle(&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent;&quot;&gt;dataType: str&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;): void&lt;/span&gt;&lt;/div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ readCarCountData(): void&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ readNPTextData(): void&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateNPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="680" y="600" width="240" height="120" as="geometry"/>
                 </mxCell>
                 <mxCell id="35" value="" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
@@ -79,7 +79,7 @@
                 <mxCell id="36" value="CarDBDataStore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="540" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="37" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ openDB(&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;dataType: str&lt;/span&gt;): void&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font color=&quot;#000000&quot;&gt;+ openDB(&lt;/font&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent;&quot;&gt;dataType: str&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;): boid&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font&gt;+ readCaCountData(): void&lt;/font&gt;&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ readLPTextData(): void&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateLPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="37" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ openDB(&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;dataType: str&lt;/span&gt;): void&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font color=&quot;#000000&quot;&gt;+ openDB(&lt;/font&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(0, 0, 0); background-color: transparent;&quot;&gt;dataType: str&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;): boid&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font&gt;+ readCaCountData(): void&lt;/font&gt;&lt;/span&gt;&lt;div style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;font style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;+ readNPTextData(): void&lt;br style=&quot;color: rgb(63, 63, 63); scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251);&quot;&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateNPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="1000" y="600" width="240" height="120" as="geometry"/>
                 </mxCell>
                 <mxCell id="57" value="CarDataStoreUtilities" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -91,7 +91,7 @@
                 <mxCell id="63" value="&amp;lt;&amp;lt;abstract&amp;gt;&amp;gt; AbstractCarDataStore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="840" y="280" width="240" height="50" as="geometry"/>
                 </mxCell>
-                <mxCell id="64" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ readCarCountData(): void&lt;/span&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;+ readLPTextData(): void&lt;br&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateLPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="64" value="&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(0, 0, 0);&quot;&gt;+ readCarCountData(): void&lt;/span&gt;&lt;div&gt;&lt;font color=&quot;#000000&quot;&gt;+ readNPTextData(): void&lt;br&gt;&lt;/font&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;&lt;span style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;+ updateCarCountData(data: str): void&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style=&quot;scrollbar-color: rgb(226, 226, 226) rgb(251, 251, 251); color: rgb(63, 63, 63);&quot;&gt;+ updateLPTextData(data: str): bool&lt;/div&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="840" y="370" width="240" height="90" as="geometry"/>
                 </mxCell>
                 <mxCell id="65" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -129,7 +129,7 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="73" value="" style="endArrow=none;html=1;rounded=0;curved=0;dashed=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" edge="1" target="37">
+                <mxCell id="73" value="" style="endArrow=none;html=1;rounded=0;curved=0;dashed=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" target="37" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="960" y="760" as="sourcePoint"/>
                         <mxPoint x="1120" y="730" as="targetPoint"/>
@@ -257,13 +257,13 @@
                 <mxCell id="113" value="RecognizerController" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="40" y="264" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="114" value="+ processRecognization(): LicensePlate" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="114" value="+ processRecognization(): NumberPlate" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="40" y="340" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="115" value="- image: Image" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="40" y="304" width="240" height="36" as="geometry"/>
                 </mxCell>
-                <mxCell id="119" value="" style="endArrow=none;html=1;entryX=0.999;entryY=0.451;entryDx=0;entryDy=0;entryPerimeter=0;rounded=0;curved=0;" parent="1" edge="1" target="115">
+                <mxCell id="119" value="" style="endArrow=none;html=1;entryX=0.999;entryY=0.451;entryDx=0;entryDy=0;entryPerimeter=0;rounded=0;curved=0;" parent="1" target="115" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="320" y="800" as="sourcePoint"/>
                         <mxPoint x="320" y="320" as="targetPoint"/>
@@ -290,7 +290,7 @@
                 <mxCell id="123" value="+ processDataSaving(): void" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="40" y="540" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="124" value="- licensePlate: LicensePlate" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="124" value="- numberPlate: NumberPlate" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="40" y="500" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="126" value="" style="endArrow=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" edge="1">
@@ -365,7 +365,7 @@
                         <mxPoint x="159.69" y="180" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="CGH0ATtL4BQf4c0Nm3ba-143" value="" style="endArrow=none;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;rounded=0;curved=0;" edge="1" parent="1" source="133">
+                <mxCell id="CGH0ATtL4BQf4c0Nm3ba-143" value="" style="endArrow=none;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;rounded=0;curved=0;" parent="1" source="133" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="220" y="264" as="sourcePoint"/>
                         <mxPoint x="320" y="130" as="targetPoint"/>
@@ -380,7 +380,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="5iBsmua8oSERNfO7GpWQ" name="出口用">
-        <mxGraphModel dx="1160" dy="713" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="812" dy="728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -630,16 +630,16 @@
                         <Array as="points"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="HhSliviEqvqZ-JqsNVTF-4" value="DeviceController" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="HhSliviEqvqZ-JqsNVTF-4" value="DeviceController" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="40" y="80" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="HhSliviEqvqZ-JqsNVTF-5" value="+ processCarDetection(): bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" vertex="1" parent="1">
+                <mxCell id="HhSliviEqvqZ-JqsNVTF-5" value="+ processCarDetection(): bool" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="40" y="140" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="HhSliviEqvqZ-JqsNVTF-6" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                <mxCell id="HhSliviEqvqZ-JqsNVTF-6" value="" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="40" y="120" width="240" height="20" as="geometry"/>
                 </mxCell>
-                <mxCell id="HhSliviEqvqZ-JqsNVTF-7" value="" style="endArrow=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" target="HhSliviEqvqZ-JqsNVTF-5" source="fn4q_EX5qjO0hBoPSauJ-67">
+                <mxCell id="HhSliviEqvqZ-JqsNVTF-7" value="" style="endArrow=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="fn4q_EX5qjO0hBoPSauJ-67" target="HhSliviEqvqZ-JqsNVTF-5" edge="1">
                     <mxGeometry width="50" height="50" relative="1" as="geometry">
                         <mxPoint x="130" y="250" as="sourcePoint"/>
                         <mxPoint x="159.69" y="184" as="targetPoint"/>
