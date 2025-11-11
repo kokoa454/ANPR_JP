@@ -75,21 +75,12 @@ HIRAGANA_CODE_LIST_ALL = [
 SPECIAL_CHARACTER_LIST = ["・", "-"]
 
 class NumberPlate:
-    def __init__(
-            self,
-            typeOfVehicle: str = "",
-            regionCode: str = "",
-            classNum: str = "",
-            hiraganaCode: str = "",
-            registNum: str = "",
-        ):
-        self.typeOfVehicle = typeOfVehicle
-        self.regionCode = regionCode
-        self.classNum = classNum
-        self.hiraganaCode = hiraganaCode
-        self.registNum = registNum
-
-        return
+    def __init__(self):
+        self.typeOfVehicle = ""
+        self.regionCode = ""
+        self.classNum = ""
+        self.hiraganaCode = ""
+        self.registNum = ""
 
     def formatNPText(
             self,
