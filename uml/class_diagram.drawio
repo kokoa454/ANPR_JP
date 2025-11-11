@@ -1,16 +1,16 @@
 <mxfile host="65bd71144e">
     <diagram id="DPwa2SHwuw495MocNYNu" name="入口用">
-        <mxGraphModel dx="812" dy="728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1052" dy="728" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
-                <mxCell id="2" value="- regionCode: str&lt;div&gt;- classNum: str&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- hiraganaCode: str&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- registNum: str&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="2" value="&lt;div&gt;- typeOfVehicle: str&lt;/div&gt;- regionCode: str&lt;div&gt;- classNum: str&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: rgb(63, 63, 63);&quot;&gt;- hiraganaCode: str&lt;/span&gt;&lt;/div&gt;&lt;div&gt;- registNum: str&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="1000" width="240" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="3" value="NumberPlate" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="360" y="960" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="4" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;- __formatNPText(regionCode: str, classNum: str, hiraganaCode: str, registNum: str): str&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
+                <mxCell id="4" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;- __formatNPText(typeOfVehicle: str, upperRowText: str, lowerRowText: str): str&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;spacingLeft=15;" parent="1" vertex="1">
                     <mxGeometry x="360" y="1080" width="240" height="80" as="geometry"/>
                 </mxCell>
                 <mxCell id="5" value="記号" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
