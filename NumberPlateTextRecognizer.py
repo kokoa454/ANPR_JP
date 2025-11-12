@@ -36,7 +36,7 @@ class NumberPlateTextRecognizer:
 
                 upperRowText = []
                 lowerRowText = []
-                height = detectResults.shape[0]
+                height = detectResults.height
                 centerY = height / 2
 
                 for char, x, y in detectedChars:
@@ -48,5 +48,7 @@ class NumberPlateTextRecognizer:
                 typeOfVehicle = self.model.names[typeOfVehicle]
                 upperRowText.sort(key=lambda item: item[1])
                 lowerRowText.sort(key=lambda item: item[1])
+                upperRowText = [char for char, _ in upperRowText]
+                lowerRowText = [char for char, _ in lowerRowText]
 
         return typeOfVehicle, upperRowText, lowerRowText

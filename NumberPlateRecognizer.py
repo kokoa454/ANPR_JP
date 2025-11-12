@@ -10,7 +10,7 @@ class NumberPlateRecognizer:
     def __init__(self):
         self.model = YOLO("yolo11n-seg-anpr-jp-detect.pt")
 
-    def detectNP(self, image: Image):
+    def detectNP(self, image: Image) -> Image | None:
         detectionResults = self.model(
             source = image,
             imgsz = 640,
@@ -45,7 +45,9 @@ class NumberPlateRecognizer:
                 else:
                     npImage = image[y1:y2, x1:x2]
 
-                return npImage
+                return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
+            
+        return None
 
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:

@@ -88,6 +88,12 @@ class NumberPlate:
             upperRowText: str,
             lowerRowText: str
         ) -> str:
+
+        self.regionCode = ""
+        self.classNum = ""
+        self.hiraganaCode = ""
+        self.registNum = ""
+
         if typeOfVehicle == "" or typeOfVehicle is None or typeOfVehicle not in TYPE_OF_VEHICLE_LIST:
             self.typeOfVehicle = "???"
         else:
@@ -104,10 +110,6 @@ class NumberPlate:
                 self.registNum += char
             else:
                 self.hiraganaCode += char
-
-        self.regionCode = "".join(self.regionCode)
-        self.classNum = "".join(self.classNum)
-        self.registNum = "".join(self.registNum)
 
         if self.regionCode == "" or self.regionCode not in REGION_CODE_LIST:
             self.regionCode = "???"
