@@ -11,7 +11,13 @@ class NumberPlateRecognizer:
         self.model = YOLO("yolo11n-seg-anpr-jp-detect.pt")
 
     def detectNP(self, image: Image):
-        detectionResults = self.model(image)
+        detectionResults = self.model(
+            source = image,
+            imgsz = 640,
+            conf = 0.5,
+            iou = 0.3,
+            save = False
+        )
         detections = detectionResults[0].boxes.xyxy
         masks = detectionResults[0].masks
         npNumber = len(detections)
