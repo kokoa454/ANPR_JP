@@ -1,7 +1,7 @@
 __package__ = "NumberPlateRecognizer"
 
 from PIL.Image import Image
-from PIL import ImageDraw
+import Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO
@@ -9,6 +9,7 @@ from ultralytics import YOLO
 class NumberPlateRecognizer:
     def __init__(self):
         self.model = YOLO("yolo11n-seg-anpr-jp-detect.pt")
+        self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image) -> Image | None:
         detectionResults = self.model(
@@ -21,9 +22,6 @@ class NumberPlateRecognizer:
         detections = detectionResults[0].boxes.xyxy
         masks = detectionResults[0].masks
         npNumber = len(detections)
-
-        overlaidImage = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-        draw = ImageDraw.Draw(overlaidImage)
 
         if masks is not None and npNumber > 0:
             segmentationMasks = masks.data.cpu().numpy()
@@ -90,5 +88,8 @@ class NumberPlateRecognizer:
         )
         
         finalImage = warpedPerspective
+
+        fileName = f"./outputs/detect/detected_image_{self.utilities.getTimeStamp()}.png"
+        cv2.imwrite(fileName, finalImage)
             
         return finalImage

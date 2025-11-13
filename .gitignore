@@ -9,3 +9,4 @@
 /generate_yolo_model/test_ocr/
 /generate_yolo_model/yolo11n.pt
 /generate_yolo_model/yolo11n-seg.pt
+/outputs/

@@ -1,30 +1,40 @@
 __package__ = "Camera"
 
 from PIL import Image
-import cv2
+import Utilities
+import os
 
 CAMERA_ID = 0
 
 class Camera:
     def __init__(self):
-        pass
+        self.utilities = Utilities.Utilities()
 
-    def _openCamera(self):
-        capture = cv2.VideoCapture(CAMERA_ID)
-        return capture
+    # -- opencv is not used due to errors with opening the camera
+    # def _openCamera(self):
+    #     capture = cv2.VideoCapture(CAMERA_ID)
+    #     return capture
             
-    def _closeCamera(self, capture):
-        capture.release()
-        cv2.destroyAllWindows()
+    # def _closeCamera(self, capture):
+    #     capture.release()
 
-    def captureImage(self):
+    # def captureImage(self):
+    #     try:
+    #         capture = self._openCamera()
+    #         ret, frame = capture.read()
+    #         self._closeCamera(capture)
+
+    #         if ret:
+    #             return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    #     except Exception as e:
+    #         print(f"ERROR: {e}")
+    #     return None
+
+    def captureImage(self) -> Image.Image | None:
         try:
-            capture = self._openCamera()
-            ret, frame = capture.read()
-            self._closeCamera(capture)
-
-            if ret:
-                return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            fileName = f"./outputs/capture/captured_image_{self.utilities.getTimeStamp()}.jpeg"
+            os.system(f"rpicam-jpeg --hdr --metering spot --autofocus-mode continuous --output {fileName} ")
+            return Image.open(fileName)
         except Exception as e:
             print(f"ERROR: {e}")
-        return None
+            return None
