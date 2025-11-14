@@ -7,7 +7,8 @@ class NumberPlateTextRecognizer:
     def __init__(self):
         self.model = YOLO("yolo11n-anpr-jp-ocr.pt")
 
-    def detectNPText(self, detectResults: Image) -> tuple[str, list[tuple[str, float]], list[tuple[str, float]]]:
+    def detectNPText(self, detectResults: Image) -> tuple[str, list[str], list[str]]:
+        # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
         ocrResults = self.model(
             source = detectResults,
             imgsz = 640,
@@ -17,25 +18,30 @@ class NumberPlateTextRecognizer:
         )
 
         detectedChars = []
-        classes = ocrResults[0].boxes.cls
-        typeOfVehicle = int(classes[0])
+        upperRowText = []
+        lowerRowText = []
 
+        # OCRの検出結果とナンバープレートの種類を取得
+        classes = ocrResults[0].boxes.cls
+        typeOfVehicleId = int(classes[0])
+
+        # ナンバープレートの文字が検出された場合の処理
         if len(classes) > 0:
             for ocrResult in ocrResults:
                 boxes = ocrResult.boxes
                 classIds = boxes.cls
                 xyxy = boxes.xyxy
 
+                # ナンバープレートの文字の位置情報を取得して上下の行に分割
                 for classId in range(len(classIds)):
-                    className = self.model.names[int(classIds[classId])]
+                    id = int(classIds[classId])
+                    className = self.model.names[id]
                     centerX = (xyxy[classId][0] + xyxy[classId][2]) / 2
                     centerY = (xyxy[classId][1] + xyxy[classId][3]) / 2
 
-                    if classId >= 4:
+                    if id >= 4:
                         detectedChars.append((className, centerX, centerY))
 
-                upperRowText = []
-                lowerRowText = []
                 height = detectResults.height
                 centerY = height / 2
 
@@ -45,7 +51,8 @@ class NumberPlateTextRecognizer:
                     else:
                         lowerRowText.append((char, x))
 
-                typeOfVehicle = self.model.names[typeOfVehicle]
+                # ナンバープレートの種類と上下の行の文字をそれぞれソートしてリストに格納
+                typeOfVehicle = self.model.names[typeOfVehicleId]
                 upperRowText.sort(key=lambda item: item[1])
                 lowerRowText.sort(key=lambda item: item[1])
                 upperRowText = [char for char, _ in upperRowText]

@@ -12,6 +12,7 @@ class NumberPlateRecognizer:
         self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image) -> Image | None:
+        # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
         detectionResults = self.model(
             source = image,
             imgsz = 640,
@@ -19,34 +20,49 @@ class NumberPlateRecognizer:
             iou = 0.3,
             save = False
         )
+
+        # ナンバープレートの検出結果とマスクとナンバープレートの数を取得
         detections = detectionResults[0].boxes.xyxy
         masks = detectionResults[0].masks
         npNumber = len(detections)
 
+        # ナンバープレートが検出された場合の処理
         if masks is not None and npNumber > 0:
+            # マスクデータを取得
             segmentationMasks = masks.data.cpu().numpy()
 
-            for i, mask in enumerate(segmentationMasks):
-                boundingBox = detections[i]
-                x1, y1, x2, y2 = map(int, boundingBox)
-                resizedMask = self._createBinaryMask(mask, np.array(image))
-                hull = self._detectConvexHull(resizedMask)
-                if hull.size > 0:
-                    mainHull = max(hull, key=cv2.contourArea)
-                    rectangle = cv2.minAreaRect(mainHull)
-                    boxPoints = cv2.boxPoints(rectangle)
-                    sourcePoints = np.float32(boxPoints)
-                    sortedPoints = self._sortSourcePoints(sourcePoints)
+            # ナンバープレートの位置情報を取得
+            boundingBox = detections[0]
+            x1, y1, x2, y2 = map(int, boundingBox)
 
-                if sourcePoints is not None:
-                    npImage = self._transformPerspective(image, sortedPoints)
-                else:
-                    npImage = image[y1:y2, x1:x2]
+            # ナンバープレートのマスクをリサイズして二値化
+            resizedMask = self._createBinaryMask(segmentationMasks[0], np.array(image))
 
-                return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
+            # 凸包を検出して射影変換のための座標を取得
+            hull = self._detectConvexHull(resizedMask)
+            sourcePoints = None
+            sortedPoints = None
+
+            # 凸包が検出された場合、最も大きな凸包を取得して射影変換の座標を計算
+            if hull.size > 0:
+                mainHull = max(hull, key=cv2.contourArea)
+                rectangle = cv2.minAreaRect(mainHull)
+                boxPoints = cv2.boxPoints(rectangle)
+                sourcePoints = np.float32(boxPoints)
+                sortedPoints = self._sortSourcePoints(sourcePoints)
             
-        return None
+            # 画像をNumPy配列に変換
+            npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
+            # 射影変換またはトリミングを実行してナンバープレートのみの整形済みの画像を取得
+            if sourcePoints is not None:
+                npImage = self._transformPerspective(npImage, sortedPoints)
+            else:
+                npImage = npImage[y1:y2, x1:x2]
+
+            return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
+        
+        return None
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
