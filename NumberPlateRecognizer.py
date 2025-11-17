@@ -1,6 +1,6 @@
 __package__ = "NumberPlateRecognizer"
 
-from PIL.Image import Image
+from PIL import Image
 import Utilities
 import cv2
 import numpy as np
@@ -11,7 +11,7 @@ class NumberPlateRecognizer:
         self.model = YOLO("yolo11n-seg-anpr-jp-detect.pt")
         self.utilities = Utilities.Utilities()
 
-    def detectNP(self, image: Image) -> Image | None:
+    def detectNP(self, image: Image.Image) -> Image.Image | None:
         # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
         detectionResults = self.model(
             source = image,
@@ -40,29 +40,29 @@ class NumberPlateRecognizer:
 
             # 凸包を検出して射影変換のための座標を取得
             hull = self._detectConvexHull(resizedMask)
-            sourcePoints = None
-            sortedPoints = None
 
             # 凸包が検出された場合、最も大きな凸包を取得して射影変換の座標を計算
-            if hull.size > 0:
+            if hull:
                 mainHull = max(hull, key=cv2.contourArea)
                 rectangle = cv2.minAreaRect(mainHull)
                 boxPoints = cv2.boxPoints(rectangle)
                 sourcePoints = np.float32(boxPoints)
-                sortedPoints = self._sortSourcePoints(sourcePoints)
-            
-            # 画像をNumPy配列に変換
-            npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+                sourcePoints = self._sortSourcePoints(sourcePoints)
+                        
+                if sourcePoints is not None:
+                    # 画像をNumPy配列に変換
+                    npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
-            # 射影変換またはトリミングを実行してナンバープレートのみの整形済みの画像を取得
-            if sourcePoints is not None:
-                npImage = self._transformPerspective(npImage, sortedPoints)
+                    # 射影変換を実行
+                    npImage = self._transformPerspective(npImage, sourcePoints)
+
+                    return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
+                else:
+                    return None
             else:
-                npImage = npImage[y1:y2, x1:x2]
-
-            return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
-        
-        return None
+                return None
+        else:
+            return None
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
@@ -74,15 +74,14 @@ class NumberPlateRecognizer:
 
     def _detectConvexHull(self, mask: np.ndarray) -> np.ndarray:
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if contours:
-            return cv2.convexHull(contours[0])
-        return np.array([])
-    
+        return contours
+
     def _sortSourcePoints(self, points: np.ndarray) -> np.ndarray:
+        points = sorted(points, key=lambda x: (x[1], x[0]))
         top = sorted(points[:2], key=lambda x: x[0])
         bottom = sorted(points[2:], key=lambda x: x[0], reverse=True)
         return np.array([top[0], top[1], bottom[0], bottom[1]], dtype="float32")
-    
+        
     def _transformPerspective(self, image: np.ndarray, sourcePoints: np.ndarray) -> Image:
         TARGET_WIDTH = 440 * 2
         TARGET_HEIGHT = 220 * 2
@@ -94,18 +93,23 @@ class NumberPlateRecognizer:
             [0, TARGET_HEIGHT - 1]
         ], dtype="float32")
 
-        homographyMatrix, _ = cv2.findHomography(sourcePoints, destination, cv2.RANSAC, 5.0)
-        
+        homographyMatrix, _ = cv2.findHomography(
+            sourcePoints, 
+            destination, 
+            cv2.RANSAC, 
+            5.0
+        )
+
         warpedPerspective = cv2.warpPerspective(
             image, 
             homographyMatrix, 
             (TARGET_WIDTH, TARGET_HEIGHT),
             flags=cv2.INTER_CUBIC
         )
-        
-        finalImage = warpedPerspective
 
         fileName = f"./outputs/detect/detected_image_{self.utilities.getTimeStamp()}.png"
-        cv2.imwrite(fileName, finalImage)
+        cv2.imwrite(fileName, warpedPerspective)
+
+        finalImage = cv2.cvtColor(warpedPerspective, cv2.COLOR_BGR2RGB)
             
         return finalImage

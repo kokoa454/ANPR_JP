@@ -33,7 +33,7 @@ class Camera:
     def captureImage(self) -> Image.Image | None:
         try:
             fileName = f"./outputs/capture/captured_image_{self.utilities.getTimeStamp()}.jpeg"
-            os.system(f"rpicam-jpeg --hdr --metering spot --autofocus-mode continuous --output {fileName} ")
+            os.system(f"rpicam-jpeg --metering spot -n --autofocus-mode continuous --output {fileName} --timeout 2000")
             return Image.open(fileName)
         except Exception as e:
             print(f"ERROR: {e}")

@@ -1,13 +1,13 @@
 __package__ = "NumberPlateTextRecognizer"
 
 from ultralytics import YOLO
-import PIL.Image as Image
+import PIL as Image
 
 class NumberPlateTextRecognizer:
     def __init__(self):
         self.model = YOLO("yolo11n-anpr-jp-ocr.pt")
 
-    def detectNPText(self, detectResults: Image) -> tuple[str, list[str], list[str]]:
+    def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
         ocrResults = self.model(
             source = detectResults,
@@ -21,9 +21,8 @@ class NumberPlateTextRecognizer:
         upperRowText = []
         lowerRowText = []
 
-        # OCRの検出結果とナンバープレートの種類を取得
+        # OCRの検出結果を取得
         classes = ocrResults[0].boxes.cls
-        typeOfVehicleId = int(classes[0])
 
         # ナンバープレートの文字が検出された場合の処理
         if len(classes) > 0:
@@ -31,6 +30,8 @@ class NumberPlateTextRecognizer:
                 boxes = ocrResult.boxes
                 classIds = boxes.cls
                 xyxy = boxes.xyxy
+
+                typeOfVehicleId = int(classes[0])
 
                 # ナンバープレートの文字の位置情報を取得して上下の行に分割
                 for classId in range(len(classIds)):
@@ -58,4 +59,7 @@ class NumberPlateTextRecognizer:
                 upperRowText = [char for char, _ in upperRowText]
                 lowerRowText = [char for char, _ in lowerRowText]
 
-        return typeOfVehicle, upperRowText, lowerRowText
+                return typeOfVehicle, upperRowText, lowerRowText
+        else:
+            print("文字は検出されませんでした。")
+            return None
