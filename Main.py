@@ -1,10 +1,16 @@
 import DeviceController
 import RecognizerController
 
-def main():
-    image = DeviceController.DeviceController().processCarDetection()
-    if image is not None:
-        RecognizerController.RecognizerController().recognizeNumberPlate(image)
+class Main:
+    def __init__(self) -> None:
+        self.deviceController = DeviceController.DeviceController()
+        self.recognizerController = RecognizerController.RecognizerController()
+    
+    def run(self) -> None:
+        while True:
+            image = self.deviceController.processCarDetection()
+            if image is not None:
+                self.recognizerController.recognizeNumberPlate(image)
 
 if __name__ == "__main__":
-    main()
+    Main().run()

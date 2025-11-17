@@ -82,17 +82,27 @@ class NumberPlate:
         self.hiraganaCode = ""
         self.registNum = ""
 
+    def getTypeOfVehicle(self) -> str:
+        return self.typeOfVehicle
+    
+    def getRegionCode(self) -> str:
+        return self.regionCode
+    
+    def getClassNum(self) -> str:
+        return self.classNum
+    
+    def getHiraganaCode(self) -> str:
+        return self.hiraganaCode
+    
+    def getRegistNum(self) -> str:
+        return self.registNum
+    
     def formatNPText(
             self,
             typeOfVehicle: str,
             upperRowText: str,
             lowerRowText: str
-        ) -> str:
-
-        self.regionCode = ""
-        self.classNum = ""
-        self.hiraganaCode = ""
-        self.registNum = ""
+        ) -> None:
 
         if typeOfVehicle == "" or typeOfVehicle is None or typeOfVehicle not in TYPE_OF_VEHICLE_LIST:
             self.typeOfVehicle = "???"
@@ -123,4 +133,4 @@ class NumberPlate:
         if self.registNum == "" or (len(self.registNum) != 4 and len(self.registNum) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', self.registNum) is None:
             self.registNum = "????"
 
-        return f"{self.typeOfVehicle}\n{self.regionCode} {self.classNum} {self.hiraganaCode} {self.registNum}"
+        return None

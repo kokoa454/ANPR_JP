@@ -17,6 +17,7 @@ class RecognizerController:
         if detectResults is not None:
             typeOfVehicle, upperRowText, lowerRowText = self.numberPlateTextRecognizer.detectNPText(detectResults)
             numberPlateObject = NumberPlate.NumberPlate()
-            numberPlate = numberPlateObject.formatNPText(typeOfVehicle, "".join(upperRowText), "".join(lowerRowText))
-            print("Recognized Number Plate: ", numberPlate)
-            return
+            numberPlateObject.formatNPText(typeOfVehicle, "".join(upperRowText), "".join(lowerRowText))
+            print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
+            return numberPlateObject
+        return None

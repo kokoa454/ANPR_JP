@@ -31,10 +31,6 @@ class NumberPlateRecognizer:
             # マスクデータを取得
             segmentationMasks = masks.data.cpu().numpy()
 
-            # ナンバープレートの位置情報を取得
-            boundingBox = detections[0]
-            x1, y1, x2, y2 = map(int, boundingBox)
-
             # ナンバープレートのマスクをリサイズして二値化
             resizedMask = self._createBinaryMask(segmentationMasks[0], np.array(image))
 
@@ -57,12 +53,9 @@ class NumberPlateRecognizer:
                     npImage = self._transformPerspective(npImage, sourcePoints)
 
                     return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
-                else:
-                    return None
-            else:
-                return None
-        else:
-            return None
+        
+        print("ナンバープレートは検出されませんでした。")
+        return None
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)

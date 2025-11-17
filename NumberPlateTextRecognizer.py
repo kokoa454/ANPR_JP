@@ -8,6 +8,10 @@ class NumberPlateTextRecognizer:
         self.model = YOLO("yolo11n-anpr-jp-ocr.pt")
 
     def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
+        detectedChars = []
+        upperRowText = []
+        lowerRowText = []
+
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
         ocrResults = self.model(
             source = detectResults,
@@ -16,10 +20,6 @@ class NumberPlateTextRecognizer:
             iou = 0.3,
             save = False
         )
-
-        detectedChars = []
-        upperRowText = []
-        lowerRowText = []
 
         # OCRの検出結果を取得
         classes = ocrResults[0].boxes.cls
@@ -60,6 +60,6 @@ class NumberPlateTextRecognizer:
                 lowerRowText = [char for char, _ in lowerRowText]
 
                 return typeOfVehicle, upperRowText, lowerRowText
-        else:
-            print("文字は検出されませんでした。")
-            return None
+        
+        print("文字は検出されませんでした。")
+        return None
