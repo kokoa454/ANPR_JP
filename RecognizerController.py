@@ -11,7 +11,7 @@ class RecognizerController:
         self.numberPlateTextRecognizer = NumberPlateTextRecognizer.NumberPlateTextRecognizer()
         os.makedirs("./outputs/detect", exist_ok=True)
 
-    def recognizeNumberPlate(self, image):
+    def recognizeNumberPlate(self, image) -> NumberPlate.NumberPlate | None:
         detectResults = self.numberPlateRecognizer.detectNP(image)
 
         if detectResults is not None:
