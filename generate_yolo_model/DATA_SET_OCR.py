@@ -285,9 +285,9 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         return regNum
 
     def generatePlate(self, fileName, trainOrValid, typeOfVehicle, numberPlateBGColor, numberPlateTextColor, placeCode, classNum, hiraganaCode, regNum):
-        FONT_HIRAGINO = "./fonts/HiraginoMaruGothicProNW4.otf"
-        FONT_TRM = "./fonts/TrmFontJB.ttf"
-        FONT_FZ = "./fonts/FZcarnumberJA-OTF_ver10.otf"
+        FONT1 = "./fonts/HiraginoMaruGothicProNW4.otf"
+        FONT2 = "./fonts/TrmFontJB.ttf"
+        FONT3 = "./fonts/HOTKaishokkR.otf"
 
         MARGIN = 4
         RADIUS = 6
@@ -318,14 +318,14 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         yoloLabels.append(f"{numberPlateTypeId} {plateXCenter:.6f} {plateYCenter:.6f} {plateW:.6f} {plateH:.6f}")
 
         # 地名コード描画開始
-        for font in [FONT_HIRAGINO, FONT_TRM, FONT_FZ]:
+        for font in [FONT1, FONT2, FONT1]:
             if not os.path.exists(font):
                 raise FileNotFoundError(f"ERROR: フォントファイル '{font}' が見つかりません。")
             
         dummyImg = Image.new("RGB", (1, 1))
         dummyDraw = ImageDraw.Draw(dummyImg)
 
-        fontPlaceCode = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_OFFICE)
+        fontPlaceCode = ImageFont.truetype(FONT1, FONT_SIZE_OFFICE)
         positionForPlaceCode = [105, 10]
         
         if len(placeCode) < 2:
@@ -366,7 +366,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
 
 
         # 分類番号描画開始
-        fontClassNum = ImageFont.truetype(FONT_HIRAGINO, FONT_SIZE_CLASS)
+        fontClassNum = ImageFont.truetype(FONT1, FONT_SIZE_CLASS)
         positionForClassNum = [230, 10]
         CHAR_SPACING = 36
 
@@ -413,14 +413,14 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             currentX += CHAR_SPACING
 
         # ひらがなコード描画開始
-        positionForHiraganaCode = [20, 110]
-        fontSizeForHiraganaCode = 55
-        fontHiraganaCode = ImageFont.truetype(FONT_FZ, fontSizeForHiraganaCode)
+        positionForHiraganaCode = [10, 100]
+        fontSizeForHiraganaCode = 75
+        fontHiraganaCode = ImageFont.truetype(FONT3, fontSizeForHiraganaCode)
 
         if hiraganaCode in ["あ", "い", "う", "か", "き", "く", "け", "こ", "せ", "を"]:
             positionForHiraganaCode = [16, 55]
             fontSizeForHiraganaCode = 180
-            fontHiraganaCode = ImageFont.truetype(FONT_TRM, fontSizeForHiraganaCode)
+            fontHiraganaCode = ImageFont.truetype(FONT2, fontSizeForHiraganaCode)
 
         draw.text(positionForHiraganaCode, hiraganaCode, font=fontHiraganaCode, fill=numberPlateTextColor[1])
 
@@ -434,7 +434,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
 
         # 登録番号描画開始
         fontSizeForRegNum = 130
-        fontRegNum = ImageFont.truetype(FONT_TRM, fontSizeForRegNum)
+        fontRegNum = ImageFont.truetype(FONT2, fontSizeForRegNum)
         positionForRegNum = [80, 80]
         REGISTRATION_NUMBER_WIDTH = 60
         
