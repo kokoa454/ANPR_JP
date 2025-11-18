@@ -10,7 +10,9 @@ class Main:
         while True:
             image = self.deviceController.processCarDetection()
             if image is not None:
-                self.recognizerController.recognizeNumberPlate(image)
+                numberPlateObject = self.recognizerController.recognizeNumberPlate(image)
+                if numberPlateObject is not None:
+                    print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
 
 if __name__ == "__main__":
     Main().run()
