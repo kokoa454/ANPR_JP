@@ -71,16 +71,53 @@
 ##### ② Set inference rate
 ##### ③ Test starts automatically
 
+## Usage of ANPR
+### 1. Create .env file and make sure every params are filled in[^8]
+```
+# DETECTION SETTINGS
+DETECTION_MODEL = yolo11n-seg-anpr-jp-detect.pt
+DETECTION_IMG_SIZE = 640
+DETECTION_CONFIDENCE = 0.5
+DETECTION_IOU = 0.3
+DETECTION_TARGET_WIDTH = 880
+DETECTION_TARGET_HEIGHT = 440
+
+# OCR SETTINGS
+OCR_MODEL = yolo11n-anpt-jp-ocr.pt
+OCR_IMG_SIZE = 640
+OCR_CONFIDENCE = 0.5
+OCR_IOU = 0.3
+OCR_START_REGION_CODE_CLASS_ID = 4
+UNDEFINED_TEXT = ???
+
+# OUTPUT SETTINGS
+OUTPUT_CAPTURE_DIR = ./outputs/capture
+OUTPUT_DETECT_DIR = ./outputs/detect
+OUTPUT_LOGS_DIR = ./logs
+
+# RPICAM SETTINGS
+CAMERA_ID = 0
+RPICAM_METERING = spot
+RPICAM_AUTOFOCUS_MODE = continuous
+RPICAM_TIMEOUT = 2000
+
+# TIME STAMP SETTINGS
+TIME_STAMP_FORMAT = %Y%m%d_%H%M%S
+
+```
+
 [^1]: About Number Plate Color. In addition, there are special number plates in Japan, such as number plates with graphic backgrounds and diplomatic number plates, but the YOLO models included in this program cannot recognize number plates that are not listed in the table.
 
 [^2]: About Usage Of Machine Learning. Users of this program can select menus by running ./generate_yolo_model/generate_yolo_model.py.
 
 [^3]: About Data Set For Detecting Number Plates. The author used the project _"License Plate Computer Vision Model by Questions"_. Here is the [URL](https://universe.roboflow.com/questions/license-plate-1sowi).
 
-[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in .generate_yolo_model/yolo_output_detect/number_plate_11n{n}_detect/weights into yolo11n-seg-anpr-jp-detect.pt.
+[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in ./generate_yolo_model/yolo_output_detect/number_plate_11n{n}_detect/weights into yolo11n-seg-anpr-jp-detect.pt.
 
 [^5]: About Test Result for Detecting Number Plates. The test results will be put in ./generate_yolo_model/test_detect/results_images/.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in .generate_yolo_model/yolo_output_ocr/number_plate_11n{n}_ocr/weights into yolo11n-anpr-jp-ocr.pt.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in ./generate_yolo_model/yolo_output_ocr/number_plate_11n{n}_ocr/weights into yolo11n-anpr-jp-ocr.pt.
 
 [^7]: About Test Result for OCR. The test results will be put in ./generate_yolo_model/test_ocr/results_images/.
+
+[^8]: About Params in .env. Boolean flags (`DETECTION_SAVE`, `OCR_SAVE`) are managed in `config.py` directly.
