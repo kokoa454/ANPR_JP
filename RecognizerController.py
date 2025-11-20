@@ -4,12 +4,13 @@ import NumberPlateRecognizer
 import NumberPlateTextRecognizer
 import NumberPlate
 import os
+import config
 
 class RecognizerController:
     def __init__(self):
         self.numberPlateRecognizer = NumberPlateRecognizer.NumberPlateRecognizer()
         self.numberPlateTextRecognizer = NumberPlateTextRecognizer.NumberPlateTextRecognizer()
-        os.makedirs("./outputs/detect", exist_ok=True)
+        os.makedirs(config.OUTPUT_DETECT_DIR, exist_ok=True)
 
     def recognizeNumberPlate(self, image) -> NumberPlate.NumberPlate | None:
         detectResults = self.numberPlateRecognizer.detectNP(image)

@@ -1,7 +1,9 @@
-numpy==2.3.4
+numpy==2.3.5
 opencv_python==4.12.0.88
 opencv_python_headless==4.10.0.84
 Pillow==12.0.0
+python-dotenv==1.2.1
 roboflow==1.2.11
 torch==2.8.0
 ultralytics==8.3.201
+python-dotenv==1.2.1

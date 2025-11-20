@@ -2,10 +2,11 @@ __package__ = "NumberPlateTextRecognizer"
 
 from ultralytics import YOLO
 import PIL as Image
+import config
 
 class NumberPlateTextRecognizer:
     def __init__(self):
-        self.model = YOLO("yolo11n-anpr-jp-ocr.pt")
+        self.model = YOLO(config.OCR_MODEL)
 
     def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
         detectedChars = []
@@ -15,10 +16,10 @@ class NumberPlateTextRecognizer:
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
         ocrResults = self.model(
             source = detectResults,
-            imgsz = 640,
-            conf = 0.5,
-            iou = 0.3,
-            save = False
+            imgsz = config.OCR_IMG_SIZE,
+            conf = config.OCR_CONFIDENCE,
+            iou = config.OCR_IOU,
+            save = config.OCR_SAVE
         )
 
         # OCRの検出結果を取得
@@ -40,7 +41,7 @@ class NumberPlateTextRecognizer:
                     centerX = (xyxy[classId][0] + xyxy[classId][2]) / 2
                     centerY = (xyxy[classId][1] + xyxy[classId][3]) / 2
 
-                    if id >= 4:
+                    if id >= config.OCR_START_REGION_CODE_CLASS_ID:
                         detectedChars.append((className, centerX, centerY))
 
                 height = detectResults.height

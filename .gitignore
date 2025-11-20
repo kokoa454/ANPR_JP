@@ -11,3 +11,4 @@
 /generate_yolo_model/yolo11n-seg.pt
 /outputs/
 /logs/
+.env

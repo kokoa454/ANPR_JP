@@ -5,8 +5,7 @@ import Utilities
 import ErrorLog
 import cv2
 import os
-
-CAMERA_ID = 0
+import config
 
 class Camera:
     def __init__(self):
@@ -15,9 +14,9 @@ class Camera:
 
     #-- opencv is not used due to errors with opening the camera
     # def _openCamera(self):
-    #     capture = cv2.VideoCapture(CAMERA_ID)
+    #     capture = cv2.VideoCapture(config.CAMERA_ID)
     #     return capture
-            
+    
     # def _closeCamera(self, capture):
     #     capture.release()
 
@@ -37,8 +36,8 @@ class Camera:
 
     def captureImage(self) -> Image.Image | None:
         try:
-            fileName = f"./outputs/capture/captured_image_{self.utilities.getTimeStamp()}.jpeg"
-            os.system(f"rpicam-jpeg --metering spot -n --autofocus-mode continuous --output {fileName} --timeout 2000")
+            fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{self.utilities.getTimeStamp()}.jpeg"
+            os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
             return Image.open(fileName)
         except Exception as e:
             self.errorLog.saveErrorLog(f"Camera: {e}")

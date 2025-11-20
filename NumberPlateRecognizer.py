@@ -5,20 +5,21 @@ import Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO
+import config
 
 class NumberPlateRecognizer:
     def __init__(self):
-        self.model = YOLO("yolo11n-seg-anpr-jp-detect.pt")
+        self.model = YOLO(config.DETECTION_MODEL)
         self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image.Image) -> Image.Image | None:
         # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
         detectionResults = self.model(
             source = image,
-            imgsz = 640,
-            conf = 0.5,
-            iou = 0.3,
-            save = False
+            imgsz = config.DETECTION_IMG_SIZE,
+            conf = config.DETECTION_CONFIDENCE,
+            iou = config.DETECTION_IOU,
+            save = config.DETECTION_SAVE
         )
 
         # ナンバープレートの検出結果とマスクとナンバープレートの数を取得
@@ -100,7 +101,7 @@ class NumberPlateRecognizer:
             flags=cv2.INTER_CUBIC
         )
 
-        fileName = f"./outputs/detect/detected_image_{self.utilities.getTimeStamp()}.png"
+        fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{self.utilities.getTimeStamp()}.png"
         cv2.imwrite(fileName, warpedPerspective)
 
         finalImage = cv2.cvtColor(warpedPerspective, cv2.COLOR_BGR2RGB)

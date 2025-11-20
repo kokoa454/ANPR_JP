@@ -1,9 +1,10 @@
 __package__ = "Utilities"
 
 from datetime import datetime
+import config
 
 class Utilities:
     def getTimeStamp(self) -> str:
         now = datetime.now()
-        timestamp = now.strftime("%Y_%m_%d_%H_%M_%S")
+        timestamp = now.strftime(config.TIME_STAMP_FORMAT)
         return timestamp
