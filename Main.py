@@ -1,5 +1,6 @@
 import DeviceController
 import RecognizerController
+import config
 
 class Main:
     def __init__(self) -> None:
@@ -8,11 +9,17 @@ class Main:
     
     def run(self) -> None:
         while True:
-            image = self.deviceController.processCarDetection()
-            if image is not None:
-                numberPlateObject = self.recognizerController.recognizeNumberPlate(image)
-                if numberPlateObject is not None:
-                    print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
+            if self.deviceController.detectCar() is not None:
+                self.deviceController.pauseCarDetection()
+                image = self.deviceController.captureNP()
+
+                if image is not None:
+                    numberPlateObject = self.recognizerController.recognizeNumberPlate(image)
+
+                    if numberPlateObject is not None:
+                        print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
+                
+                self.deviceController.resumeCarDetection()
 
 if __name__ == "__main__":
     Main().run()
