@@ -40,5 +40,6 @@ class Camera:
             os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
             return Image.open(fileName)
         except Exception as e:
-            self.errorLog.saveErrorLog(f"Camera: {e}")
+            time = self.utilities.getTimeStamp()
+            self.errorLog.saveErrorLog(time, "Camera", f"{e}")
             return None
