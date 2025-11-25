@@ -1,6 +1,7 @@
 import DeviceController
 import RecognizerController
 import config
+import time
 
 class Main:
     def __init__(self) -> None:
@@ -9,7 +10,8 @@ class Main:
     
     def run(self) -> None:
         while True:
-            if self.deviceController.detectCar() is not None:
+            distance = self.deviceController.detectCar()
+            if distance is not None:
                 self.deviceController.pauseCarDetection()
                 image = self.deviceController.captureNP()
 
@@ -20,6 +22,7 @@ class Main:
                         print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
                 
                 self.deviceController.resumeCarDetection()
+            time.sleep(config.PROXIMITY_SENSOR_TRIGGER_WAIT_SEC)
 
 if __name__ == "__main__":
     Main().run()

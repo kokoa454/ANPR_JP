@@ -8,14 +8,14 @@ import config
 
 class DeviceController:
     def __init__(self):
-        self.camera = camera if camera else Camera()
+        self.camera = Camera()
         self.proximitySensor = ProximitySensor()
         os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok=True)
 
     def detectCar(self) -> float | None:
         distance = self.proximitySensor.getDistance()
         
-        if distance is not None and distance < config.PROXIMITY_SENSOR_THRESHOLD_CM:
+        if distance is not None and distance <= config.PROXIMITY_SENSOR_THRESHOLD_CM:
             return distance
         else:
             return None
