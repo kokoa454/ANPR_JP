@@ -12,20 +12,14 @@ class DeviceController:
         self.proximitySensor = ProximitySensor()
         os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok=True)
 
-    def detectCar(self) -> float | None:
+    def detectCar(self) -> bool:
         distance = self.proximitySensor.getDistance()
         
         if distance is not None and distance <= config.PROXIMITY_SENSOR_THRESHOLD_CM:
-            return distance
+            return True
         else:
-            return None
+            return False
 
-    def captureNP(self) -> Image.Image | None:
+    def captureNumberPlate(self) -> Image.Image | None:
         image = self.camera.captureImage()
         return image
-    
-    def resumeCarDetection(self) -> None:
-        self.proximitySensor.openSensor()
-
-    def pauseCarDetection(self) -> None:
-        self.proximitySensor.closeSensor()

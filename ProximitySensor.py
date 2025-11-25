@@ -25,15 +25,3 @@ class ProximitySensor:
         except Exception as e:
             self.errorLog.saveErrorLog(f"ProximitySensor: {e}")
             return None
-    
-    def openSensor(self) -> None:
-        try:
-            self.sensor.wait_for_active()
-        except Exception as e:
-            self.errorLog.saveErrorLog(f"ProximitySensor: {e}")
-
-    def closeSensor(self) -> None:
-        try:
-            self.sensor.wait_for_inactive()
-        except Exception as e:
-            self.errorLog.saveErrorLog(f"ProximitySensor: {e}")

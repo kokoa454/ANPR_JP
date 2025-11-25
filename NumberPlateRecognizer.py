@@ -55,7 +55,7 @@ class NumberPlateRecognizer:
 
                     return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
         
-        print("ナンバープレートは検出されませんでした。")
+        print("NumberPlateRecognizer: No Number Plate Detected")
         return None
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
