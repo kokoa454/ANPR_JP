@@ -6,7 +6,7 @@
 - Avoid past tense (`Fixed`, `Added`)
 - Keep summary short
 - Write details in body if needed
--
+- Prefer a single feature per commit. If you must include multiple changes in one commit, separate messages with a semicolon (;) and use a semicolon at the end of all but the last message.
 ---
 
 ## Allowed Types (Prefixes)
