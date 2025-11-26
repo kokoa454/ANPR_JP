@@ -16,6 +16,7 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
         self.api_visitors_table_url = config.API_VISITORS_TABLE_URL
         self.api_key = config.API_KEY
 
+    # TODO: put redundant code into a function and call it in each function
     def checkDBConnection(self) -> bool:
         try:
             response = requests.get(url = self.api_connection_check_url, timeout = 5)

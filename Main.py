@@ -15,7 +15,7 @@ class Main:
         self.detectionPaused = False
         self.connectionStatus = False
     
-    def run(self) -> None:
+    def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
             self.carDetected = self.deviceController.detectCar()
 
