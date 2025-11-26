@@ -41,5 +41,5 @@ class Camera:
             return Image.open(fileName)
         except Exception as e:
             time = self.utilities.getTimeStamp()
-            self.errorLog.saveErrorLog(time, "Camera", f"{e}")
+            self.errorLog.saveErrorLog(time = time, errorType = "Camera", error = f"{e}")
             return None

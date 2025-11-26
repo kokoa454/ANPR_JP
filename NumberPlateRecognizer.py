@@ -9,7 +9,7 @@ import config
 
 class NumberPlateRecognizer:
     def __init__(self):
-        self.model = YOLO(config.DETECTION_MODEL)
+        self.model = YOLO(model = config.DETECTION_MODEL)
         self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image.Image) -> Image.Image | None:
@@ -51,11 +51,10 @@ class NumberPlateRecognizer:
                     npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
                     # 射影変換を実行
-                    npImage = self._transformPerspective(npImage, sourcePoints)
+                    npImage = self._transformPerspective(image = npImage, sourcePoints = sourcePoints)
 
                     return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
-        
-        print("NumberPlateRecognizer: No Number Plate Detected")
+
         return None
 
     def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
@@ -74,36 +73,36 @@ class NumberPlateRecognizer:
         points = sorted(points, key=lambda x: (x[1], x[0]))
         top = sorted(points[:2], key=lambda x: x[0])
         bottom = sorted(points[2:], key=lambda x: x[0], reverse=True)
-        return np.array([top[0], top[1], bottom[0], bottom[1]], dtype="float32")
-        
+        return np.array(
+            [
+                top[0], 
+                top[1], 
+                bottom[0], 
+                bottom[1]
+            ], 
+            dtype = "float32"
+        )
+
     def _transformPerspective(self, image: np.ndarray, sourcePoints: np.ndarray) -> Image:
         TARGET_WIDTH = 440 * 2
         TARGET_HEIGHT = 220 * 2
 
-        destination = np.array([
-            [0, 0], 
-            [TARGET_WIDTH - 1, 0],
-            [TARGET_WIDTH - 1, TARGET_HEIGHT - 1],
-            [0, TARGET_HEIGHT - 1]
-        ], dtype="float32")
-
-        homographyMatrix, _ = cv2.findHomography(
-            sourcePoints, 
-            destination, 
-            cv2.RANSAC, 
-            5.0
+        destination = np.array(
+            [
+                [0, 0], 
+                [TARGET_WIDTH - 1, 0],
+                [TARGET_WIDTH - 1, TARGET_HEIGHT - 1],
+                [0, TARGET_HEIGHT - 1]
+            ], 
+            dtype = "float32"
         )
 
-        warpedPerspective = cv2.warpPerspective(
-            image, 
-            homographyMatrix, 
-            (TARGET_WIDTH, TARGET_HEIGHT),
-            flags=cv2.INTER_CUBIC
-        )
+        homographyMatrix, _ = cv2.findHomography(src = sourcePoints, dst = destination, method = cv2.RANSAC, ransacReprojThreshold = 5.0)
+
+        warpedPerspective = cv2.warpPerspective(src = image, M = homographyMatrix, dsize = (TARGET_WIDTH, TARGET_HEIGHT), flags = cv2.INTER_CUBIC)
 
         fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{self.utilities.getTimeStamp()}.png"
         cv2.imwrite(fileName, warpedPerspective)
 
-        finalImage = cv2.cvtColor(warpedPerspective, cv2.COLOR_BGR2RGB)
-            
+        finalImage = cv2.cvtColor(src = warpedPerspective, code = cv2.COLOR_BGR2RGB)
         return finalImage

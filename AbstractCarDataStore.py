@@ -6,11 +6,11 @@ class AbstractCarDataStore(ABC):
     @abstractmethod
     def __init__(self):
         pass
-    
+
     @abstractmethod
-    def insertIntoRegionCodeTable(self, data: str) -> bool:
+    def insertIntoRegionCodeTable(self, data: dict) -> bool:
         pass
 
     @abstractmethod
-    def insertOrUpdateVisitorsTable(self, data: str) -> bool:
+    def insertOrUpdateVisitorsTable(self, data: dict) -> bool:
         pass

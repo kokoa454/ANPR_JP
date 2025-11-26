@@ -10,14 +10,13 @@ class DeviceController:
     def __init__(self):
         self.camera = Camera()
         self.proximitySensor = ProximitySensor()
-        os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok=True)
-
         self.outOfRange = config.PROXIMITY_SENSOR_OUT_OF_RANGE
+        os.makedirs(path = config.OUTPUT_CAPTURE_DIR, exist_ok = True)
 
     def detectCar(self) -> bool:
         distance = self.proximitySensor.getDistance()
         
-        if distance is not None and distance <= config.PROXIMITY_SENSOR_THRESHOLD_CM:
+        if distance is not None and distance <= self.outOfRange:
             print(f"ProximitySensor: Measured Distance = {distance} cm")
             return True
         else:

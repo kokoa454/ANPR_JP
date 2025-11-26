@@ -14,26 +14,20 @@ class NumberPlate:
 
     def getTypeOfVehicle(self) -> str:
         return self.typeOfVehicle
-    
+
     def getRegionCode(self) -> str:
         return self.regionCode
-    
+
     def getClassNum(self) -> str:
         return self.classNum
-    
+
     def getHiraganaCode(self) -> str:
         return self.hiraganaCode
-    
+
     def getRegistNum(self) -> str:
         return self.registNum
-    
-    def formatNPText(
-            self,
-            typeOfVehicle: str,
-            upperRowText: str,
-            lowerRowText: str
-        ) -> None:
 
+    def formatNPText(self, typeOfVehicle: str, upperRowText: str, lowerRowText: str) -> None:
         if typeOfVehicle == "" or typeOfVehicle is None or typeOfVehicle not in constance.TYPE_OF_VEHICLE_LIST:
             self.typeOfVehicle = config.UNDEFINED_TEXT
         else:

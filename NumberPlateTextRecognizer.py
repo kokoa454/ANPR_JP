@@ -62,5 +62,4 @@ class NumberPlateTextRecognizer:
 
                 return typeOfVehicle, upperRowText, lowerRowText
         
-        print("文字は検出されませんでした。")
         return None
