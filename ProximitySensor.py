@@ -12,9 +12,15 @@ class ProximitySensor:
         self.errorLog = ErrorLog.ErrorLog()
         self.triggerNum = config.PROXIMITY_SENSOR_TRIGGER_PIN
         self.echoNum = config.PROXIMITY_SENSOR_ECHO_PIN
+        self.maxDistanceMeter = config.PROXIMITY_SENSOR_MAX_DISTANCE_METER
+        self.outOfRange = config.PROXIMITY_SENSOR_OUT_OF_RANGE
 
         try:
-            self.sensor = DistanceSensor(echo=self.echoNum, trigger=self.triggerNum)
+            self.sensor = DistanceSensor(
+                echo=self.echoNum,
+                trigger=self.triggerNum,
+                max_distance=self.maxDistanceMeter,
+                )
         except Exception as e:
             time = self.utilities.getTimeStamp()
             self.errorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
@@ -22,8 +28,7 @@ class ProximitySensor:
 
     def getDistance(self) -> float | None:
         try:
-            distance = self.sensor.distance * 100 # convert to centimeters
-            print(f"ProximitySensor: Measured Distance = {distance} cm")
+            distance = float(self.sensor.distance) * 100 # convert to centimeter
             return distance
         except Exception as e:
             time = self.utilities.getTimeStamp()
