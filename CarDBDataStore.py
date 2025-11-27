@@ -16,15 +16,13 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
         self.api_visitors_table_url = config.API_VISITORS_TABLE_URL
         self.api_key = config.API_KEY
 
-    # TODO: put redundant code into a function and call it in each function
     def checkDBConnection(self) -> bool:
         try:
             response = requests.get(url = self.api_connection_check_url, timeout = 5)
 
-            if response.status_code == 200:
+            if self._checkRequestStatus(response = response):
                 return True
             else:
-                self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"API connection check failed with status code. {response.status_code}")
                 return False
         except requests.RequestException as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
@@ -35,10 +33,9 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
             headers = {"x-api-key": self.api_key}
             response = requests.post(url = self.api_region_code_table_url, headers=headers, json=data)
 
-            if response.status_code == 200:
+            if self._checkRequestStatus(response = response):
                 return True
             else:
-                self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"API connection check failed with status code. {response.status_code}")
                 return False
         except requests.RequestException as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
@@ -49,11 +46,17 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
             headers = {"x-api-key": self.api_key}
             response = requests.post(url = self.api_visitors_table_url, headers=headers, json=data)
 
-            if response.status_code == 200:
+            if self._checkRequestStatus(response = response):
                 return True
             else:
-                self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"API connection check failed with status code. {response.status_code}")
                 return False
         except requests.RequestException as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+            return False
+
+    def _checkRequestStatus(self, response: requests.Response) -> bool:
+        if response.status_code == 200:
+            return True
+        else:
+            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"API connection check failed with status code. {response.status_code}")
             return False
