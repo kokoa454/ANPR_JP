@@ -6,11 +6,11 @@ import config
 
 class DataStoreController:
     def __init__(self):
-        self.car_db_data_store = CarDBDataStore.CarDBDataStore()
+        self.carDBDataStore = CarDBDataStore.CarDBDataStore()
         self.utilities = Utilities.Utilities()
 
     def checkDBConnection(self) -> bool:
-        return self.car_db_data_store.checkDBConnection()
+        return self.carDBDataStore.checkDBConnection()
 
     def _formatRegionCodeTableData(self, day: str, time: str, regionCode: str) -> dict:
         return {
@@ -26,8 +26,8 @@ class DataStoreController:
 
     def insertIntoRegionCodeTable(self, day: str, time: str, regionCode: str) -> bool:
         data = self._formatRegionCodeTableData(day = day, time = time, regionCode = regionCode)
-        return self.car_db_data_store.insertIntoRegionCodeTable(data)
+        return self.carDBDataStore.insertIntoRegionCodeTable(data)
 
     def insertOrUpdateVisitorsTable(self, day: str) -> bool:
         data = self._formatVisitorsTableData(day = day)
-        return self.car_db_data_store.insertOrUpdateVisitorsTable(data)
+        return self.carDBDataStore.insertOrUpdateVisitorsTable(data)
