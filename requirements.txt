@@ -8,3 +8,6 @@ python-dotenv
 roboflow
 torch
 ultralytics
+fastapi
+uvicorn
+requests
