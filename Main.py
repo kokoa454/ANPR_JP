@@ -40,12 +40,12 @@ class Main:
                     if numberPlateObject is not None:
                         print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
                         
-                        time = self.utilities.getTime()
+                        timeNow = self.utilities.getTime()
                         regionCode = numberPlateObject.getRegionCode()
                         
                         if self.connectionStatus == True:
                             # TODO: check if local cache exists (if exists, send to database)
-                            self.regionCodeTableStatus = self.dataStoreController.insertIntoRegionCodeTable(day = day, time = time, regionCode = regionCode)
+                            self.regionCodeTableStatus = self.dataStoreController.insertIntoRegionCodeTable(day = day, time = timeNow, regionCode = regionCode)
                         
                         if self.connectionStatus == False or self.regionCodeTableStatus == False:
                             pass # TODO: save to local cache
@@ -56,7 +56,7 @@ class Main:
                 else:
                     print("Number plate not detected")
                 
-            time.sleep(config.MAIN_LOOP_DELAY_SEC)  
+            time.sleep(config.MAIN_LOOP_DELAY_SEC)
 
 if __name__ == "__main__":
     Main().run()
