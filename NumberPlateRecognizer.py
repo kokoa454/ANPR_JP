@@ -51,7 +51,7 @@ class NumberPlateRecognizer:
                     npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
                     # 射影変換を実行
-                    npImage = self._transformPerspective(image = npImage, sourcePoints = sourcePoints)
+                    npImage = self._transformPerspective(npImage, sourcePoints)
 
                     return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
 
@@ -97,9 +97,9 @@ class NumberPlateRecognizer:
             dtype = "float32"
         )
 
-        homographyMatrix, _ = cv2.findHomography(src = sourcePoints, dst = destination, method = cv2.RANSAC, ransacReprojThreshold = 5.0)
+        homographyMatrix, _ = cv2.findHomography(sourcePoints, destination, cv2.RANSAC, 5.0)
 
-        warpedPerspective = cv2.warpPerspective(src = image, M = homographyMatrix, dsize = (TARGET_WIDTH, TARGET_HEIGHT), flags = cv2.INTER_CUBIC)
+        warpedPerspective = cv2.warpPerspective(image, homographyMatrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
 
         fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{self.utilities.getTimeStamp()}.png"
         cv2.imwrite(fileName, warpedPerspective)
