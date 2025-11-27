@@ -14,6 +14,7 @@ class Main:
         self.carDetected = False
         self.detectionPaused = False
         self.connectionStatus = False
+        self.regionCodeTableStatus = False
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
@@ -44,8 +45,9 @@ class Main:
                         
                         if self.connectionStatus == True:
                             # TODO: check if local cache exists (if exists, send to database)
-                            self.dataStoreController.insertIntoRegionCodeTable(day = day, time = time, regionCode = regionCode)
-                        else:
+                            self.regionCodeTableStatus = self.dataStoreController.insertIntoRegionCodeTable(day = day, time = time, regionCode = regionCode)
+                        
+                        if self.connectionStatus == False or self.regionCodeTableStatus == False:
                             pass # TODO: save to local cache
 
                     else:
