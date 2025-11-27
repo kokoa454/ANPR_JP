@@ -15,10 +15,12 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
         self.api_region_code_table_url = config.API_REGION_CODE_TABLE_URL
         self.api_visitors_table_url = config.API_VISITORS_TABLE_URL
         self.api_key = config.API_KEY
+        self.api_name = config.API_NAME
 
     def checkDBConnection(self) -> bool:
         try:
-            response = requests.get(url = self.api_connection_check_url, timeout = 5)
+            headers = {self.api_name: self.api_key}
+            response = requests.get(url = self.api_connection_check_url, headers=headers, timeout = config.DB_CONNECTION_CHECK_TIMEOUT_SEC)
 
             if self._checkRequestStatus(response = response):
                 return True
@@ -30,7 +32,7 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
 
     def insertIntoRegionCodeTable(self, data: dict) -> bool:
         try:
-            headers = {"x-api-key": self.api_key}
+            headers = {self.api_name: self.api_key}
             response = requests.post(url = self.api_region_code_table_url, headers=headers, json=data)
 
             if self._checkRequestStatus(response = response):
@@ -43,7 +45,7 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
 
     def insertOrUpdateVisitorsTable(self, data: dict) -> bool:
         try:
-            headers = {"x-api-key": self.api_key}
+            headers = {self.api_name: self.api_key}
             response = requests.post(url = self.api_visitors_table_url, headers=headers, json=data)
 
             if self._checkRequestStatus(response = response):
