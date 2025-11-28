@@ -3,6 +3,7 @@ __package__ = "CarBufferDataStore"
 import ErrorLog
 import Utilities
 import config
+import os
 import json
 
 class CarBufferDataStore():
@@ -14,10 +15,16 @@ class CarBufferDataStore():
         self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
 
     def insertData(self, data: dict) -> bool:
+        if os.path.exists(f"{self.outputBufferDir}/{self.bufferJsonFileName}") == False:
+            bufferData = []
+        else:
+            status, bufferData = self.readData()
+            if status == False:
+                return False
+        bufferData.append(data)
         try:
-            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "a") as f:
-                json.dump(data, f)
-                f.write("\n")
+            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "w") as f:
+                json.dump(bufferData, f, indent = 4)
             return True
         except Exception as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
