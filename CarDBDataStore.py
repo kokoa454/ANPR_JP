@@ -14,6 +14,8 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
         self.apiDataUrl = config.API_DATA_URL
         self.apiKey = config.API_KEY
         self.apiName = config.API_NAME
+        self.outputBufferDir = config.OUTPUT_BUFFER_DIR
+        self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
 
     # unused functions
     # def checkDBConnection(self) -> bool:
@@ -55,7 +57,7 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
     #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
     #         return False
 
-    def insertData(self, timeStamp: str, data: dict[str, str, str, str]) -> bool:
+    def insertData(self, timeStamp: str, data: dict) -> bool:
         try:
             headers = {self.apiName: self.apiKey}
             response = requests.post(url = self.apiDataUrl, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
@@ -66,6 +68,18 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
                 return False
         except requests.RequestException as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+            return False
+
+    def insertBufferData(self, timeStamp: str, data: list[dict]) -> bool:
+        try:
+            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "r") as f:
+                data = json.load(f)
+                if self.insertData(timeStamp = timeStamp, data = data) == True:
+                    return True
+                else:
+                    return False
+        except Exception as e:
+            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
             return False
 
     def _checkRequestStatus(self, response: requests.Response) -> bool:

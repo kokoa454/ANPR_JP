@@ -24,3 +24,12 @@ class CarBufferDataStore(AbstractCarDataStore.AbstractCarDataStore):
         except Exception as e:
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
             return False
+    
+    def readData(self) -> tuple[bool, list[dict]]:
+        try:
+            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "r") as f:
+                data = json.load(f)
+                return True, data
+        except Exception as e:
+            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            return False, None
