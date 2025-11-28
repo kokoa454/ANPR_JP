@@ -17,6 +17,7 @@ class Main:
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
+            startTime = time.perf_counter()
             self.carDetected = self.deviceController.detectCar()
 
             if self.carDetected == False and self.detectionPaused == True:
@@ -44,7 +45,7 @@ class Main:
                     print("Number plate not detected")
 
                 if self.dataStoreController.checkBuffer() == True:
-                    if self.dataStoreController.insertBufferDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                    if self.dataStoreController.insertBufferDataToDB() == True:
                         print("Buffer data inserted to DB successfully")
                     else:
                         print("Buffer data insertion to DB failed")
@@ -60,6 +61,8 @@ class Main:
                         print("Data inserted to buffer failed")
                 
             time.sleep(config.MAIN_LOOP_DELAY_SEC)
+            endTime = time.perf_counter()
+            print(f"Loop execution time: {endTime - startTime} seconds")
 
 if __name__ == "__main__":
     Main().run()
