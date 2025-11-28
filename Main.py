@@ -3,6 +3,7 @@ import RecognizerController
 import DataStoreController
 import Utilities
 import config
+import NumberPlate
 import time
 
 class Main:
@@ -26,35 +27,37 @@ class Main:
                 
                 image = self.deviceController.captureNumberPlate()
                 
+                numberPlateObject = NumberPlate.NumberPlate()
                 timeStamp = self.utilities.getTimeStamp()
 
-                if image is not None:                 
-                    numberPlateObject = self.recognizerController.recognizeNumberPlate(image = image)
+                if image is not None:
+                    recognizedNumberPlate = self.recognizerController.recognizeNumberPlate(image = image, numberPlateObject = numberPlateObject)
                     
-                    if numberPlateObject is not None:
+                    if recognizedNumberPlate is not None:
+                        numberPlateObject = recognizedNumberPlate
                         print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
-
-                        if self.dataStoreController.checkBuffer() == True:
-                            if self.dataStoreController.insertBufferDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
-                                print("Buffer data inserted to DB successfully")
-                            else:
-                                print("Buffer data insertion to DB failed")
-
-                        if self.dataStoreController.insertDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
-                            print("Data inserted to DB successfully")
-                        else:
-                            print("Data inserted to DB failed")
-                            
-                            if self.dataStoreController.insertDataToBuffer(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
-                                print("Data inserted to buffer successfully")
-                            else:
-                                print("Data inserted to buffer failed")
 
                     else:
                         print("Number plate text not detected")
 
                 else:
                     print("Number plate not detected")
+
+                if self.dataStoreController.checkBuffer() == True:
+                    if self.dataStoreController.insertBufferDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                        print("Buffer data inserted to DB successfully")
+                    else:
+                        print("Buffer data insertion to DB failed")
+
+                if self.dataStoreController.insertDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                    print("Data inserted to DB successfully")
+                else:
+                    print("Data inserted to DB failed")
+                    
+                    if self.dataStoreController.insertDataToBuffer(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                        print("Data inserted to buffer successfully")
+                    else:
+                        print("Data inserted to buffer failed")
                 
             time.sleep(config.MAIN_LOOP_DELAY_SEC)
 

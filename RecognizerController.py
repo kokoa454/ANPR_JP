@@ -12,12 +12,11 @@ class RecognizerController:
         self.numberPlateTextRecognizer = NumberPlateTextRecognizer.NumberPlateTextRecognizer()
         os.makedirs(config.OUTPUT_DETECT_DIR, exist_ok=True)
 
-    def recognizeNumberPlate(self, image) -> NumberPlate.NumberPlate | None:
-        detectResults = self.numberPlateRecognizer.detectNP(image)
+    def recognizeNumberPlate(self, image: any, numberPlateObject: NumberPlate.NumberPlate) -> NumberPlate.NumberPlate | None:
+        detectResults = self.numberPlateRecognizer.detectNP(image = image)
 
         if detectResults is not None:
-            typeOfVehicle, upperRowText, lowerRowText = self.numberPlateTextRecognizer.detectNPText(detectResults)
-            numberPlateObject = NumberPlate.NumberPlate()
+            typeOfVehicle, upperRowText, lowerRowText = self.numberPlateTextRecognizer.detectNPText(detectResults = detectResults)
             numberPlateObject.formatNPText(typeOfVehicle, "".join(upperRowText), "".join(lowerRowText))
             return numberPlateObject
         return None

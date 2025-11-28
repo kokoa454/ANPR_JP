@@ -6,11 +6,11 @@ import constance
 
 class NumberPlate:
     def __init__(self):
-        self.typeOfVehicle = ""
-        self.regionCode = ""
-        self.classNum = ""
-        self.hiraganaCode = ""
-        self.registNum = ""
+        self.typeOfVehicle = config.UNDEFINED_TEXT
+        self.regionCode = config.UNDEFINED_TEXT
+        self.classNum = config.UNDEFINED_TEXT
+        self.hiraganaCode = config.UNDEFINED_TEXT
+        self.registNum = config.UNDEFINED_TEXT
 
     def getTypeOfVehicle(self) -> str:
         return self.typeOfVehicle
