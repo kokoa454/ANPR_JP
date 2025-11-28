@@ -35,12 +35,20 @@ class Main:
                         print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
 
                         if self.dataStoreController.checkBuffer() == True:
-                            self.dataStoreController.insertBufferDataToDB()
+                            if self.dataStoreController.insertBufferDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                                print("Buffer data inserted to DB successfully")
+                            else:
+                                print("Buffer data insertion to DB failed")
 
                         if self.dataStoreController.insertDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
-                            print("Data inserted successfully")
+                            print("Data inserted to DB successfully")
                         else:
-                            self.dataStoreController.insertDataToBuffer(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
+                            print("Data inserted to DB failed")
+                            
+                            if self.dataStoreController.insertDataToBuffer(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                                print("Data inserted to buffer successfully")
+                            else:
+                                print("Data inserted to buffer failed")
 
                     else:
                         print("Number plate text not detected")
