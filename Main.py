@@ -13,8 +13,6 @@ class Main:
         self.utilities = Utilities.Utilities()
         self.carDetected = False
         self.detectionPaused = False
-        self.connectionStatus = False
-        self.regionCodeTableStatus = False
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
@@ -28,27 +26,21 @@ class Main:
                 
                 image = self.deviceController.captureNumberPlate()
                 
-                day = self.utilities.getDay()
-                self.connectionStatus = self.dataStoreController.checkDBConnection()
-
-                if self.connectionStatus == True:
-                    self.dataStoreController.insertOrUpdateVisitorsTable(day = day)
+                timeStamp = self.utilities.getTimeStamp()
 
                 if image is not None:                 
                     numberPlateObject = self.recognizerController.recognizeNumberPlate(image = image)
                     
                     if numberPlateObject is not None:
                         print(f"Recognized Number Plate: {numberPlateObject.getTypeOfVehicle()}\n{numberPlateObject.getRegionCode()}{numberPlateObject.getClassNum()} {numberPlateObject.getHiraganaCode()} {numberPlateObject.getRegistNum()}\n")
-                        
-                        timeNow = self.utilities.getTime()
-                        regionCode = numberPlateObject.getRegionCode()
-                        
-                        if self.connectionStatus == True:
-                            # TODO: check if local cache exists (if exists, send to database)
-                            self.regionCodeTableStatus = self.dataStoreController.insertIntoRegionCodeTable(day = day, time = timeNow, regionCode = regionCode)
-                        
-                        if self.connectionStatus == False or self.regionCodeTableStatus == False:
-                            pass # TODO: save to local cache
+
+                        if self.dataStoreController.checkBuffer() == True:
+                            self.dataStoreController.insertBufferDataToDB()
+
+                        if self.dataStoreController.insertDataToDB(timeStamp = timeStamp, numberPlateObject = numberPlateObject) == True:
+                            print("Data inserted successfully")
+                        else:
+                            self.dataStoreController.insertDataToBuffer(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
 
                     else:
                         print("Number plate text not detected")
