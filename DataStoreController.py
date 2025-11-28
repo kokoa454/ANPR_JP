@@ -5,12 +5,17 @@ import Utilities
 import config
 import os
 import CarBufferDataStore
+import NumberPlate
+import ErrorLog
 
 class DataStoreController:
     def __init__(self):
         self.carDBDataStore = CarDBDataStore.CarDBDataStore()
         self.carBufferDataStore = CarBufferDataStore.CarBufferDataStore()
         self.utilities = Utilities.Utilities()
+        self.errorLog = ErrorLog.ErrorLog()
+        self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
+        self.outputBufferDir = config.OUTPUT_BUFFER_DIR
         os.makedirs(config.OUTPUT_BUFFER_DIR, exist_ok = True)
 
     # unused functions
@@ -37,26 +42,28 @@ class DataStoreController:
     #     data = self._formatVisitorsTableData(day = day)
     #     return self.carDBDataStore.insertOrUpdateVisitorsTable(data)
 
-    def insertDataToDB(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> bool:
+    def insertDataToDB(self, timeStamp: str, numberPlateObject: NumberPlate.NumberPlate) -> bool:
         data = self._formatData(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
-        status = self.carDBDataStore.insertData(timeStamp = timeStamp, data = data)
+        status = self.carDBDataStore.insertData(data = data)
         return status
 
-    def insertDataToBuffer(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> bool:
+    def insertDataToBuffer(self, timeStamp: str, numberPlateObject: NumberPlate.NumberPlate) -> bool:
         data = self._formatData(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
-        status = self.carBufferDataStore.insertData(timeStamp = timeStamp, data = data)
+        status = self.carBufferDataStore.insertData(data = data)
         return status
 
     def checkBuffer(self) -> bool:
         try:
-            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "r") as f:
+            with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "r"):
                 return True
         except Exception as e:
-            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            self.errorLog.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
             return False
 
     def insertBufferDataToDB(self) -> bool:
         status, data = self.carBufferDataStore.readData()
+        self.carDBDataStore.insertBufferData(data = data)
+
         if status == True:
             self._clearBuffer()
             return True
@@ -68,10 +75,10 @@ class DataStoreController:
             os.remove(f"{self.outputBufferDir}/{self.bufferJsonFileName}")
             return True
         except Exception as e:
-            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            self.errorLog.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
             return False
 
-    def _formatData(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> dict:
+    def _formatData(self, timeStamp: str, numberPlateObject: NumberPlate.NumberPlate) -> dict:
         regionCode = numberPlateObject.getRegionCode()
         classNum = numberPlateObject.getClassNum()
         hiraganaCode = numberPlateObject.getHiraganaCode()

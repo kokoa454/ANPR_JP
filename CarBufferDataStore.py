@@ -1,13 +1,11 @@
 __package__ = "CarBufferDataStore"
 
-import AbstractCarDataStore
-import requests
 import ErrorLog
 import Utilities
 import config
 import json
 
-class CarBufferDataStore(AbstractCarDataStore.AbstractCarDataStore):
+class CarBufferDataStore():
     def __init__(self):
         super().__init__()
         self.error_log = ErrorLog.ErrorLog()
@@ -15,7 +13,7 @@ class CarBufferDataStore(AbstractCarDataStore.AbstractCarDataStore):
         self.outputBufferDir = config.OUTPUT_BUFFER_DIR
         self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
 
-    def insertData(self, timeStamp: str, data: dict) -> bool:
+    def insertData(self, data: dict) -> bool:
         try:
             with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "a") as f:
                 json.dump(data, f)

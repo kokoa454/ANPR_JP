@@ -1,12 +1,12 @@
 __package__ = "CarDBDataStore"
 
-import AbstractCarDataStore
 import requests
 import ErrorLog
 import Utilities
 import config
+import json
 
-class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
+class CarDBDataStore:
     def __init__(self):
         super().__init__()
         self.error_log = ErrorLog.ErrorLog()
@@ -57,7 +57,7 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
     #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
     #         return False
 
-    def insertData(self, timeStamp: str, data: dict) -> bool:
+    def insertData(self, data: dict) -> bool:
         try:
             headers = {self.apiName: self.apiKey}
             response = requests.post(url = self.apiDataUrl, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
@@ -70,11 +70,11 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
             self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
             return False
 
-    def insertBufferData(self, timeStamp: str, data: list[dict]) -> bool:
+    def insertBufferData(self, data: list[dict]) -> bool:
         try:
             with open(f"{self.outputBufferDir}/{self.bufferJsonFileName}", "r") as f:
                 data = json.load(f)
-                if self.insertData(timeStamp = timeStamp, data = data) == True:
+                if self.insertData(data = data) == True:
                     return True
                 else:
                     return False
