@@ -62,11 +62,12 @@ class DataStoreController:
 
     def insertBufferDataToDB(self) -> bool:
         status, data = self.carBufferDataStore.readData()
-        self.carDBDataStore.insertBufferData(data = data)
-
         if status == True:
-            self._clearBuffer()
-            return True
+            if self.carDBDataStore.insertBufferData(data = data) == True:
+                self._clearBuffer()
+                return True
+            else:
+                return False
         else:
             return False
 
