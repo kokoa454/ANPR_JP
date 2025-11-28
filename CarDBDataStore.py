@@ -11,42 +11,54 @@ class CarDBDataStore(AbstractCarDataStore.AbstractCarDataStore):
         super().__init__()
         self.error_log = ErrorLog.ErrorLog()
         self.utilities = Utilities.Utilities()
-        self.api_connection_check_url = config.API_CONNECTION_CHECK_URL
-        self.api_region_code_table_url = config.API_REGION_CODE_TABLE_URL
-        self.api_visitors_table_url = config.API_VISITORS_TABLE_URL
-        self.api_key = config.API_KEY
-        self.api_name = config.API_NAME
+        self.apiDataUrl = config.API_DATA_URL
+        self.apiKey = config.API_KEY
+        self.apiName = config.API_NAME
 
-    def checkDBConnection(self) -> bool:
+    # unused functions
+    # def checkDBConnection(self) -> bool:
+    #     try:
+    #         headers = {self.api_name: self.api_key}
+    #         response = requests.get(url = self.api_connection_check_url, headers=headers, timeout = config.DB_CONNECTION_CHECK_TIMEOUT_SEC)
+
+    #         if self._checkRequestStatus(response = response):
+    #             return True
+    #         else:
+    #             return False
+    #     except requests.RequestException as e:
+    #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+    #         return False
+
+    # def insertIntoRegionCodeTable(self, data: dict) -> bool:
+    #     try:
+    #         headers = {self.api_name: self.api_key}
+    #         response = requests.post(url = self.api_region_code_table_url, headers=headers, json=data)
+
+    #         if self._checkRequestStatus(response = response):
+    #             return True
+    #         else:
+    #             return False
+    #     except requests.RequestException as e:
+    #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+    #         return False
+
+    # def insertOrUpdateVisitorsTable(self, data: dict) -> bool:
+    #     try:
+    #         headers = {self.api_name: self.api_key}
+    #         response = requests.post(url = self.api_visitors_table_url, headers=headers, json=data)
+
+    #         if self._checkRequestStatus(response = response):
+    #             return True
+    #         else:
+    #             return False
+    #     except requests.RequestException as e:
+    #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+    #         return False
+
+    def insertData(self, timeStamp: str, data: dict[str, str, str, str]) -> bool:
         try:
-            headers = {self.api_name: self.api_key}
-            response = requests.get(url = self.api_connection_check_url, headers=headers, timeout = config.DB_CONNECTION_CHECK_TIMEOUT_SEC)
-
-            if self._checkRequestStatus(response = response):
-                return True
-            else:
-                return False
-        except requests.RequestException as e:
-            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
-            return False
-
-    def insertIntoRegionCodeTable(self, data: dict) -> bool:
-        try:
-            headers = {self.api_name: self.api_key}
-            response = requests.post(url = self.api_region_code_table_url, headers=headers, json=data)
-
-            if self._checkRequestStatus(response = response):
-                return True
-            else:
-                return False
-        except requests.RequestException as e:
-            self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
-            return False
-
-    def insertOrUpdateVisitorsTable(self, data: dict) -> bool:
-        try:
-            headers = {self.api_name: self.api_key}
-            response = requests.post(url = self.api_visitors_table_url, headers=headers, json=data)
+            headers = {self.apiName: self.apiKey}
+            response = requests.post(url = self.apiDataUrl, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
 
             if self._checkRequestStatus(response = response):
                 return True
