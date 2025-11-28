@@ -3,11 +3,15 @@ __package__ = "DataStoreController"
 import CarDBDataStore
 import Utilities
 import config
+import os
+import CarBufferDataStore
 
 class DataStoreController:
     def __init__(self):
         self.carDBDataStore = CarDBDataStore.CarDBDataStore()
+        self.carBufferDataStore = CarBufferDataStore.CarBufferDataStore()
         self.utilities = Utilities.Utilities()
+        os.makedirs(config.OUTPUT_BUFFER_DIR, exist_ok = True)
 
     # unused functions
     # def checkDBConnection(self) -> bool:
@@ -34,16 +38,21 @@ class DataStoreController:
     #     return self.carDBDataStore.insertOrUpdateVisitorsTable(data)
 
     def insertDataToDB(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> bool:
+        data = self._formatData(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
+        status = self.carDBDataStore.insertData(timeStamp = timeStamp, data = data)
+        return status
+
+    def insertDataToBuffer(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> bool:
+        data = self._formatData(timeStamp = timeStamp, numberPlateObject = numberPlateObject)
+        status = self.carBufferDataStore.insertData(timeStamp = timeStamp, data = data)
+        return status
+
+    def _formatData(self, timeStamp: str, numberPlateObject: NumberPlateObject) -> dict:
         regionCode = numberPlateObject.getRegionCode()
         classNum = numberPlateObject.getClassNum()
         hiraganaCode = numberPlateObject.getHiraganaCode()
         registNum = numberPlateObject.getRegistNum()
 
-        data = self._formatData(timeStamp = timeStamp, regionCode = regionCode, classNum = classNum, hiraganaCode = hiraganaCode, registNum = registNum)
-        status = self.carDBDataStore.insertData(timeStamp = timeStamp, data = data)
-        return status
-
-    def _formatData(self, timeStamp: str, regionCode: str, classNum: str, hiraganaCode: str, registNum: str) -> dict:
         return {
             "timestamp": timeStamp,
             "region_code": regionCode,
