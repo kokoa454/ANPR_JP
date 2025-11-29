@@ -1,9 +1,9 @@
-import DeviceController
-import RecognizerController
-import DataStoreController
-import Utilities
+import anpr.entrance.Controller.DeviceController as DeviceController
+import anpr.entrance.Controller.RecognizerController as RecognizerController
+import anpr.entrance.Controller.DataStoreController as DataStoreController
+import anpr.entrance.Module.Utilities as Utilities
 import config
-import NumberPlate
+import anpr.entrance.Module.NumberPlate as NumberPlate
 import time
 
 class Main:

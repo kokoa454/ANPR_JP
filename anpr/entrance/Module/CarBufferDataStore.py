@@ -1,7 +1,7 @@
 __package__ = "CarBufferDataStore"
 
-import ErrorLog
-import Utilities
+import anpr.entrance.Module.ErrorLog as ErrorLog
+import anpr.entrance.Module.Utilities as Utilities
 import config
 import os
 import json

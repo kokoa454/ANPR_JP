@@ -1,8 +1,8 @@
 __package__ = "RecognizerController"
 
-import NumberPlateRecognizer
-import NumberPlateTextRecognizer
-import NumberPlate
+import anpr.entrance.Module.NumberPlateRecognizer as NumberPlateRecognizer
+import anpr.entrance.Module.NumberPlateTextRecognizer as NumberPlateTextRecognizer
+import anpr.entrance.Module.NumberPlate as NumberPlate
 import os
 import config
 

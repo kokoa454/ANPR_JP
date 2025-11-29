@@ -3,8 +3,8 @@ __package__ = "ProximitySensor"
 # https://gpiozero.readthedocs.io/en/stable/api_input.html
 from gpiozero import DistanceSensor
 import config
-import Utilities
-import ErrorLog
+import anpr.entrance.Module.Utilities as Utilities
+import anpr.entrance.Module.ErrorLog as ErrorLog
 
 class ProximitySensor:
     def __init__(self) -> None:

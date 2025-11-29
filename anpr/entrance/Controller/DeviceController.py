@@ -1,8 +1,8 @@
 __package__ = "DeviceController"
 
 import os
-from Camera import Camera
-from ProximitySensor import ProximitySensor
+from anpr.entrance.Module.Camera import Camera
+from anpr.entrance.Module.ProximitySensor import ProximitySensor
 import PIL.Image as Image
 import config
 

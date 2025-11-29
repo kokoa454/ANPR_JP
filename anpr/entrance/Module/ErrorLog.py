@@ -2,7 +2,7 @@ __package__ = "ErrorLog"
 
 import os
 import config
-from Utilities import Utilities
+from anpr.entrance.Module.Utilities import Utilities
 
 class ErrorLog:
     def __init__(self):

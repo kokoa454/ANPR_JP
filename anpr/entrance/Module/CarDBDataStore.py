@@ -1,8 +1,8 @@
 __package__ = "CarDBDataStore"
 
 import requests
-import ErrorLog
-import Utilities
+import anpr.entrance.Module.ErrorLog as ErrorLog
+import anpr.entrance.Module.Utilities as Utilities
 import config
 import json
 

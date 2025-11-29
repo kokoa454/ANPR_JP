@@ -1,8 +1,8 @@
 __package__ = "Camera"
 
 from PIL import Image
-import Utilities
-import ErrorLog
+import anpr.entrance.Module.Utilities as Utilities
+import anpr.entrance.Module.ErrorLog as ErrorLog
 import cv2
 import os
 import config

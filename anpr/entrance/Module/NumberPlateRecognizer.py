@@ -1,7 +1,7 @@
 __package__ = "NumberPlateRecognizer"
 
 from PIL import Image
-import Utilities
+import anpr.entrance.Module.Utilities as Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO
