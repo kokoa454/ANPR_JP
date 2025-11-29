@@ -8,7 +8,8 @@ class RecognizerController:
     def __init__(self):
         self.numberPlateRecognizer = NumberPlateRecognizer.NumberPlateRecognizer()
         self.numberPlateTextRecognizer = NumberPlateTextRecognizer.NumberPlateTextRecognizer()
-        os.makedirs(config.OUTPUT_DETECT_DIR, exist_ok=True)
+        self.outputDetectDir = f"../{config.OUTPUT_DETECT_DIR}"
+        os.makedirs(self.outputDetectDir, exist_ok=True)
 
     def recognizeNumberPlate(self, image: any, numberPlateObject: NumberPlate.NumberPlate) -> NumberPlate.NumberPlate | None:
         detectResults = self.numberPlateRecognizer.detectNP(image = image)

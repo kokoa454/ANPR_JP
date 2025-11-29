@@ -10,7 +10,8 @@ class DeviceController:
         self.proximitySensor = ProximitySensor()
         self.maxDistance = config.PROXIMITY_SENSOR_MAX_DISTANCE_METER * 100  # メートルをセンチメートルに変換
         self.outOfRange = config.PROXIMITY_SENSOR_OUT_OF_RANGE
-        os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok = True)
+        self.outputCaptureDir = f"../{config.OUTPUT_CAPTURE_DIR}"
+        os.makedirs(self.outputCaptureDir, exist_ok = True)
 
     def detectCar(self) -> bool:
         distance = self.proximitySensor.getDistance()

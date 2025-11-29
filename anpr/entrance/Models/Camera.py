@@ -9,6 +9,10 @@ class Camera:
     def __init__(self):
         self.utilities = Utilities.Utilities()
         self.errorLog = ErrorLog.ErrorLog()
+        self.outputCaptureDir = f"../{config.OUTPUT_CAPTURE_DIR}"
+        self.rpicamMetering = config.RPICAM_METERING
+        self.rpicamAutoFocusMode = config.RPICAM_AUTOFOCUS_MODE
+        self.rpicamTimeout = config.RPICAM_TIMEOUT
 
     #-- opencv is not used due to errors with opening the camera
     # def _openCamera(self):
@@ -34,8 +38,8 @@ class Camera:
 
     def captureImage(self) -> Image.Image | None:
         try:
-            fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{self.utilities.getTimeStamp()}.jpeg"
-            os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
+            fileName = f"{self.outputCaptureDir}/captured_image_{self.utilities.getTimeStamp()}.jpeg"
+            os.system(f"rpicam-jpeg --metering {self.rpicamMetering} -n --autofocus-mode {self.rpicamAutoFocusMode} --output {fileName} --timeout {self.rpicamTimeout}")
             return Image.open(fileName)
         except Exception as e:
             time = self.utilities.getTimeStamp()

@@ -4,7 +4,12 @@ import config.config as config
 
 class NumberPlateTextRecognizer:
     def __init__(self):
-        self.model = YOLO(config.OCR_MODEL)
+        self.ocrModel = YOLO(f"../{config.OCR_MODEL}")
+        self.ocrImgSize = config.OCR_IMG_SIZE
+        self.ocrConfidence = config.OCR_CONFIDENCE
+        self.ocrIoU = config.OCR_IOU
+        self.ocrSave = config.OCR_SAVE
+        self.ocrStartRegionCodeClassId = config.OCR_START_REGION_CODE_CLASS_ID
 
     def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
         detectedChars = []
@@ -12,12 +17,12 @@ class NumberPlateTextRecognizer:
         lowerRowText = []
 
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
-        ocrResults = self.model(
+        ocrResults = self.ocrModel(
             source = detectResults,
-            imgsz = config.OCR_IMG_SIZE,
-            conf = config.OCR_CONFIDENCE,
-            iou = config.OCR_IOU,
-            save = config.OCR_SAVE
+            imgsz = self.ocrImgSize,
+            conf = self.ocrConfidence,
+            iou = self.ocrIoU,
+            save = self.ocrSave
         )
 
         # OCRの検出結果を取得
@@ -39,7 +44,7 @@ class NumberPlateTextRecognizer:
                     centerX = (xyxy[classId][0] + xyxy[classId][2]) / 2
                     centerY = (xyxy[classId][1] + xyxy[classId][3]) / 2
 
-                    if id >= config.OCR_START_REGION_CODE_CLASS_ID:
+                    if id >= self.ocrStartRegionCodeClassId:
                         detectedChars.append((className, centerX, centerY))
 
                 height = detectResults.height

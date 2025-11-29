@@ -9,7 +9,7 @@ class CarBufferDataStore():
         super().__init__()
         self.error_log = ErrorLog.ErrorLog()
         self.utilities = Utilities.Utilities()
-        self.outputBufferDir = config.OUTPUT_BUFFER_DIR
+        self.outputBufferDir = f"../{config.OUTPUT_BUFFER_DIR}"
         self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
 
     def insertData(self, data: dict) -> bool:

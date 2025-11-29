@@ -7,17 +7,22 @@ import config.config as config
 
 class NumberPlateRecognizer:
     def __init__(self):
-        self.model = YOLO(model = config.DETECTION_MODEL)
+        self.detectionModel = YOLO(model = f"../{config.DETECTION_MODEL}")
+        self.detectionImgSize = config.DETECTION_IMG_SIZE
+        self.detectionConfidence = config.DETECTION_CONFIDENCE
+        self.detectionIoU = config.DETECTION_IOU
+        self.detectionSave = config.DETECTION_SAVE
+        self.outputDetectDir = f"../{config.OUTPUT_DETECT_DIR}"
         self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image.Image) -> Image.Image | None:
         # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
-        detectionResults = self.model(
+        detectionResults = self.detectionModel(
             source = image,
-            imgsz = config.DETECTION_IMG_SIZE,
-            conf = config.DETECTION_CONFIDENCE,
-            iou = config.DETECTION_IOU,
-            save = config.DETECTION_SAVE
+            imgsz = self.detectionImgSize,
+            conf = self.detectionConfidence,
+            iou = self.detectionIoU,
+            save = self.detectionSave
         )
 
         # ナンバープレートの検出結果とマスクとナンバープレートの数を取得
@@ -99,7 +104,7 @@ class NumberPlateRecognizer:
 
         warpedPerspective = cv2.warpPerspective(image, homographyMatrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
 
-        fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{self.utilities.getTimeStamp()}.png"
+        fileName = f"{self.outputDetectDir}/detected_image_{self.utilities.getTimeStamp()}.png"
         cv2.imwrite(fileName, warpedPerspective)
 
         finalImage = cv2.cvtColor(src = warpedPerspective, code = cv2.COLOR_BGR2RGB)

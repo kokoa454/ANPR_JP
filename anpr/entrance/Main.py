@@ -14,6 +14,7 @@ class Main:
         self.utilities = Utilities.Utilities()
         self.carDetected = False
         self.detectionPaused = False
+        self.mainLoopDelaySec = config.MAIN_LOOP_DELAY_SEC
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
@@ -60,7 +61,7 @@ class Main:
                     else:
                         print("Data inserted to buffer failed")
                 
-            time.sleep(config.MAIN_LOOP_DELAY_SEC)
+            time.sleep(self.mainLoopDelaySec)
             endTime = time.perf_counter()
             print(f"Loop execution time: {endTime - startTime} seconds")
 
