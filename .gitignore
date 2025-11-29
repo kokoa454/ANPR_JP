@@ -1,5 +1,4 @@
-/__pycache__/
-/generate_yolo_model/__pycache__/
+__pycache__
 /generate_yolo_model/fonts/
 /generate_yolo_model/data_set_detect/
 /generate_yolo_model/data_set_ocr/
