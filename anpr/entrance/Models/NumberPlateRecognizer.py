@@ -1,11 +1,9 @@
-__package__ = "NumberPlateRecognizer"
-
 from PIL import Image
-import anpr.entrance.Module.Utilities as Utilities
+import Models.Utilities as Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO
-import config
+import config.config as config
 
 class NumberPlateRecognizer:
     def __init__(self):

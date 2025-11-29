@@ -1,8 +1,6 @@
-__package__ = "NumberPlateTextRecognizer"
-
 from ultralytics import YOLO
 import PIL as Image
-import config
+import config.config as config
 
 class NumberPlateTextRecognizer:
     def __init__(self):

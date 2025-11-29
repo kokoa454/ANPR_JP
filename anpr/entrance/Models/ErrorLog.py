@@ -1,8 +1,6 @@
-__package__ = "ErrorLog"
-
 import os
-import config
-from anpr.entrance.Module.Utilities import Utilities
+import config.config as config
+from Models.Utilities import Utilities
 
 class ErrorLog:
     def __init__(self):

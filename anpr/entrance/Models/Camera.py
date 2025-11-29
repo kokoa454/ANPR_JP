@@ -1,11 +1,9 @@
-__package__ = "Camera"
-
 from PIL import Image
-import anpr.entrance.Module.Utilities as Utilities
-import anpr.entrance.Module.ErrorLog as ErrorLog
+import Models.Utilities as Utilities
+import Models.ErrorLog as ErrorLog
 import cv2
 import os
-import config
+import config.config as config
 
 class Camera:
     def __init__(self):

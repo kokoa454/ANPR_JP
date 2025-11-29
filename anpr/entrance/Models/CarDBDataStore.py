@@ -1,9 +1,7 @@
-__package__ = "CarDBDataStore"
-
 import requests
-import anpr.entrance.Module.ErrorLog as ErrorLog
-import anpr.entrance.Module.Utilities as Utilities
-import config
+import Models.ErrorLog as ErrorLog
+import Models.Utilities as Utilities
+import config.config as config
 import json
 
 class CarDBDataStore:

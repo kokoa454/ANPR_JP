@@ -1,7 +1,5 @@
-__package__ = "Utilities"
-
 from datetime import datetime
-import config
+import config.config as config
 
 class Utilities:
     def getTimeStamp(self) -> str:

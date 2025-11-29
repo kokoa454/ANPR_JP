@@ -1,12 +1,10 @@
-__package__ = "DataStoreController"
-
-import anpr.entrance.Module.CarDBDataStore as CarDBDataStore
-import anpr.entrance.Module.Utilities as Utilities
-import config
+import Models.CarDBDataStore as CarDBDataStore
+import Models.Utilities as Utilities
+import config.config as config
 import os
-import anpr.entrance.Module.CarBufferDataStore as CarBufferDataStore
-import anpr.entrance.Module.NumberPlate as NumberPlate
-import anpr.entrance.Module.ErrorLog as ErrorLog
+import Models.CarBufferDataStore as CarBufferDataStore
+import Models.NumberPlate as NumberPlate
+import Models.ErrorLog as ErrorLog
 
 class DataStoreController:
     def __init__(self):

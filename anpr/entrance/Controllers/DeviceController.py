@@ -1,10 +1,8 @@
-__package__ = "DeviceController"
-
 import os
-from anpr.entrance.Module.Camera import Camera
-from anpr.entrance.Module.ProximitySensor import ProximitySensor
+from Models.Camera import Camera
+from Models.ProximitySensor import ProximitySensor
 import PIL.Image as Image
-import config
+import config.config as config
 
 class DeviceController:
     def __init__(self):

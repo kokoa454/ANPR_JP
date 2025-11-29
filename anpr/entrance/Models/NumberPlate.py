@@ -1,8 +1,6 @@
-__package__ = "NumberPlate"
-
 import re
-import config
-import constance
+import config.config as config
+import config.constance as constance
 
 class NumberPlate:
     def __init__(self):
