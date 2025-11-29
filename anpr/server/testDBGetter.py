@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Header, HTTPException
-import config
+import config.config as config
 
 app = FastAPI()
 
