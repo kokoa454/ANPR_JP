@@ -12,7 +12,7 @@ class CarDBDataStore:
         self.apiDataUrl = config.API_DATA_URL
         self.apiKey = config.API_KEY
         self.apiName = config.API_NAME
-        self.outputBufferDir = f"../{config.OUTPUT_BUFFER_DIR}"
+        self.outputBufferDir = config.OUTPUT_BUFFER_DIR
         self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
 
     # unused functions

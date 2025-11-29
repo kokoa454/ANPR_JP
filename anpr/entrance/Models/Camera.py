@@ -9,7 +9,7 @@ class Camera:
     def __init__(self):
         self.utilities = Utilities.Utilities()
         self.errorLog = ErrorLog.ErrorLog()
-        self.outputCaptureDir = f"../{config.OUTPUT_CAPTURE_DIR}"
+        self.outputCaptureDir = config.OUTPUT_CAPTURE_DIR
         self.rpicamMetering = config.RPICAM_METERING
         self.rpicamAutoFocusMode = config.RPICAM_AUTOFOCUS_MODE
         self.rpicamTimeout = config.RPICAM_TIMEOUT

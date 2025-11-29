@@ -13,7 +13,7 @@ class DataStoreController:
         self.utilities = Utilities.Utilities()
         self.errorLog = ErrorLog.ErrorLog()
         self.bufferJsonFileName = config.BUFFER_JSON_FILE_NAME
-        self.outputBufferDir = f"../{config.OUTPUT_BUFFER_DIR}"
+        self.outputBufferDir = config.OUTPUT_BUFFER_DIR
         os.makedirs(self.outputBufferDir, exist_ok = True)
 
     # unused functions

@@ -12,7 +12,7 @@ class NumberPlateRecognizer:
         self.detectionConfidence = config.DETECTION_CONFIDENCE
         self.detectionIoU = config.DETECTION_IOU
         self.detectionSave = config.DETECTION_SAVE
-        self.outputDetectDir = f"../{config.OUTPUT_DETECT_DIR}"
+        self.outputDetectDir = config.OUTPUT_DETECT_DIR
         self.utilities = Utilities.Utilities()
 
     def detectNP(self, image: Image.Image) -> Image.Image | None:
