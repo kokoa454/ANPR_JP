@@ -8,7 +8,7 @@ class ProximitySensor:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
@@ -21,15 +21,13 @@ class ProximitySensor:
                 max_distance=config.PROXIMITY_SENSOR_MAX_DISTANCE_METER,
                 )
         except Exception as e:
-            time = Utilities.getTimeStamp()
-            ErrorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
             self.sensor = None
 
-    def getDistance(self) -> float | None:
+    def get_distance(self) -> float | None:
         try:
             distance = float(self.sensor.distance) * 100 # convert to centimeter
             return distance
         except Exception as e:
-            time = Utilities.getTimeStamp()
-            ErrorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
             return None

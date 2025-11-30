@@ -4,62 +4,61 @@ import config.constance as constance
 
 class NumberPlate:
     def __init__(self):
-        self.typeOfVehicle = config.UNDEFINED_TEXT
-        self.regionCode = config.UNDEFINED_TEXT
-        self.classNum = config.UNDEFINED_TEXT
-        self.hiraganaCode = config.UNDEFINED_TEXT
-        self.registNum = config.UNDEFINED_TEXT
-        self.undefinedText = config.UNDEFINED_TEXT 
+        self.type_of_vehicle = config.UNDEFINED_TEXT
+        self.region_code = config.UNDEFINED_TEXT
+        self.class_num = config.UNDEFINED_TEXT
+        self.hiragana_code = config.UNDEFINED_TEXT
+        self.regist_num = config.UNDEFINED_TEXT
 
-    def getTypeOfVehicle(self) -> str:
-        return self.typeOfVehicle
+    def get_type_of_vehicle(self) -> str:
+        return self.type_of_vehicle
 
-    def getRegionCode(self) -> str:
-        return self.regionCode
+    def get_region_code(self) -> str:
+        return self.region_code
 
-    def getClassNum(self) -> str:
-        return self.classNum
+    def get_class_num(self) -> str:
+        return self.class_num
 
-    def getHiraganaCode(self) -> str:
-        return self.hiraganaCode
+    def get_hiragana_code(self) -> str:
+        return self.hiragana_code
 
-    def getRegistNum(self) -> str:
-        return self.registNum
+    def get_regist_num(self) -> str:
+        return self.regist_num
 
-    def formatNPText(self, typeOfVehicle: str, upperRowText: str, lowerRowText: str) -> None:
-        self.typeOfVehicle = typeOfVehicle
-        self.regionCode = ""
-        self.classNum = ""
-        self.hiraganaCode = ""
-        self.registNum = ""
+    def format_number_plate_text(self, type_of_vehicle: str, upper_row_text: str, lower_row_text: str) -> None:
+        self.type_of_vehicle = type_of_vehicle
+        self.region_code = ""
+        self.class_num = ""
+        self.hiragana_code = ""
+        self.regist_num = ""
 
-        if typeOfVehicle == "" or typeOfVehicle is None or typeOfVehicle not in constance.TYPE_OF_VEHICLE_LIST:
-            self.typeOfVehicle = self.undefinedText
+        if type_of_vehicle == "" or type_of_vehicle is None or type_of_vehicle not in constance.TYPE_OF_VEHICLE_LIST:
+            self.type_of_vehicle = config.UNDEFINED_TEXT
         else:
-            self.typeOfVehicle = typeOfVehicle
+            self.type_of_vehicle = type_of_vehicle
 
-        for char in upperRowText:
+        for char in upper_row_text:
             if char.isdigit() or char in constance.ALPHABET_LIST:
-                self.classNum += char
+                self.class_num += char
             else:
-                self.regionCode += char
+                self.region_code += char
 
-        for char in lowerRowText:
+        for char in lower_row_text:
             if char.isdigit() or char in constance.SPECIAL_CHARACTER_LIST:
-                self.registNum += char
+                self.regist_num += char
             else:
-                self.hiraganaCode += char
+                self.hiragana_code += char
 
-        if self.regionCode == "" or self.regionCode not in constance.REGION_CODE_LIST:
-            self.regionCode = self.undefinedText
+        if self.region_code == "" or self.region_code not in constance.REGION_CODE_LIST:
+            self.region_code = config.UNDEFINED_TEXT
 
-        if self.classNum == "" or len(self.classNum) < 2 or len(self.classNum) > 4:
-            self.classNum = self.undefinedText
+        if self.class_num == "" or len(self.class_num) < 2 or len(self.class_num) > 4:
+            self.class_num = config.UNDEFINED_TEXT
 
-        if self.hiraganaCode == "" or self.hiraganaCode not in constance.HIRAGANA_CODE_LIST_ALL:
-            self.hiraganaCode = self.undefinedText
+        if self.hiragana_code == "" or self.hiragana_code not in constance.HIRAGANA_CODE_LIST_ALL:
+            self.hiragana_code = config.UNDEFINED_TEXT
 
-        if self.registNum == "" or (len(self.registNum) != 4 and len(self.registNum) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', self.registNum) is None:
-            self.registNum = self.undefinedText
+        if self.regist_num == "" or (len(self.regist_num) != 4 and len(self.regist_num) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', self.regist_num) is None:
+            self.regist_num = config.UNDEFINED_TEXT
 
         return None

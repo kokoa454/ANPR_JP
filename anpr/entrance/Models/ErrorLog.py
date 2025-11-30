@@ -2,6 +2,6 @@ import config.config as config
 
 class ErrorLog:
     @staticmethod
-    def saveErrorLog(time: str, errorType: str, error: str) -> None:
-        with open(config.OUTPUT_LOGS_DIR + "/error_log.txt", "a") as logFile:
-            logFile.write(f"{time} - {errorType} : {error}\n")
+    def save_error_log(timestamp: str, error_type: str, error: str) -> None:
+        with open(config.OUTPUT_LOGS_DIR + "/error_log.txt", "a") as log_file:
+            log_file.write(f"{timestamp} - {error_type} : {error}\n")

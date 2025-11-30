@@ -1,8 +1,6 @@
 from PIL import Image
 from Models.Utilities import Utilities
 from Models.ErrorLog import ErrorLog
-import cv2
-import os
 import config.config as config
 import subprocess
 
@@ -10,7 +8,7 @@ class Camera:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
@@ -47,20 +45,20 @@ class Camera:
     #         ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Camera", error = f"{e}")
     #         return None
 
-    def captureImage(self) -> Image.Image | None:
-        fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.getTimeStamp()}.jpeg"
+    def capture_image(self) -> Image.Image | None:
+        file_name = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.get_timestamp()}.jpeg"
         command = [
             "rpicam-jpeg",
             "--metering", config.RPICAM_METERING,
             "-n",
             "--autofocus-mode", config.RPICAM_AUTOFOCUS_MODE,
-            "--output", fileName,
+            "--output", file_name,
             "--timeout", config.RPICAM_TIMEOUT
         ]
         
         try:
             subprocess.run(command, check=True)
-            return Image.open(fileName)
+            return Image.open(file_name)
         except Exception as e:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Camera", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Camera", error = f"{e}")
             return None

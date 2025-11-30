@@ -9,7 +9,7 @@ class NumberPlateRecognizer:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
@@ -17,9 +17,9 @@ class NumberPlateRecognizer:
     def __init__(self) -> None:
         self.model = YOLO(model = config.DETECTION_MODEL)
 
-    def detectNP(self, image: Image.Image) -> Image.Image | None:
+    def detect_number_plate(self, image: Image.Image) -> Image.Image | None:
         # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
-        detectionResults = self.model(
+        detection_result = self.model(
             source = image,
             imgsz = config.DETECTION_IMG_SIZE,
             conf = config.DETECTION_CONFIDENCE,
@@ -28,53 +28,51 @@ class NumberPlateRecognizer:
         )
 
         # ナンバープレートの検出結果とマスクとナンバープレートの数を取得
-        detections = detectionResults[0].boxes.xyxy
-        masks = detectionResults[0].masks
-        npNumber = len(detections)
+        detections = detection_result[0].boxes.xyxy
+        masks = detection_result[0].masks
+        number_plate_number = len(detections)
 
         # ナンバープレートが検出された場合の処理
-        if masks is not None and npNumber > 0:
+        if masks is not None and number_plate_number > 0:
             # マスクデータを取得
-            segmentationMasks = masks.data.cpu().numpy()
+            segmentation_masks = masks.data.cpu().numpy()
 
             # ナンバープレートのマスクをリサイズして二値化
-            resizedMask = self._createBinaryMask(segmentationMasks[0], np.array(image))
+            resized_mask = self._create_binary_mask(segmentation_masks[0], np.array(image))
 
             # 凸包を検出して射影変換のための座標を取得
-            hull = self._detectConvexHull(resizedMask)
+            hull = self._detect_convex_hull(resized_mask)
 
             # 凸包が検出された場合、最も大きな凸包を取得して射影変換の座標を計算
             if hull:
-                mainHull = max(hull, key=cv2.contourArea)
-                rectangle = cv2.minAreaRect(mainHull)
-                boxPoints = cv2.boxPoints(rectangle)
-                sourcePoints = np.float32(boxPoints)
-                sourcePoints = self._sortSourcePoints(sourcePoints)
+                main_hull = max(hull, key=cv2.contourArea)
+                rectangle = cv2.minAreaRect(main_hull)
+                box_points = cv2.boxPoints(rectangle)
+                source_points = np.float32(box_points)
+                source_points = self._sort_source_points(source_points)
                         
-                if sourcePoints is not None:
+                if source_points is not None:
                     # 画像をNumPy配列に変換
-                    npImage = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-
+                    np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
                     # 射影変換を実行
-                    npImage = self._transformPerspective(npImage, sourcePoints)
+                    np_image = self._transform_perspective(np_image, source_points)
 
-                    return Image.fromarray(cv2.cvtColor(npImage, cv2.COLOR_BGR2RGB))
-
+                    return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
         return None
 
-    def _createBinaryMask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
-        resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
-        maskBoolean = resizedMask > 0.5
-        binaryMask = (maskBoolean * 255).astype('uint8')
-        binaryMask = cv2.medianBlur(binaryMask, 5)
-        binaryMask = cv2.morphologyEx(binaryMask, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
-        return binaryMask
+    def _create_binary_mask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
+        resized_mask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
+        mask_boolean = resized_mask > 0.5
+        binary_mask = (mask_boolean * 255).astype('uint8')
+        binary_mask = cv2.medianBlur(binary_mask, 5)
+        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+        return binary_mask
 
-    def _detectConvexHull(self, mask: np.ndarray) -> np.ndarray:
+    def _detect_convex_hull(self, mask: np.ndarray) -> np.ndarray:
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
 
-    def _sortSourcePoints(self, points: np.ndarray) -> np.ndarray:
+    def _sort_source_points(self, points: np.ndarray) -> np.ndarray:
         points = sorted(points, key=lambda x: (x[1], x[0]))
         top = sorted(points[:2], key=lambda x: x[0])
         bottom = sorted(points[2:], key=lambda x: x[0], reverse=True)
@@ -88,7 +86,7 @@ class NumberPlateRecognizer:
             dtype = "float32"
         )
 
-    def _transformPerspective(self, image: np.ndarray, sourcePoints: np.ndarray) -> Image:
+    def _transform_perspective(self, image: np.ndarray, source_points: np.ndarray) -> Image:
         TARGET_WIDTH = 440 * 2
         TARGET_HEIGHT = 220 * 2
 
@@ -102,12 +100,12 @@ class NumberPlateRecognizer:
             dtype = "float32"
         )
 
-        homographyMatrix, _ = cv2.findHomography(sourcePoints, destination, cv2.RANSAC, 5.0)
+        homography_matrix, _ = cv2.findHomography(source_points, destination, cv2.RANSAC, 5.0)
 
-        warpedPerspective = cv2.warpPerspective(image, homographyMatrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
+        warped_perspective = cv2.warpPerspective(image, homography_matrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
 
-        fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.getTimeStamp()}.png"
-        cv2.imwrite(fileName, warpedPerspective)
+        file_name = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.get_timestamp()}.png"
+        cv2.imwrite(file_name, warped_perspective)
 
-        finalImage = cv2.cvtColor(src = warpedPerspective, code = cv2.COLOR_BGR2RGB)
-        return finalImage
+        final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)
+        return final_image

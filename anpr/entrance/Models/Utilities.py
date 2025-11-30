@@ -3,19 +3,19 @@ import config.config as config
 
 class Utilities:
     @staticmethod
-    def getTimeStamp() -> str:
+    def get_timestamp() -> str:
         now = datetime.now()
         timestamp = now.strftime(config.TIME_STAMP_FORMAT)
         return timestamp
 
     @staticmethod
-    def getDay() -> str:
+    def get_day() -> str:
         now = datetime.now()
         day = now.strftime(config.DAY_FORMAT)
         return day
 
     @staticmethod
-    def getTime() -> str:
+    def get_time() -> str:
         now = datetime.now()
         time = now.strftime(config.TIME_FORMAT)
         return time

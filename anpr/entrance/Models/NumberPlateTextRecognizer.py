@@ -6,22 +6,22 @@ class NumberPlateTextRecognizer:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
 
     def __init__(self) -> None:
         self.model = YOLO(model = config.OCR_MODEL)
-
-    def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
-        detectedChars = []
-        upperRowText = []
-        lowerRowText = []
+    
+    def detect_number_plate_text(self, detect_result: Image.Image) -> tuple[str, list[str], list[str]] | None:
+        detected_chars = []
+        upper_row_text = []
+        lower_row_text = []
 
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
-        ocrResults = self.model(
-            source = detectResults,
+        ocr_result = self.model(
+            source = detect_result,
             imgsz = config.OCR_IMG_SIZE,
             conf = config.OCR_CONFIDENCE,
             iou = config.OCR_IOU,
@@ -29,43 +29,43 @@ class NumberPlateTextRecognizer:
         )
 
         # OCRの検出結果を取得
-        classes = ocrResults[0].boxes.cls
+        classes = ocr_result[0].boxes.cls
 
         # ナンバープレートの文字が検出された場合の処理
         if len(classes) > 0:
-            for ocrResult in ocrResults:
-                boxes = ocrResult.boxes
-                classIds = boxes.cls
+            for result in ocr_result:
+                boxes = result.boxes
+                class_ids = boxes.cls
                 xyxy = boxes.xyxy
 
-                typeOfVehicleId = int(classes[0])
+                type_of_vehicle_id = int(classes[0])
 
                 # ナンバープレートの文字の位置情報を取得して上下の行に分割
-                for classId in range(len(classIds)):
-                    id = int(classIds[classId])
-                    className = ocrResults.names[id]
-                    centerX = (xyxy[classId][0] + xyxy[classId][2]) / 2
-                    centerY = (xyxy[classId][1] + xyxy[classId][3]) / 2
+                for class_id in range(len(class_ids)):
+                    id = int(class_ids[class_id])
+                    class_name = ocr_result.names[id]
+                    center_x = (xyxy[class_id][0] + xyxy[class_id][2]) / 2
+                    center_y = (xyxy[class_id][1] + xyxy[class_id][3]) / 2
 
                     if id >= config.OCR_START_REGION_CODE_CLASS_ID:
-                        detectedChars.append((className, centerX, centerY))
+                        detected_chars.append((class_name, center_x, center_y))
 
-                height = detectResults.height
-                centerY = height / 2
+                height = detect_result.height
+                center_y = height / 2
 
-                for char, x, y in detectedChars:
-                    if y < centerY:
-                        upperRowText.append((char, x))
+                for char, x, y in detected_chars:
+                    if y < center_y:
+                        upper_row_text.append((char, x))
                     else:
-                        lowerRowText.append((char, x))
+                        lower_row_text.append((char, x))
 
                 # ナンバープレートの種類と上下の行の文字をそれぞれソートしてリストに格納
-                typeOfVehicle = ocrResults.names[typeOfVehicleId]
-                upperRowText.sort(key=lambda item: item[1])
-                lowerRowText.sort(key=lambda item: item[1])
-                upperRowText = [char for char, _ in upperRowText]
-                lowerRowText = [char for char, _ in lowerRowText]
+                type_of_vehicle = ocr_result.names[type_of_vehicle_id]
+                upper_row_text.sort(key=lambda item: item[1])
+                lower_row_text.sort(key=lambda item: item[1])
+                upper_row_text = [char for char, _ in upper_row_text]
+                lower_row_text = [char for char, _ in lower_row_text]
 
-                return typeOfVehicle, upperRowText, lowerRowText
+                return type_of_vehicle, upper_row_text, lower_row_text
         
         return None

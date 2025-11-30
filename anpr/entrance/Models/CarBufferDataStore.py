@@ -4,36 +4,37 @@ import config.config as config
 import os
 import json
 
-class CarBufferDataStore():
+class CarBufferDatastore():
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
 
-    def insertData(self, data: dict) -> bool:
+    def insert_data(self, data: dict) -> bool:
         if os.path.exists(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}") == False:
-            bufferData = []
+            buffer_data = []
         else:
-            status, bufferData = self.readData()
+            status, buffer_data = self.read_data()
             if status == False:
                 return False
-        bufferData.append(data)
+        buffer_data.append(data)
+        
         try:
             with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "w") as f:
-                json.dump(bufferData, f, indent = 4)
+                json.dump(buffer_data, f, indent = 4)
             return True
         except Exception as e:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
             return False
     
-    def readData(self) -> tuple[bool, list[dict]]:
+    def read_data(self) -> tuple[bool, list[dict]]:
         try:
             with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r") as f:
                 data = json.load(f)
                 return True, data
         except Exception as e:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
             return False, None

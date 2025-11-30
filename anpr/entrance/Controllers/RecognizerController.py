@@ -1,27 +1,25 @@
 from Models.NumberPlateRecognizer import NumberPlateRecognizer
 from Models.NumberPlateTextRecognizer import NumberPlateTextRecognizer
 from Models.NumberPlate import NumberPlate
-import os
-import config.config as config
 
 class RecognizerController:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
 
     def __init__(self) -> None:
-        self.numberPlateRecognizer = NumberPlateRecognizer.getInstance()
-        self.numberPlateTextRecognizer = NumberPlateTextRecognizer.getInstance()
+        self.number_plate_recognizer = NumberPlateRecognizer.get_instance()
+        self.number_plate_text_recognizer = NumberPlateTextRecognizer.get_instance()
 
-    def recognizeNumberPlate(self, image: any, numberPlateObject: NumberPlate) -> NumberPlate | None:
-        detectResults = self.numberPlateRecognizer.detectNP(image = image)
+    def recognize_number_plate(self, image: any, number_plate_object: NumberPlate) -> NumberPlate | None:
+        detect_result = self.number_plate_recognizer.detect_number_plate(image = image)
 
-        if detectResults is not None:
-            typeOfVehicle, upperRowText, lowerRowText = self.numberPlateTextRecognizer.detectNPText(detectResults = detectResults)
-            numberPlateObject.formatNPText(typeOfVehicle, "".join(upperRowText), "".join(lowerRowText))
-            return numberPlateObject
+        if detect_result is not None:
+            type_of_vehicle, upper_row_text, lower_row_text = self.number_plate_text_recognizer.detect_number_plate_text(detect_result = detect_result)
+            number_plate_object.format_number_plate_text(type_of_vehicle, "".join(upper_row_text), "".join(lower_row_text))
+            return number_plate_object
         return None

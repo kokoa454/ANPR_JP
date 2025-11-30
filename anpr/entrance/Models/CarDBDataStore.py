@@ -2,13 +2,12 @@ import requests
 from Models.ErrorLog import ErrorLog
 from Models.Utilities import Utilities
 import config.config as config
-import json
 
-class CarDBDataStore:
+class CarDBDatastore:
     _instance = None
 
     @classmethod
-    def getInstance(cls):
+    def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
@@ -53,32 +52,32 @@ class CarDBDataStore:
     #         self.error_log.saveErrorLog(time = self.utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
     #         return False
 
-    def insertData(self, data: dict) -> bool:
+    def insert_data(self, data: dict) -> bool:
         try:
             headers = {config.API_NAME: config.API_KEY}
             response = requests.post(url = config.API_DATA_URL, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
 
-            if self._checkRequestStatus(response = response):
+            if self._check_request_status(response = response):
                 return True
             else:
                 return False
         except requests.RequestException as e:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "DB", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "DB", error = f"{e}")
             return False
 
-    def insertBufferData(self, data: list[dict]) -> bool:
+    def insert_buffer_data(self, data: list[dict]) -> bool:
         try:
-            if self.insertData(data = data) == True:
+            if self.insert_data(data = data) == True:
                 return True
             else:
                 return False
         except Exception as e:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
             return False
 
-    def _checkRequestStatus(self, response: requests.Response) -> bool:
+    def _check_request_status(self, response: requests.Response) -> bool:
         if response.status_code == 200:
             return True
         else:
-            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "DB", error = f"API connection check failed with status code. {response.status_code}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "DB", error = f"API connection check failed with status code. {response.status_code}")
             return False
