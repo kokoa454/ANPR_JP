@@ -68,12 +68,10 @@ class CarDBDataStore:
 
     def insertBufferData(self, data: list[dict]) -> bool:
         try:
-            with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r") as f:
-                data = json.load(f)
-                if self.insertData(data = data) == True:
-                    return True
-                else:
-                    return False
+            if self.insertData(data = data) == True:
+                return True
+            else:
+                return False
         except Exception as e:
             ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Buffer", error = f"{e}")
             return False
