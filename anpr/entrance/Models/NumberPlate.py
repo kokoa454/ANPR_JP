@@ -27,6 +27,12 @@ class NumberPlate:
         return self.registNum
 
     def formatNPText(self, typeOfVehicle: str, upperRowText: str, lowerRowText: str) -> None:
+        self.typeOfVehicle = typeOfVehicle
+        self.regionCode = ""
+        self.classNum = ""
+        self.hiraganaCode = ""
+        self.registNum = ""
+
         if typeOfVehicle == "" or typeOfVehicle is None or typeOfVehicle not in constance.TYPE_OF_VEHICLE_LIST:
             self.typeOfVehicle = self.undefinedText
         else:
