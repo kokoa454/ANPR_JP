@@ -1,18 +1,18 @@
 from PIL import Image
-import Models.Utilities as Utilities
-import Models.ErrorLog as ErrorLog
+from Models.Utilities import Utilities
+from Models.ErrorLog import ErrorLog
 import cv2
 import os
 import config.config as config
 
 class Camera:
-    def __init__(self):
-        self.utilities = Utilities.Utilities()
-        self.errorLog = ErrorLog.ErrorLog()
-        self.outputCaptureDir = config.OUTPUT_CAPTURE_DIR
-        self.rpicamMetering = config.RPICAM_METERING
-        self.rpicamAutoFocusMode = config.RPICAM_AUTOFOCUS_MODE
-        self.rpicamTimeout = config.RPICAM_TIMEOUT
+    _instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
     #-- opencv is not used due to errors with opening the camera
     # def _openCamera(self):
@@ -38,10 +38,9 @@ class Camera:
 
     def captureImage(self) -> Image.Image | None:
         try:
-            fileName = f"{self.outputCaptureDir}/captured_image_{self.utilities.getTimeStamp()}.jpeg"
-            os.system(f"rpicam-jpeg --metering {self.rpicamMetering} -n --autofocus-mode {self.rpicamAutoFocusMode} --output {fileName} --timeout {self.rpicamTimeout}")
+            fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.getTimeStamp()}.jpeg"
+            os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
             return Image.open(fileName)
         except Exception as e:
-            time = self.utilities.getTimeStamp()
-            self.errorLog.saveErrorLog(time = time, errorType = "Camera", error = f"{e}")
+            ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Camera", error = f"{e}")
             return None

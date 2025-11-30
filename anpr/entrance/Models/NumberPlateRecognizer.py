@@ -1,28 +1,30 @@
 from PIL import Image
-import Models.Utilities as Utilities
+from Models.Utilities import Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO
 import config.config as config
 
 class NumberPlateRecognizer:
-    def __init__(self):
-        self.detectionModel = YOLO(model = f"../{config.DETECTION_MODEL}")
-        self.detectionImgSize = config.DETECTION_IMG_SIZE
-        self.detectionConfidence = config.DETECTION_CONFIDENCE
-        self.detectionIoU = config.DETECTION_IOU
-        self.detectionSave = config.DETECTION_SAVE
-        self.outputDetectDir = config.OUTPUT_DETECT_DIR
-        self.utilities = Utilities.Utilities()
+    _instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self) -> None:
+        self.model = YOLO(model = config.DETECTION_MODEL)
 
     def detectNP(self, image: Image.Image) -> Image.Image | None:
         # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
-        detectionResults = self.detectionModel(
+        detectionResults = self.model(
             source = image,
-            imgsz = self.detectionImgSize,
-            conf = self.detectionConfidence,
-            iou = self.detectionIoU,
-            save = self.detectionSave
+            imgsz = config.DETECTION_IMG_SIZE,
+            conf = config.DETECTION_CONFIDENCE,
+            iou = config.DETECTION_IOU,
+            save = config.DETECTION_SAVE
         )
 
         # ナンバープレートの検出結果とマスクとナンバープレートの数を取得
@@ -104,7 +106,7 @@ class NumberPlateRecognizer:
 
         warpedPerspective = cv2.warpPerspective(image, homographyMatrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
 
-        fileName = f"{self.outputDetectDir}/detected_image_{self.utilities.getTimeStamp()}.png"
+        fileName = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.getTimeStamp()}.png"
         cv2.imwrite(fileName, warpedPerspective)
 
         finalImage = cv2.cvtColor(src = warpedPerspective, code = cv2.COLOR_BGR2RGB)

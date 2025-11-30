@@ -1,20 +1,28 @@
-import Controllers.DeviceController as DeviceController
-import Controllers.RecognizerController as RecognizerController
-import Controllers.DataStoreController as DataStoreController
-import Models.Utilities as Utilities
+from Controllers.DeviceController import DeviceController
+from Controllers.RecognizerController import RecognizerController
+from Controllers.DataStoreController import DataStoreController
+from Models.Utilities import Utilities
 import config.config as config
-import Models.NumberPlate as NumberPlate
+from Models.NumberPlate import NumberPlate
 import time
+import os
 
 class Main:
-    def __init__(self) -> None:
-        self.deviceController = DeviceController.DeviceController()
-        self.recognizerController = RecognizerController.RecognizerController()
-        self.dataStoreController = DataStoreController.DataStoreController()
-        self.utilities = Utilities.Utilities()
+    def __init__(self) -> None: 
+        # Folder creation
+        os.makedirs(config.OUTPUT_DETECT_DIR, exist_ok=True)
+        os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok=True)
+        os.makedirs(config.OUTPUT_LOGS_DIR, exist_ok=True)
+        os.makedirs(config.OUTPUT_BUFFER_DIR, exist_ok=True)
+
+        # Controllers initialization
+        self.deviceController = DeviceController.getInstance()
+        self.recognizerController = RecognizerController.getInstance()
+        self.dataStoreController = DataStoreController.getInstance()
+        
+        # Variables
         self.carDetected = False
         self.detectionPaused = False
-        self.mainLoopDelaySec = config.MAIN_LOOP_DELAY_SEC
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
         while True:
@@ -30,7 +38,7 @@ class Main:
                 image = self.deviceController.captureNumberPlate()
                 
                 numberPlateObject = NumberPlate.NumberPlate()
-                timeStamp = self.utilities.getTimeStamp()
+                timeStamp = Utilities.getTimeStamp()
 
                 if image is not None:
                     recognizedNumberPlate = self.recognizerController.recognizeNumberPlate(image = image, numberPlateObject = numberPlateObject)
@@ -61,7 +69,7 @@ class Main:
                     else:
                         print("Data inserted to buffer failed")
                 
-            time.sleep(self.mainLoopDelaySec)
+            time.sleep(config.MAIN_LOOP_DELAY_SEC)
             endTime = time.perf_counter()
             print(f"Loop execution time: {endTime - startTime} seconds")
 

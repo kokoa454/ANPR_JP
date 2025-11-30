@@ -3,13 +3,16 @@ import PIL as Image
 import config.config as config
 
 class NumberPlateTextRecognizer:
-    def __init__(self):
-        self.ocrModel = YOLO(f"../{config.OCR_MODEL}")
-        self.ocrImgSize = config.OCR_IMG_SIZE
-        self.ocrConfidence = config.OCR_CONFIDENCE
-        self.ocrIoU = config.OCR_IOU
-        self.ocrSave = config.OCR_SAVE
-        self.ocrStartRegionCodeClassId = config.OCR_START_REGION_CODE_CLASS_ID
+    _instance = None
+
+    @classmethod
+    def getInstance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self) -> None:
+        self.model = YOLO(model = config.OCR_MODEL)
 
     def detectNPText(self, detectResults: Image.Image) -> tuple[str, list[str], list[str]] | None:
         detectedChars = []
@@ -17,12 +20,12 @@ class NumberPlateTextRecognizer:
         lowerRowText = []
 
         # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
-        ocrResults = self.ocrModel(
+        ocrResults = self.model(
             source = detectResults,
-            imgsz = self.ocrImgSize,
-            conf = self.ocrConfidence,
-            iou = self.ocrIoU,
-            save = self.ocrSave
+            imgsz = config.OCR_IMG_SIZE,
+            conf = config.OCR_CONFIDENCE,
+            iou = config.OCR_IOU,
+            save = config.OCR_SAVE
         )
 
         # OCRの検出結果を取得
@@ -40,11 +43,11 @@ class NumberPlateTextRecognizer:
                 # ナンバープレートの文字の位置情報を取得して上下の行に分割
                 for classId in range(len(classIds)):
                     id = int(classIds[classId])
-                    className = self.model.names[id]
+                    className = ocrResults.names[id]
                     centerX = (xyxy[classId][0] + xyxy[classId][2]) / 2
                     centerY = (xyxy[classId][1] + xyxy[classId][3]) / 2
 
-                    if id >= self.ocrStartRegionCodeClassId:
+                    if id >= config.OCR_START_REGION_CODE_CLASS_ID:
                         detectedChars.append((className, centerX, centerY))
 
                 height = detectResults.height
@@ -57,7 +60,7 @@ class NumberPlateTextRecognizer:
                         lowerRowText.append((char, x))
 
                 # ナンバープレートの種類と上下の行の文字をそれぞれソートしてリストに格納
-                typeOfVehicle = self.model.names[typeOfVehicleId]
+                typeOfVehicle = ocrResults.names[typeOfVehicleId]
                 upperRowText.sort(key=lambda item: item[1])
                 lowerRowText.sort(key=lambda item: item[1])
                 upperRowText = [char for char, _ in upperRowText]

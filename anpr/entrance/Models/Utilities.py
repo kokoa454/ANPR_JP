@@ -2,22 +2,20 @@ from datetime import datetime
 import config.config as config
 
 class Utilities:
-    def __init__(self):
-        self.timeStampFormat = config.TIME_STAMP_FORMAT
-        self.dayFormat = config.DAY_FORMAT
-        self.timeFormat = config.TIME_FORMAT
-    
-    def getTimeStamp(self) -> str:
+    @staticmethod
+    def getTimeStamp() -> str:
         now = datetime.now()
-        timestamp = now.strftime(self.timeStampFormat)
+        timestamp = now.strftime(config.TIME_STAMP_FORMAT)
         return timestamp
 
-    def getDay(self) -> str:
+    @staticmethod
+    def getDay() -> str:
         now = datetime.now()
-        day = now.strftime(self.dayFormat)
+        day = now.strftime(config.DAY_FORMAT)
         return day
 
-    def getTime(self) -> str:
+    @staticmethod
+    def getTime() -> str:
         now = datetime.now()
-        time = now.strftime(self.timeFormat)
+        time = now.strftime(config.TIME_FORMAT)
         return time

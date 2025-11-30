@@ -1,27 +1,28 @@
 # https://gpiozero.readthedocs.io/en/stable/api_input.html
 from gpiozero import DistanceSensor
 import config.config as config
-import Models.Utilities as Utilities
-import Models.ErrorLog as ErrorLog
+from Models.Utilities import Utilities
+from Models.ErrorLog import ErrorLog
 
 class ProximitySensor:
-    def __init__(self) -> None:
-        self.utilities = Utilities.Utilities()
-        self.errorLog = ErrorLog.ErrorLog()
-        self.triggerNum = config.PROXIMITY_SENSOR_TRIGGER_PIN
-        self.echoNum = config.PROXIMITY_SENSOR_ECHO_PIN
-        self.maxDistanceMeter = config.PROXIMITY_SENSOR_MAX_DISTANCE_METER
-        self.outOfRange = config.PROXIMITY_SENSOR_OUT_OF_RANGE
+    _instance = None
 
+    @classmethod
+    def getInstance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self) -> None:
         try:
             self.sensor = DistanceSensor(
-                echo=self.echoNum,
-                trigger=self.triggerNum,
-                max_distance=self.maxDistanceMeter,
+                echo=config.PROXIMITY_SENSOR_ECHO_PIN,
+                trigger=config.PROXIMITY_SENSOR_TRIGGER_PIN,
+                max_distance=config.PROXIMITY_SENSOR_MAX_DISTANCE_METER,
                 )
         except Exception as e:
-            time = self.utilities.getTimeStamp()
-            self.errorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
+            time = Utilities.getTimeStamp()
+            ErrorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
             self.sensor = None
 
     def getDistance(self) -> float | None:
@@ -29,6 +30,6 @@ class ProximitySensor:
             distance = float(self.sensor.distance) * 100 # convert to centimeter
             return distance
         except Exception as e:
-            time = self.utilities.getTimeStamp()
-            self.errorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
+            time = Utilities.getTimeStamp()
+            ErrorLog.saveErrorLog(time, "ProximitySensor", f"{e}")
             return None

@@ -5,22 +5,26 @@ import PIL.Image as Image
 import config.config as config
 
 class DeviceController:
-    def __init__(self):
-        self.camera = Camera()
-        self.proximitySensor = ProximitySensor()
-        self.maxDistance = config.PROXIMITY_SENSOR_MAX_DISTANCE_METER * 100  # メートルをセンチメートルに変換
-        self.outOfRange = config.PROXIMITY_SENSOR_OUT_OF_RANGE
-        self.outputCaptureDir = config.OUTPUT_CAPTURE_DIR
-        os.makedirs(self.outputCaptureDir, exist_ok = True)
+    _instance = None
 
+    @classmethod
+    def getInstance(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
+
+    def __init__(self) -> None:
+        self.camera = Camera.getInstance()
+        self.proximitySensor = ProximitySensor.getInstance()
+    
     def detectCar(self) -> bool:
         distance = self.proximitySensor.getDistance()
         
-        if distance is not None and distance < self.maxDistance:
+        if distance is not None and distance < config.PROXIMITY_SENSOR_MAX_DISTANCE_METER * 100:
             print(f"ProximitySensor: Measured Distance = {distance} cm")
             return True
         else:
-            distance = self.outOfRange
+            distance = config.PROXIMITY_SENSOR_OUT_OF_RANGE
             print(f"ProximitySensor: Measured Distance = {distance} cm")
             return False
 
