@@ -4,6 +4,7 @@ from Models.ErrorLog import ErrorLog
 import cv2
 import os
 import config.config as config
+import subprocess
 
 class Camera:
     _instance = None
@@ -36,10 +37,29 @@ class Camera:
     #         self.errorLog.saveErrorLog(f"Camera: {e}")
     #         return None
 
+    # changed to use subprocess
+    # def captureImage(self) -> Image.Image | None:
+    #     try:
+    #         fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.getTimeStamp()}.jpeg"
+    #         os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
+    #         return Image.open(fileName)
+    #     except Exception as e:
+    #         ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Camera", error = f"{e}")
+    #         return None
+
     def captureImage(self) -> Image.Image | None:
+        fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.getTimeStamp()}.jpeg"
+        command = [
+            "rpicam-jpeg",
+            "--metering", config.RPICAM_METERING,
+            "-n",
+            "--autofocus-mode", config.RPICAM_AUTOFOCUS_MODE,
+            "--output", fileName,
+            "--timeout", config.RPICAM_TIMEOUT
+        ]
+        
         try:
-            fileName = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.getTimeStamp()}.jpeg"
-            os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {fileName} --timeout {config.RPICAM_TIMEOUT}")
+            subprocess.run(command, check=True)
             return Image.open(fileName)
         except Exception as e:
             ErrorLog.saveErrorLog(time = Utilities.getTimeStamp(), errorType = "Camera", error = f"{e}")
