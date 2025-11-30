@@ -1,5 +1,5 @@
 from ultralytics import YOLO
-import PIL as Image
+from PIL import Image
 import config.config as config
 
 class NumberPlateTextRecognizer:
