@@ -68,6 +68,8 @@ class Main:
                         print("Data inserted to buffer successfully")
                     else:
                         print("Data inserted to buffer failed")
+
+                del number_plate_object
                 
             time.sleep(config.MAIN_LOOP_DELAY_SEC)
             end_time = time.perf_counter()
