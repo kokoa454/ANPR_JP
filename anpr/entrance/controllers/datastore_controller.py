@@ -55,8 +55,9 @@ class DatastoreController:
 
     def check_buffer(self) -> bool:
         try:
-            with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r"):
-                return True
+            if os.path.exists(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}"):
+                with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r"):
+                    return True
         except Exception as e:
             ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
