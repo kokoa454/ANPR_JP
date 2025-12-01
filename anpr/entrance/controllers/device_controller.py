@@ -1,5 +1,5 @@
-from Models.Camera import Camera
-from Models.ProximitySensor import ProximitySensor
+from models.camera import Camera
+from models.proximity_sensor import ProximitySensor
 import PIL.Image as Image
 import config.config as config
 

@@ -1,5 +1,5 @@
 from PIL import Image
-from Models.Utilities import Utilities
+from models.utilities import Utilities
 import cv2
 import numpy as np
 from ultralytics import YOLO

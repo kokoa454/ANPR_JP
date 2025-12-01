@@ -1,10 +1,10 @@
-from Models.ErrorLog import ErrorLog
-from Models.Utilities import Utilities
+from models.error_log import ErrorLog
+from models.utilities import Utilities
 import config.config as config
 import os
 import json
 
-class CarBufferDatastore():
+class BufferDatastore:
     _instance = None
 
     @classmethod

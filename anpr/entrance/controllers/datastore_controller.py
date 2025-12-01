@@ -1,10 +1,10 @@
-from Models.CarDBDatastore import CarDBDatastore
-from Models.Utilities import Utilities
+from models.db_datastore import DBDatastore
+from models.utilities import Utilities
 import config.config as config
 import os
-from Models.CarBufferDatastore import CarBufferDatastore
-from Models.NumberPlate import NumberPlate
-from Models.ErrorLog import ErrorLog
+from models.buffer_datastore import BufferDatastore
+from models.number_plate import NumberPlate
+from models.error_log import ErrorLog
 
 class DatastoreController:
     _instance = None
@@ -16,8 +16,8 @@ class DatastoreController:
         return cls._instance
     
     def __init__(self) -> None:
-        self.car_db_datastore = CarDBDatastore.get_instance()
-        self.car_buffer_datastore = CarBufferDatastore.get_instance()
+        self.car_db_datastore = DBDatastore.get_instance()
+        self.car_buffer_datastore = BufferDatastore.get_instance()
 
     # unused functions
     # def checkDBConnection(self) -> bool:

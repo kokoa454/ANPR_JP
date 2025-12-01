@@ -1,9 +1,9 @@
-from Controllers.DeviceController import DeviceController
-from Controllers.RecognizerController import RecognizerController
-from Controllers.DatastoreController import DatastoreController
-from Models.Utilities import Utilities
+from controllers.device_controller import DeviceController
+from controllers.recognizer_controller import RecognizerController
+from controllers.datastore_controller import DatastoreController
+from models.utilities import Utilities
 import config.config as config
-from Models.NumberPlate import NumberPlate
+from models.number_plate import NumberPlate
 import time
 import os
 

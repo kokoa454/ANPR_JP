@@ -1,8 +1,8 @@
 # https://gpiozero.readthedocs.io/en/stable/api_input.html
 from gpiozero import DistanceSensor
 import config.config as config
-from Models.Utilities import Utilities
-from Models.ErrorLog import ErrorLog
+from models.utilities import Utilities
+from models.error_log import ErrorLog
 
 class ProximitySensor:
     _instance = None

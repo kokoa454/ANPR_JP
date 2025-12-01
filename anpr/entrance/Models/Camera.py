@@ -1,6 +1,6 @@
 from PIL import Image
-from Models.Utilities import Utilities
-from Models.ErrorLog import ErrorLog
+from models.utilities import Utilities
+from models.error_log import ErrorLog
 import config.config as config
 import subprocess
 
