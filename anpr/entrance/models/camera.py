@@ -46,7 +46,7 @@ class Camera:
     #         return None
 
     def capture_image(self) -> Image.Image | None:
-        file_name = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.get_timestamp()}.jpeg"
+        file_name = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.get_timestamp_for_local()}.jpeg"
         command = [
             "rpicam-jpeg",
             "--metering", config.RPICAM_METERING,
@@ -60,5 +60,5 @@ class Camera:
             subprocess.run(command, check=True)
             return Image.open(file_name)
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Camera", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Camera", error = f"{e}")
             return None

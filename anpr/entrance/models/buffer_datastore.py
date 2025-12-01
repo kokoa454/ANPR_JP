@@ -27,7 +27,7 @@ class BufferDatastore:
                 json.dump(buffer_data, f, indent = 4)
             return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
     
     def read_data(self) -> tuple[bool, list[dict]]:
@@ -36,5 +36,5 @@ class BufferDatastore:
                 data = json.load(f)
                 return True, data
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False, None

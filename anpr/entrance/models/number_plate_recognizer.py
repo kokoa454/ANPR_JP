@@ -104,7 +104,7 @@ class NumberPlateRecognizer:
 
         warped_perspective = cv2.warpPerspective(image, homography_matrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
 
-        file_name = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.get_timestamp()}.png"
+        file_name = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.get_timestamp_for_local()}.png"
         cv2.imwrite(file_name, warped_perspective)
 
         final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)

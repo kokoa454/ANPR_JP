@@ -58,7 +58,7 @@ class DatastoreController:
             with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r"):
                 return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
 
     def insert_buffer_data_to_db(self) -> bool:
@@ -77,7 +77,7 @@ class DatastoreController:
             os.remove(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}")
             return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
 
     def _formatData(self, timeStamp: str, number_plate_object: NumberPlate) -> dict:

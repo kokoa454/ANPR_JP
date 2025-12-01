@@ -21,7 +21,7 @@ class ProximitySensor:
                 max_distance=config.PROXIMITY_SENSOR_MAX_DISTANCE_METER,
                 )
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "ProximitySensor", error = f"{e}")
             self.sensor = None
 
     def get_distance(self) -> float | None:
@@ -29,5 +29,5 @@ class ProximitySensor:
             distance = float(self.sensor.distance) * 100 # convert to centimeter
             return distance
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "ProximitySensor", error = f"{e}")
             return None
