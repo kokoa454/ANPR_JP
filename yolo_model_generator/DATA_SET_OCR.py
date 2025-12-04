@@ -1,5 +1,3 @@
-__package__ = "DATA_SET_OCR"
-
 import random
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 import os
@@ -56,37 +54,37 @@ class DATA_SET_OCR:
         "宇都宮","那須","とちぎ", "日光",
         "前橋","高崎","群馬",
         "大宮","川口","春日部","熊谷","所沢","越谷","川越",
-        "千葉","習志野","成田","柏","袖ヶ浦","野田",
-        "板橋","練馬","足立","江東","品川","多摩","八王子", "江戸川", "世田谷", "杉並", "葛飾",
-        "横浜","川崎","相模","湘南","平塚","厚木",
+        "千葉","習志野","成田","柏","袖ヶ浦","野田","松戸","船橋","市原",
+        "板橋","練馬","足立","江東","品川","多摩","八王子","江戸川","世田谷","杉並","葛飾",
+        "横浜","川崎","相模","湘南",
         "山梨","富士山",
-        "新潟","長岡","上越","長野","松本","諏訪","諏訪湖","南信州","安曇野",
+        "新潟","長岡","上越","長野","松本","諏訪","南信州","安曇野",
         "富山","石川","金沢",
         "福井",
         "岐阜","飛騨",
         "静岡","浜松","沼津","伊豆",
-        "名古屋","三河","岡崎","豊田","尾張小牧","一宮","知多",
-        "三重","鈴鹿","伊勢志摩", "四日市",
-        "滋賀","彦根",
-        "京都","舞鶴",
-        "大阪","なにわ","和泉","堺","富田林",
-        "奈良",
+        "名古屋","三河","岡崎","豊田","尾張小牧","一宮","春日井","豊橋",
+        "三重","鈴鹿","伊勢志摩","四日市",
+        "滋賀",
+        "京都",
+        "大阪","なにわ","和泉","堺",
+        "奈良","飛鳥",
         "和歌山",
-        "神戸","姫路","西宮","伊丹",
-        "鳥取","倉吉",
+        "神戸","姫路",
+        "鳥取",
         "島根","出雲",
-        "岡山","倉敷","備前",
-        "広島","福山","呉","尾道",
-        "山口","下関","周南","岩国","宇部",
+        "岡山","倉敷",
+        "広島","福山",
+        "山口","下関",
         "徳島",
         "香川","高松",
-        "愛媛","松山","今治","宇和島",
-        "高知","土佐",
+        "愛媛",
+        "高知",
         "福岡","北九州","久留米","筑豊",
         "佐賀",
         "長崎","佐世保",
-        "熊本","阿蘇",
-        "大分","別府",
+        "熊本",
+        "大分",
         "宮崎",
         "鹿児島","奄美",
         "沖縄"
@@ -117,7 +115,6 @@ class DATA_SET_OCR:
 
     # YOLO用クラス名リスト
     CHARACTER_NAMES = []
-    CHARACTER_NAMES.extend(TYPE_OF_VEHICLE_LIST)
     CHARACTER_NAMES.extend(PLACE_CODE_LIST)
     CHARACTER_NAMES.extend([str(i) for i in range(10)])
     CHARACTER_NAMES.extend(ALPHABET_LIST)
@@ -287,7 +284,8 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
     def generatePlate(self, fileName, trainOrValid, typeOfVehicle, numberPlateBGColor, numberPlateTextColor, placeCode, classNum, hiraganaCode, regNum):
         FONT1 = "./fonts/HiraginoMaruGothicProNW4.otf"
         FONT2 = "./fonts/TrmFontJB.ttf"
-        FONT3 = "./fonts/HOTKaishokkR.otf"
+        FONT3 = "./fonts/FZcarnumberJA.otf"
+        # FONT3 = "./fonts/HOTKaishokkR.otf"
 
         MARGIN = 4
         RADIUS = 6
@@ -308,14 +306,6 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         draw.rectangle([(0, 0), (self.NUMBER_PLATE_WIDTH - 1, self.NUMBER_PLATE_HEIGHT - 1)], outline = COLOR_FOR_FRAME, width = MARGIN)
         draw.ellipse([(80 - RADIUS, 30 - RADIUS), (80 + RADIUS, 30 + RADIUS)], fill = COLOR_FOR_FRAME)
         draw.ellipse([(360 - RADIUS, 30 - RADIUS), (360 + RADIUS, 30 + RADIUS)], fill = COLOR_FOR_FRAME)
-
-        # YOLOにナンバープレートの種類をラベル付け
-        numberPlateType = self.TYPE_OF_VEHICLE_LIST[typeOfVehicle]
-        numberPlateTypeId = self.NAME_TO_ID[numberPlateType]
-        plateXCenter, plateYCenter, plateW, plateH = self.getYoloBboxFromAbsolute(
-            0, 0, self.NUMBER_PLATE_WIDTH, self.NUMBER_PLATE_HEIGHT, self.NUMBER_PLATE_WIDTH, self.NUMBER_PLATE_HEIGHT
-        )
-        yoloLabels.append(f"{numberPlateTypeId} {plateXCenter:.6f} {plateYCenter:.6f} {plateW:.6f} {plateH:.6f}")
 
         # 地名コード描画開始
         for font in [FONT1, FONT2, FONT1]:
