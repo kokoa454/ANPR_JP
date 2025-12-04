@@ -1,5 +1,3 @@
-__package__ = "TEST_OCR"
-
 from ultralytics import YOLO
 import cv2
 import os

@@ -1,5 +1,3 @@
-__package__ = "TRAIN"
-
 import DATA_SET_DETECT
 import DATA_SET_OCR
 from ultralytics import YOLO

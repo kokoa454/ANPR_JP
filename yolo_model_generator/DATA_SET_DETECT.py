@@ -1,5 +1,3 @@
-__package__ = "DATA_SET_DETECT"
-
 import os
 from roboflow import Roboflow
 import shutil
