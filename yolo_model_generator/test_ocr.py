@@ -1,8 +1,8 @@
 from ultralytics import YOLO
 import cv2
 import os
-import TRAIN
-import DATA_SET_OCR
+from train import TRAIN
+from data_set_ocr import DATA_SET_OCR
 import re
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
@@ -14,8 +14,8 @@ class TEST_OCR:
     LAST_PT_PATH_DETECT = None
     LAST_PT_PATH_OCR = None
     TEST_DIR = "./test_ocr"
-    OUTPUT_DETECT_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_detect"
-    OUTPUT_OCR_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_ocr"
+    OUTPUT_DETECT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
+    OUTPUT_OCR_DIR = f"{TRAIN.OUTPUT_DIR}_ocr"
     MODEL_NAME = "yolo11n"
     MODEL_DETECT = None
     MODEL_OCR = None

@@ -1,8 +1,8 @@
-import DATA_SET_OCR 
-import DATA_SET_DETECT
-import TRAIN
-import TEST_DETECT
-import TEST_OCR
+from data_set_ocr import DATA_SET_OCR
+from data_set_detect import DATA_SET_DETECT
+from train import TRAIN
+from test_detect import TEST_DETECT
+from test_ocr import TEST_OCR
 
 def main():
     print("【ANPR_JP】\n")
@@ -51,7 +51,7 @@ def main():
                 print("プロジェクトIDを入力してください。\n")
                 continue
                     
-            DATA_SET_DETECT.DATA_SET_DETECT(apiKey, projectId)
+            DATA_SET_DETECT(apiKey, projectId)
             print("\n")
 
         # -- OCR用データセット生成 --
@@ -66,7 +66,7 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            DATA_SET_OCR.DATA_SET_OCR(trainingNumber)
+            DATA_SET_OCR(trainingNumber)
             print("\n")
         
         # -- 学習 --
@@ -97,7 +97,7 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            TRAIN.TRAIN(dataSetNumber, trainingNumber)
+            TRAIN(dataSetNumber, trainingNumber)
             print("\n")
 
         # -- テスト --
@@ -128,9 +128,9 @@ def main():
                     print("0~1の数字を入力してください。\n")
                     continue
                 elif dataSetNumber == 0:
-                    TEST_DETECT.TEST_DETECT(confNumber)
+                    TEST_DETECT(confNumber)
                 elif dataSetNumber == 1:
-                    TEST_OCR.TEST_OCR(confNumber)
+                    TEST_OCR(confNumber)
             except ValueError:
                 print("数字を入力してください。\n")
                 continue

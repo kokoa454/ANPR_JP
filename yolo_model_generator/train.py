@@ -1,5 +1,5 @@
-import DATA_SET_DETECT
-import DATA_SET_OCR
+from data_set_detect import DATA_SET_DETECT
+from data_set_ocr import DATA_SET_OCR
 from ultralytics import YOLO
 import os
 import re
@@ -11,8 +11,8 @@ class TRAIN:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
     MODEL_NAME = "yolo11n"
-    DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
-    DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
+    DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
+    DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
     DATA_PATH = None
     PATIENCE = 10
     BATCH_SIZE = 16

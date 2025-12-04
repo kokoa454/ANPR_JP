@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import os
-import TRAIN
+from train import TRAIN
 import re
 
 # -- 位置検知用テストクラス --
@@ -9,7 +9,7 @@ class TEST_DETECT:
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
     TEST_DIR = "./test_detect"
-    OUTPUT_DIR = f"{TRAIN.TRAIN.OUTPUT_DIR}_detect"
+    OUTPUT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
     MODEL_NAME = "yolo11n-seg"
     NAME = "number_plate_11n_detect"
     MODEL = None
