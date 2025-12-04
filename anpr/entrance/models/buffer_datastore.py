@@ -24,7 +24,7 @@ class BufferDatastore:
         
         try:
             with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "w") as f:
-                json.dump(buffer_data, f, indent = 4)
+                json.dump(buffer_data, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
             ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
