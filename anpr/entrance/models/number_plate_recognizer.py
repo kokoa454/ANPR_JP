@@ -43,29 +43,58 @@ class NumberPlateRecognizer:
             # 凸包を検出して射影変換のための座標を取得
             hull = self._detect_convex_hull(resized_mask)
 
-            # 凸包が検出された場合、最も大きな凸包を取得して射影変換の座標を計算
+            # this part was used for minAreaRect 
+            # # 凸包が検出された場合、最も大きな凸包を取得して射影変換の座標を計算
+            # if hull:
+            #     main_hull = max(hull, key=cv2.contourArea)
+            #     rectangle = cv2.minAreaRect(main_hull)
+            #     box_points = cv2.boxPoints(rectangle)
+            #     source_points = np.float32(box_points)
+            #     source_points = self._sort_source_points(source_points)
+                        
+            #     if source_points is not None:
+            #         # 画像をNumPy配列に変換
+            #         np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+            #         # 射影変換を実行
+            #         np_image = self._transform_perspective(np_image, source_points)
+
+            #         return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
+            
             if hull:
                 main_hull = max(hull, key=cv2.contourArea)
-                rectangle = cv2.minAreaRect(main_hull)
-                box_points = cv2.boxPoints(rectangle)
-                source_points = np.float32(box_points)
-                source_points = self._sort_source_points(source_points)
+                perimeter = cv2.arcLength(main_hull, True)
+                epsilon = 0.02 * perimeter
+                approx = cv2.approxPolyDP(main_hull, epsilon, True)
+                
+                if approx.shape[0] == 4:
+                    source_points = np.float32(approx.reshape(4, 2))
+                    source_points = self._sort_source_points(source_points)
+                    
+                    if source_points is not None:
+                        np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+                        np_image = self._transform_perspective(np_image, source_points)
                         
-                if source_points is not None:
-                    # 画像をNumPy配列に変換
-                    np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-                    # 射影変換を実行
-                    np_image = self._transform_perspective(np_image, source_points)
-
-                    return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
+                        return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
+                    
         return None
+
+    # this function was used for minAreaRect
+    # def _create_binary_mask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
+    #     resized_mask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
+    #     mask_boolean = resized_mask > 0.5
+    #     binary_mask = (mask_boolean * 255).astype('uint8')
+    #     binary_mask = cv2.medianBlur(binary_mask, 5)
+    #     binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+    #     return binary_mask
 
     def _create_binary_mask(self, mask: np.ndarray, image: np.ndarray) -> np.ndarray:
         resized_mask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
         mask_boolean = resized_mask > 0.5
         binary_mask = (mask_boolean * 255).astype('uint8')
-        binary_mask = cv2.medianBlur(binary_mask, 5)
-        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+        binary_mask = cv2.medianBlur(binary_mask, 7)
+        kernel = np.ones((7, 7), np.uint8)
+        binary_mask = cv2.morphologyEx(binary_mask, cv2.MORPH_CLOSE, kernel)
+        
         return binary_mask
 
     def _detect_convex_hull(self, mask: np.ndarray) -> np.ndarray:
