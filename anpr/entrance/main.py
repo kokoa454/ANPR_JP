@@ -25,55 +25,64 @@ class Main:
         self.detection_paused = False
     
     def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
-        while True:
-            start_time = time.perf_counter()
-            self.car_detected = self.device_controller.detect_car()
+        try:
+            print("システムをスタートアップします\n")
+            while True:
+                start_time = time.perf_counter()
+                self.car_detected = self.device_controller.detect_car()
 
-            if self.car_detected == False and self.detection_paused == True:
-                self.detection_paused = False
+                if self.car_detected == False and self.detection_paused == True:
+                    self.detection_paused = False
 
-            elif self.car_detected == True and self.detection_paused == False:
-                self.detection_paused = True
-                
-                image = self.device_controller.capture_number_plate()
-                
-                number_plate_object = NumberPlate()
-                timestamp = Utilities.get_timestamp_for_db()
+                elif self.car_detected == True and self.detection_paused == False:
+                    self.detection_paused = True
+                    print("車両を検出しました")
 
-                if image is not None:
-                    recognized_number_plate = self.recognizer_controller.recognize_number_plate(image = image, number_plate_object = number_plate_object)
+                    print("ナンバープレートの写真を撮影しています")
+                    image = self.device_controller.capture_number_plate()
+                    print("ナンバープレートの写真撮影が完了しました")
                     
-                    if recognized_number_plate is not None:
-                        number_plate_object = recognized_number_plate
-                        print(f"Recognized Number Plate: {number_plate_object.get_type_of_vehicle()}\n{number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
+                    number_plate_object = NumberPlate()
+                    timestamp = Utilities.get_timestamp_for_db()
+
+                    if image is not None:
+                        print("ナンバープレート上の文字を認識しています")
+                        recognized_number_plate = self.recognizer_controller.recognize_number_plate(image = image, number_plate_object = number_plate_object)
+                        print("ナンバープレート上の文字認識が完了しました")
+                        
+                        if recognized_number_plate is not None:
+                            number_plate_object = recognized_number_plate
+                            print(f"ナンバープレートの文字認識結果: {number_plate_object.get_type_of_vehicle()}\n{number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
+
+                        else:
+                            print("ナンバープレート上の文字を検出できませんでした")
 
                     else:
-                        print("Number plate text not detected")
+                        print("ナンバープレートを検出できませんでした")
 
-                else:
-                    print("Number plate not detected")
+                    if self.datastore_controller.check_buffer() == True:
+                        if self.datastore_controller.insert_buffer_data_to_db() == True:
+                            print("ナンバープレートデータをバッファからDBに保存しました")
+                        else:
+                            print("ナンバープレートデータをバッファからDBに保存できませんでした")
 
-                if self.datastore_controller.check_buffer() == True:
-                    if self.datastore_controller.insert_buffer_data_to_db() == True:
-                        print("Buffer data inserted to DB successfully")
+                    if self.datastore_controller.insert_data_to_dB(timestamp = timestamp, number_plate_object = number_plate_object) == True:
+                        print("ナンバープレートデータをDBに保存しました")
                     else:
-                        print("Buffer data insertion to DB failed")
+                        print("ナンバープレートデータをDBに保存できませんでした")
+                        
+                        if self.datastore_controller.insert_data_to_buffer(timestamp = timestamp, number_plate_object = number_plate_object) == True:
+                            print("ナンバープレートデータをバッファに保存しました")
+                        else:
+                            print("ナンバープレートデータをバッファに保存できませんでした")
 
-                if self.datastore_controller.insert_data_to_dB(timestamp = timestamp, number_plate_object = number_plate_object) == True:
-                    print("Data inserted to DB successfully")
-                else:
-                    print("Data inserted to DB failed")
+                    del number_plate_object
                     
-                    if self.datastore_controller.insert_data_to_buffer(timestamp = timestamp, number_plate_object = number_plate_object) == True:
-                        print("Data inserted to buffer successfully")
-                    else:
-                        print("Data inserted to buffer failed")
-
-                del number_plate_object
-                
-            time.sleep(config.MAIN_LOOP_DELAY_SEC)
-            end_time = time.perf_counter()
-            print(f"Loop execution time: {end_time - start_time} seconds")
+                time.sleep(config.MAIN_LOOP_DELAY_SEC)
+                end_time = time.perf_counter()
+                print(f"処理時間: {end_time - start_time} 秒")
+        except KeyboardInterrupt:
+            print("\nシステムをシャットダウンします")
 
 if __name__ == "__main__":
     Main().run()

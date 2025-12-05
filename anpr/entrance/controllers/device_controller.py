@@ -20,11 +20,11 @@ class DeviceController:
         distance = self.proximity_sensor.get_distance()
         
         if distance is not None and distance < config.PROXIMITY_SENSOR_MAX_DISTANCE_METER * 100:
-            print(f"ProximitySensor: Measured Distance = {distance} cm")
+            print(f"検知距離: {distance} cm")
             return True
         else:
             distance = config.PROXIMITY_SENSOR_OUT_OF_RANGE
-            print(f"ProximitySensor: Measured Distance = {distance} cm")
+            print(f"検知距離: {distance} cm")
             return False
 
     def capture_number_plate(self) -> Image.Image | None:
