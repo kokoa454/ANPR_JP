@@ -38,8 +38,6 @@ class NumberPlateTextRecognizer:
                 class_ids = boxes.cls
                 xyxy = boxes.xyxy
 
-                type_of_vehicle_id = int(classes[0])
-
                 # ナンバープレートの文字の位置情報を取得して上下の行に分割
                 for class_id in range(len(class_ids)):
                     id = int(class_ids[class_id])
@@ -60,12 +58,11 @@ class NumberPlateTextRecognizer:
                         lower_row_text.append((char, x))
 
                 # ナンバープレートの種類と上下の行の文字をそれぞれソートしてリストに格納
-                type_of_vehicle = self.model.names[type_of_vehicle_id]
                 upper_row_text.sort(key=lambda item: item[1])
                 lower_row_text.sort(key=lambda item: item[1])
                 upper_row_text = [char for char, _ in upper_row_text]
                 lower_row_text = [char for char, _ in lower_row_text]
 
-                return type_of_vehicle, upper_row_text, lower_row_text
+                return upper_row_text, lower_row_text
         
         return None

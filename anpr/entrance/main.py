@@ -52,7 +52,7 @@ class Main:
                         
                         if recognized_number_plate is not None:
                             number_plate_object = recognized_number_plate
-                            print(f"ナンバープレートの文字認識結果: {number_plate_object.get_type_of_vehicle()}\n{number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
+                            print(f"ナンバープレートの文字認識結果: {number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
 
                         else:
                             print("ナンバープレート上の文字を検出できませんでした")

@@ -4,7 +4,6 @@ import config.constance as constance
 
 class NumberPlate:
     def __init__(self):
-        self.type_of_vehicle = config.UNDEFINED_TEXT
         self.region_code = config.UNDEFINED_TEXT
         self.class_num = config.UNDEFINED_TEXT
         self.hiragana_code = config.UNDEFINED_TEXT
@@ -25,17 +24,11 @@ class NumberPlate:
     def get_regist_num(self) -> str:
         return self.regist_num
 
-    def format_number_plate_text(self, type_of_vehicle: str, upper_row_text: str, lower_row_text: str) -> None:
-        self.type_of_vehicle = type_of_vehicle
+    def format_number_plate_text(self, upper_row_text: str, lower_row_text: str) -> None:
         self.region_code = ""
         self.class_num = ""
         self.hiragana_code = ""
         self.regist_num = ""
-
-        if type_of_vehicle == "" or type_of_vehicle is None or type_of_vehicle not in constance.TYPE_OF_VEHICLE_LIST:
-            self.type_of_vehicle = config.UNDEFINED_TEXT
-        else:
-            self.type_of_vehicle = type_of_vehicle
 
         for char in upper_row_text:
             if char.isdigit() or char in constance.ALPHABET_LIST:
