@@ -72,7 +72,7 @@ class DBDatastore:
             else:
                 return False
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "DB", error = f"{e}")
             return False
 
     def _check_request_status(self, response: requests.Response) -> bool:
