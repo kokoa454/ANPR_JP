@@ -18,7 +18,11 @@ class DeviceController:
         
         if distance is not None and distance < config.PROXIMITY_SENSOR_MAX_DISTANCE_METER * 100:
             print(f"検知距離: {distance} cm")
-            return True
+            
+            if distance <= config.PROXIMITY_SENSOR_THRESHOLD_CM:
+                return True
+            else:
+                return False
         else:
             distance = config.PROXIMITY_SENSOR_OUT_OF_RANGE
             print(f"検知距離: {distance} cm")
