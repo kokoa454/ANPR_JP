@@ -19,30 +19,6 @@ class DatastoreController:
         self.car_db_datastore = DBDatastore.get_instance()
         self.car_buffer_datastore = BufferDatastore.get_instance()
 
-    # unused functions
-    # def checkDBConnection(self) -> bool:
-    #     return self.carDBDataStore.checkDBConnection()
-
-    # def _formatRegionCodeTableData(self, day: str, time: str, regionCode: str) -> dict:
-    #     return {
-    #         "day": day,
-    #         "time": time,
-    #         "region_code": regionCode
-    #     }   
-
-    # def _formatVisitorsTableData(self, day: str) -> dict:
-    #     return {
-    #         "day": day,
-    #     }
-
-    # def insertIntoRegionCodeTable(self, day: str, time: str, regionCode: str) -> bool:
-    #     data = self._formatRegionCodeTableData(day = day, time = time, regionCode = regionCode)
-    #     return self.carDBDataStore.insertIntoRegionCodeTable(data)
-
-    # def insertOrUpdateVisitorsTable(self, day: str) -> bool:
-    #     data = self._formatVisitorsTableData(day = day)
-    #     return self.carDBDataStore.insertOrUpdateVisitorsTable(data)
-
     def insert_data_to_dB(self, timestamp: str, number_plate_object: NumberPlate) -> bool:
         data = self._formatData(timeStamp = timestamp, number_plate_object = number_plate_object)
         status = self.car_db_datastore.insert_data(data = data)
