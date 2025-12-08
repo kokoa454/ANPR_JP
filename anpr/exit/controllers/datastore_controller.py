@@ -24,7 +24,7 @@ class DatastoreController:
         return status
     
     def insert_data_to_buffer(self, timestamp: str) -> bool:
-        data = self._formatData(timeStamp = timestamp, number_plate_object = number_plate_object)
+        data = self._formatData(timeStamp = timestamp)
         status = self.car_buffer_datastore.insert_data(data = data)
         return status
 

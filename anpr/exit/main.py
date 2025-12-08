@@ -50,8 +50,6 @@ class Main:
                             print("退場データをバッファに保存しました")
                         else:
                             print("退場データをバッファに保存できませんでした")
-
-                    del number_plate_object
                     
                 time.sleep(config.MAIN_LOOP_DELAY_SEC)
                 end_time = time.perf_counter()
