@@ -493,49 +493,102 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
 
         # 画像加工処理
         # ガウシアンノイズ付与
-        levelOfGaussianNoise = random.randint(0, 50)
-        img = self.makeGaussianNoise(img, levelOfGaussianNoise)
+        # 50%の確率でノイズを付与
+        if random.random() < 0.5:
+            levelOfGaussianNoise = random.randint(0, 50)
+            img = self.makeGaussianNoise(img, levelOfGaussianNoise)
 
         # ぼかし付与
-        levelOfBlur = random.randint(0, 4)
-        img = self.makeBlur(img, levelOfBlur)
+        # 50%の確率でぼかしを付与
+        if random.random() < 0.5:
+            levelOfBlur = random.randint(0, 4)
+            img = self.makeBlur(img, levelOfBlur)
 
-        # モーションブラー付与
-        levelOfMotionBlur = random.randint(0, 5)
-        img = self.makeMotionBlur(img, levelOfMotionBlur)
+        # モーションブラー付与
+        # 50%の確率でモーションブラーを付与
+        if random.random() < 0.5:
+            levelOfMotionBlur = random.randint(0, 5)
+            img = self.makeMotionBlur(img, levelOfMotionBlur)
 
         # ペッパー・ソルトノイズ付与
-        levelOfPepperAndSaltNoise = random.randint(0, 2)
-        img = self.makePepperAndSaltNoise(img, levelOfPepperAndSaltNoise)
+        # 50%の確率でソルトノイスを付与
+        if random.random() < 0.5:
+            levelOfPepperAndSaltNoise = random.randint(0, 2)
+            img = self.makePepperAndSaltNoise(img, levelOfPepperAndSaltNoise)
+
+        # 雲光付与
+        # 50%の確率で雲光を付与
+        if random.random() < 0.5:
+            maxRadiusRatio = random.uniform(0, 0.5)
+            maxIntensity = random.randint(50, 150)
+            img = self.makeSunGlare(img, maxRadiusRatio, maxIntensity)
+
+        # 阴影付与
+        # 50%の確率で陰影を付与
+        if random.random() < 0.5:
+            maxOpacity = random.uniform(0, 0.7)
+            img = self.makeRandomShadow(img, maxOpacity)
+
+        # 障害物付与
+        # 20%の確率で障害物を付与
+        if random.random() < 0.2:
+            levelOfOcclusion = random.uniform(0, 0.2)
+            img = self.makeOcclusion(img, levelOfOcclusion)
 
         # 回転付与
-        levelOfRotation = random.uniform(-10, 10)
-        img = self.rotateImage(img, levelOfRotation)
+        # 20%の確率で回転を付与
+        if random.random() < 0.2:
+            levelOfRotation = random.uniform(-10, 10)
+            img = self.rotateImage(img, levelOfRotation)
 
         # 明るさ調整
-        levelOfBrightness = random.uniform(0.5, 1.3)
-        img = self.changeBrightness(img, levelOfBrightness)
+        # 20%の確率で明るさを調整
+        if random.random() < 0.2:
+            levelOfBrightness = random.uniform(0.5, 1.3)
+            img = self.changeBrightness(img, levelOfBrightness)
 
         # コントラスト調整
-        levelOfContrast = random.uniform(0.5, 1.3)
-        img = self.changeContrast(img, levelOfContrast)
+        # 20%の確率でコントラストを調整
+        if random.random() < 0.2:
+            levelOfContrast = random.uniform(0.5, 1.3)
+            img = self.changeContrast(img, levelOfContrast)
+
+        # 鮮やかさ調整
+        # 20%の確率で鮮やかさを調整
+        if random.random() < 0.2:
+            levelOfSaturation = random.uniform(0.5, 1.3)
+            img = self.changeSaturation(img, levelOfSaturation)
+
+        # 振動付与
+        # 20%の確率で振動を付与
+        if random.random() < 0.2:
+            levelOfVibration = random.randint(0, 5)
+            img = self.makeVibration(img, levelOfVibration)
+
+        # 解像度変更
+        # 20%の確率で解像度を変更
+        if random.random() < 0.2:
+            levelOfResolutionChange = random.randint(0, 5)
+            img = self.makeResolutionChange(img, levelOfResolutionChange)
 
         # 射影変換付与
-        levelOfPerspectiveUp = random.uniform(-40, 40)
-        levelOfPerspectiveDown = random.uniform(-40, 40)
-        levelOfPerspectiveRight = random.uniform(-40, 40)
-        levelOfPerspectiveLeft = random.uniform(-40, 40)
+        # 80%の確率で射影変換を付与
+        if random.random() < 0.8:
+            levelOfPerspectiveUp = random.uniform(-40, 40)
+            levelOfPerspectiveDown = random.uniform(-40, 40)
+            levelOfPerspectiveRight = random.uniform(-40, 40)
+            levelOfPerspectiveLeft = random.uniform(-40, 40)
 
-        img, perspective = self.makePerspectiveTransform(
-            img, 
-            levelOfPerspectiveUp, 
-            levelOfPerspectiveDown, 
-            levelOfPerspectiveRight, 
-            levelOfPerspectiveLeft
-        )
+            img, perspective = self.makePerspectiveTransform(
+                img, 
+                levelOfPerspectiveUp, 
+                levelOfPerspectiveDown, 
+                levelOfPerspectiveRight, 
+                levelOfPerspectiveLeft
+            )
         
-        # YOLOラベルの射影変換後の座標に更新
-        yoloLabels = self.transformYoloBbox(yoloLabels, perspective, self.NUMBER_PLATE_WIDTH, self.NUMBER_PLATE_HEIGHT)
+            # YOLOラベルの射影変換後の座標に更新
+            yoloLabels = self.transformYoloBbox(yoloLabels, perspective, self.NUMBER_PLATE_WIDTH, self.NUMBER_PLATE_HEIGHT)
         
         # 画像とラベルの保存
         if trainOrValid == "train":
@@ -590,6 +643,96 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         npImage[coordinates[0], coordinates[1], :] = 0
 
         return Image.fromarray(npImage)
+
+    def makeSunGlare(self, numberPlateImage, maxRadiusRatio, levelOfSunGlare):
+        npImage = np.array(numberPlateImage, dtype=np.float32)
+        width, height = numberPlateImage.size
+        
+        center_x = random.randint(width // 4, width * 3 // 4)
+        center_y = random.randint(height // 4, height * 3 // 4)
+        
+        radius = random.randint(int(width * maxRadiusRatio * 0.1), int(width * maxRadiusRatio))
+        intensity = random.randint(50, levelOfSunGlare)
+        
+        for y in range(height):
+            for x in range(width):
+                distance = np.sqrt((x - center_x)**2 + (y - center_y)**2)
+                
+                if distance < radius:
+                    attenuation = np.exp(-0.5 * (distance / (radius / 3))**2)
+                    
+                    glare = intensity * attenuation
+                    npImage[y, x, :] += glare
+        
+        npImage = np.clip(npImage, 0, 255).astype(np.uint8)
+        return Image.fromarray(npImage)
+
+    def makeRandomShadow(self, numberPlateImage, levelOfRandomShadow):
+        npImage = np.array(numberPlateImage, dtype=np.int16)
+        width, height = numberPlateImage.size
+        
+        corners = [
+            (random.randint(-width//2, width*3//2), random.randint(-height//2, height*3//2))
+            for _ in range(4)
+        ]
+        
+        opacity = random.uniform(0.1, levelOfRandomShadow)
+        
+        mask = Image.new('L', (width, height), 0)
+        draw = ImageDraw.Draw(mask)
+        draw.polygon(corners, fill=255)
+        
+        mask = mask.filter(ImageFilter.GaussianBlur(radius=random.randint(5, 15)))
+        npMask = np.array(mask) / 255.0
+        
+        for c in range(3):
+            npImage[:, :, c] = npImage[:, :, c] * (1 - npMask * opacity)
+            
+        npImage = np.clip(npImage, 0, 255).astype(np.uint8)
+        return Image.fromarray(npImage)
+    
+    def makeVibration(self, numberPlateImage, levelOfVibration):
+        npImage = np.array(numberPlateImage, dtype=np.int16)
+        height, width = npImage.shape[:2]
+        
+        for y in range(height):
+            for x in range(width):
+                npImage[y, x] = npImage[y, x] + random.randint(-levelOfVibration, levelOfVibration)
+        
+        npImage = np.clip(npImage, 0, 255).astype(np.uint8)
+        return Image.fromarray(npImage)
+
+    def makeResolutionChange(self, numberPlateImage, levelOfResolutionChange):
+        npImage = np.array(numberPlateImage, dtype=np.int16)
+        height, width = npImage.shape[:2]
+        
+        for y in range(height):
+            for x in range(width):
+                npImage[y, x] = npImage[y, x] + random.randint(-levelOfResolutionChange, levelOfResolutionChange)
+        
+        npImage = np.clip(npImage, 0, 255).astype(np.uint8)
+        return Image.fromarray(npImage)
+
+    def makeOcclusion(self, numberPlateImage, levelOfOcclusion):
+        npImage = np.array(numberPlateImage, dtype=np.int16)
+        height, width = npImage.shape[:2]
+    
+        occlusionW = int(width * random.uniform(0.05, levelOfOcclusion))
+        occlusionH = int(height * random.uniform(0.05, levelOfOcclusion))
+    
+        centerX = random.randint(0, width - occlusionW)
+        centerY = random.randint(0, height - occlusionH)
+    
+        npImage[centerY:centerY + occlusionH, centerX:centerX + occlusionW] = 0
+    
+        occlusionImage = Image.fromarray(npImage.astype(np.uint8)) 
+        
+        return occlusionImage.filter(ImageFilter.GaussianBlur(radius=random.uniform(0.5, 1.5)))
+
+    def changeSaturation(self, numberPlateImage, levelOfSaturation):
+        enhancer = ImageEnhance.Color(numberPlateImage)
+
+        return enhancer.enhance(levelOfSaturation)
     
     def rotateImage(self, numberPlateImage, levelOfRotation):
         fillColorR = random.randint(0, 255)
