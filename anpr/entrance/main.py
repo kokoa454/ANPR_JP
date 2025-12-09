@@ -38,27 +38,20 @@ class Main:
                     self.detection_paused = True
                     print("車両を検出しました")
 
-                    print("ナンバープレートの写真を撮影しています")
                     image = self.device_controller.capture_number_plate()
-                    print("ナンバープレートの写真撮影が完了しました")
                     
                     number_plate_object = NumberPlate()
                     timestamp = Utilities.get_timestamp_for_db()
 
                     if image is not None:
-                        print("ナンバープレート上の文字を認識しています")
                         recognized_number_plate = self.recognizer_controller.recognize_number_plate(image = image, number_plate_object = number_plate_object)
-                        print("ナンバープレート上の文字認識が完了しました")
                         
                         if recognized_number_plate is not None:
                             number_plate_object = recognized_number_plate
                             print(f"ナンバープレートの文字認識結果: {number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
 
                         else:
-                            print("ナンバープレート上の文字を検出できませんでした")
-
-                    else:
-                        print("ナンバープレートを検出できませんでした")
+                            print("ナンバープレート上の文字を認識できませんでした")
 
                     if self.datastore_controller.check_buffer() == True:
                         if self.datastore_controller.insert_buffer_data_to_db() == True:

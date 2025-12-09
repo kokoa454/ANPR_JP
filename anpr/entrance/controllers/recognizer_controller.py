@@ -19,6 +19,7 @@ class RecognizerController:
         detect_result = self.number_plate_recognizer.detect_number_plate(image = image)
 
         if detect_result is not None:
+            print("ナンバープレートを検出しました")
             upper_row_text, lower_row_text = self.number_plate_text_recognizer.detect_number_plate_text(detect_result = detect_result)
             number_plate_object.format_number_plate_text("".join(upper_row_text), "".join(lower_row_text))
             return number_plate_object
