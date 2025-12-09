@@ -1,6 +1,6 @@
 # ANPR-JP
 
-### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO11n-based learning models for detecting and character recognition of Japanese vehicle identification plates (number plates).
+### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO11n-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート).
 
 ![number-plate-pic-1](https://i.ibb.co/y7gkbT4/number-plate-pic1.jpg)
 
@@ -33,8 +33,8 @@
 ##### ① Input an image
 ##### ② Detect segments
 ##### ③ Find convex hulls
-##### ④ Perform a projective transformation
-##### ④ Hand a number plate image over to the OCR model
+##### ④ Perform a perspective transformation
+##### ⑤ Hand a number plate image over to the OCR model
 
 ### ✨️yolo11n-anpr-jp-ocr
 ##### ① Receive a number plate image
@@ -43,36 +43,42 @@
 ##### ④ Format texts
 ##### ⑤ Output formatted texts
 
-## Usage of Machine Learning [^2]
-### 1. Make Data Set For Detecting Number Plates [^3]
+## Usage of YOLO MODEL GENERATOR [^2]
+### 1. Download fonts and put them into `./fonts/`
+###### ・HiraginoMaruGothicProNW4.otf
+###### ・TrmFontJB.ttf
+###### ・FZcarnumberJA.otf
+
+### 2. Make Data Set For Detecting Number Plates [^3]
 ##### ① Set your API key On Roboflow
 ##### ② Set project key
 ##### ③ Download starts automatically
 
-### 2. Start Machine Learning For Detecting Number Plates [^4]
+### 3. Start Machine Learning For Detecting Number Plates [^4]
 ##### ① Input an epochs number
 ##### ② Learning starts automatically with yolo11n-seg
 
-### 3. Test Result for Detecting Number Plates [^5]
-##### ① Put test images into ./generate_yolo_model/test_detect/
+### 4. Test Result for Detecting Number Plates [^5]
+##### ① Put test images into `./generate_yolo_model/test_detect/`
 ##### ② Set inference rate
 ##### ③ Test starts automatically
 
-### 4. Make Data Set For OCR
+### 5. Make Data Set For OCR
 ##### ① Set a number of number plates, how many you want to generate
 ##### ② Generating starts automatically
 
-### 5. Start Machine Learning For OCR [^6]
+### 6. Start Machine Learning For OCR [^6]
 ##### ① Input an epochs number
 ##### ② Learning starts automatically with yolo11n
 
-### 6. Test Result for Detecting Number Plates [^7]
-##### ① Put test images into ./generate_yolo_model/test_ocr/
+### 7. Test Result for OCR [^7]
+##### ① Put test images into `./generate_yolo_model/test_ocr/`
 ##### ② Set inference rate
 ##### ③ Test starts automatically
 
 ## Usage of ANPR
-### 1. Create .env file and make sure every params are filled in[^8]
+### 1. Create `.env` files and make sure every params are filled in
+#### For entrance
 ```
 # DETECTION SETTINGS
 DETECTION_MODEL = ./yolo11n-seg-anpr-jp-detect.pt
@@ -102,7 +108,7 @@ BUFFER_JSON_FILE_NAME = buffer.json
 CAMERA_ID = 0
 RPICAM_METERING = spot
 RPICAM_AUTOFOCUS_MODE = continuous
-RPICAM_TIMEOUT = 2000
+RPICAM_TIMEOUT = 1000
 
 # TIME STAMP SETTINGS
 TIME_STAMP_DB_FORMAT = %Y-%m-%d_%H:%M:%S.%f
@@ -125,21 +131,47 @@ DB_TIMEOUT_SEC = 5
 
 # MAIN SETTINGS
 MAIN_LOOP_DELAY_SEC = 0.5
+```
 
+#### For exit
+```
+# OUTPUT設定
+OUTPUT_LOGS_DIR = ./logs
+OUTPUT_BUFFER_DIR = ./outputs/buffer
+ERROR_LOG_FILE_NAME = error.log
+BUFFER_JSON_FILE_NAME = buffer.json
+
+# TIME STAMP設定
+TIME_STAMP_DB_FORMAT = %Y-%m-%d_%H:%M:%S.%f
+TIME_STAMP_LOCAL_FORMAT = %Y-%m-%d-%H-%M-%S
+
+# PROXIMITY SENSOR設定
+PROXIMITY_SENSOR_THRESHOLD_CM = 150.0
+PROXIMITY_SENSOR_TRIGGER_PIN = 23
+PROXIMITY_SENSOR_ECHO_PIN = 24
+PROXIMITY_SENSOR_MAX_DISTANCE_METER = 4.5
+PROXIMITY_SENSOR_OUT_OF_RANGE = OUT_OF_RANGE
+
+# DB設定
+API_DATA_URL = YOUR_API_DATA_URL
+API_KEY = YOUR_API_KEY
+API_NAME = YOUR_API_NAME
+DB_TIMEOUT_SEC = 5.0
+
+# MAIN設定
+MAIN_LOOP_DELAY_SEC = 0.5
 ```
 
 [^1]: About Number Plate Color. In addition, there are special number plates in Japan, such as number plates with graphic backgrounds and diplomatic number plates, but the YOLO models included in this program cannot recognize number plates that are not listed in the table.
 
-[^2]: About Usage Of Machine Learning. Users of this program can select menus by running ./generate_yolo_model/generate_yolo_model.py.
+[^2]: About Usage Of Machine Learning. Users of this program can select menus by running `./yolo_model_generator/yolo_model_generator.py`.
 
 [^3]: About Data Set For Detecting Number Plates. The author used the project _"License Plate Computer Vision Model by Questions"_. Here is the [URL](https://universe.roboflow.com/questions/license-plate-1sowi).
 
-[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in ./generate_yolo_model/yolo_output_detect/number_plate_11n{n}_detect/weights into yolo11n-seg-anpr-jp-detect.pt.
+[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_11n{n}_detect/weights` into `yolo11n-seg-anpr-jp-detect.pt`.
 
-[^5]: About Test Result for Detecting Number Plates. The test results will be put in ./generate_yolo_model/test_detect/results_images/.
+[^5]: About Test Result for Detecting Number Plates. The test results will be put in `./yolo_model_generator/test_detect/results_images/`.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in ./generate_yolo_model/yolo_output_ocr/number_plate_11n{n}_ocr/weights into yolo11n-anpr-jp-ocr.pt.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_11n{n}_ocr/weights` into `yolo11n-anpr-jp-ocr.pt`.
 
-[^7]: About Test Result for OCR. The test results will be put in ./generate_yolo_model/test_ocr/results_images/.
-
-[^8]: About Params in .env. Boolean flags (`DETECTION_SAVE`, `OCR_SAVE`) are managed in `config.py` directly. Fill in the values of the params in .env file.
+[^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
