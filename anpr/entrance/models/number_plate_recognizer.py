@@ -73,6 +73,9 @@ class NumberPlateRecognizer:
                     if source_points is not None:
                         np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
                         np_image = self._transform_perspective(np_image, source_points)
+
+                        file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp_for_local()}.png"
+                        cv2.imwrite(file_name, np_image)
                         
                         return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
                     
@@ -132,9 +135,6 @@ class NumberPlateRecognizer:
         homography_matrix, _ = cv2.findHomography(source_points, destination, cv2.RANSAC, 5.0)
 
         warped_perspective = cv2.warpPerspective(image, homography_matrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
-
-        file_name = f"{config.OUTPUT_DETECT_DIR}/detected_image_{Utilities.get_timestamp_for_local()}.png"
-        cv2.imwrite(file_name, warped_perspective)
 
         final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)
         return final_image

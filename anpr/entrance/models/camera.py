@@ -37,7 +37,7 @@ class Camera:
 
     def capture_image(self) -> Image.Image | None:
         try:
-            file_name = f"{config.OUTPUT_CAPTURE_DIR}/captured_image_{Utilities.get_timestamp_for_local()}.jpeg"
+            file_name = f"{config.OUTPUT_CAPTURE_DIR}/{Utilities.get_timestamp_for_local()}.jpeg"
             os.system(f"rpicam-jpeg --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {file_name} --timeout {config.RPICAM_TIMEOUT}")
             return Image.open(file_name)
         except Exception as e:

@@ -12,6 +12,7 @@ class Main:
         # Folder creation
         os.makedirs(config.OUTPUT_DETECT_DIR, exist_ok=True)
         os.makedirs(config.OUTPUT_CAPTURE_DIR, exist_ok=True)
+        os.makedirs(config.OUTPUT_OCR_DIR, exist_ok=True)
         os.makedirs(config.OUTPUT_LOGS_DIR, exist_ok=True)
         os.makedirs(config.OUTPUT_BUFFER_DIR, exist_ok=True)
 
