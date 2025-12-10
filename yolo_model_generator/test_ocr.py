@@ -149,25 +149,35 @@ class TEST_OCR:
                         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
                         maskBoolean = resizedMask > 0.5
                         mask8bit = (maskBoolean * 255).astype(np.uint8)
-                        mask8bit = cv2.medianBlur(mask8bit, 5)
-                        mask8bit = cv2.morphologyEx(mask8bit, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+                        mask8bit = cv2.medianBlur(mask8bit, 7)
+                        kernel = np.ones((7, 7), np.uint8)
+                        mask8bit = cv2.morphologyEx(mask8bit, cv2.MORPH_CLOSE, kernel)
 
                         # 凸包判定
                         contours, _ = cv2.findContours(mask8bit, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                         sourcePoints = None
 
                         if contours:
-                            mainContour = max(contours, key=cv2.contourArea)
-                            rectangle = cv2.minAreaRect(mainContour)
-                            box = cv2.boxPoints(rectangle)
-                            sourcePoints = np.float32(box)
-                            sourcePoints = self.sortPoints(sourcePoints)
+                            mainHull = max(contours, key=cv2.contourArea)
+                            perimeter = cv2.arcLength(mainHull, True)
+                            epsilon = 0.02 * perimeter                            
+                            approx = cv2.approxPolyDP(mainHull, epsilon, True)
+                            
+                            if approx.shape[0] == 4:
+                                sourcePoints = np.float32(approx.reshape(4, 2))
+                                sourcePoints = self.sortPoints(sourcePoints)
+                            else:
+                                rectangle = cv2.minAreaRect(mainHull)
+                                box = cv2.boxPoints(rectangle)
+                                sourcePoints = np.float32(box)
+                                sourcePoints = self.sortPoints(sourcePoints)
 
-                        # 射影変換または単純切り抜き
+                        # 射影変換
                         if sourcePoints is not None:
                             plateImage = self.perspectiveTransform(image, sourcePoints)
                         else:
-                            plateImage = image[y1:y2, x1:x2]
+                            print(f"Skipping detection {i}: Could not find source points.")
+                            continue
 
                         cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
@@ -178,8 +188,6 @@ class TEST_OCR:
 
                         if len(classes) == 0:
                             continue
-
-                        typeOfVehicleId = int(classes[0])
 
                         # OCR推論結果解析
                         for ocrR in ocrResult:
@@ -208,9 +216,7 @@ class TEST_OCR:
                         upperRow = "".join([c[1] for c in upperRowChars])
                         lowerRow = "".join([c[1] for c in lowerRowChars])
                         
-                        typeOfVehicleName = self.MODEL_OCR.names[typeOfVehicleId]
-
-                        plateText = self.formatNumberPlateText(typeOfVehicleName, upperRow, lowerRow)
+                        plateText = self.formatNumberPlateText(upperRow, lowerRow)
                         
                         self.drawMultilineText(drawOverlay, (x1, y1 - 150), plateText, font, (255, 0, 0), 45)
 
@@ -255,43 +261,37 @@ class TEST_OCR:
             
         return finalImage
 
-    def formatNumberPlateText(self, typeOfVehicleName, upperRow, lowerRow):
+    def formatNumberPlateText(self, upperRow, lowerRow):
         officeCode = ""
         classNum = ""
         hiraganaCode = ""
         regiNum = ""
 
-        if typeOfVehicleName == "" or typeOfVehicleName is None or typeOfVehicleName not in DATA_SET_OCR.DATA_SET_OCR.TYPE_OF_VEHICLE_LIST:
-            typeOfVehicleName = "????"
-
         for char in upperRow:
-            if char.isdigit() or char in DATA_SET_OCR.DATA_SET_OCR.ALPHABET_LIST:
+            if char.isdigit() or char in DATA_SET_OCR.ALPHABET_LIST:
                 classNum += char
             else:
                 officeCode += char
 
         for char in lowerRow:
-            if char.isdigit() or char == '-' or char == '・':
+            if char.isdigit() or char in DATA_SET_OCR.SPECIAL_CHARACTER_LIST:
                 regiNum += char
             else:
                 hiraganaCode += char
 
-        officeCode = "".join(officeCode)
-        if officeCode == "" or officeCode not in DATA_SET_OCR.DATA_SET_OCR.PLACE_CODE_LIST:
+        if officeCode == "" or officeCode not in DATA_SET_OCR.PLACE_CODE_LIST:
             officeCode = "??"
 
-        classNum = "".join(classNum)
-        if classNum == "" or len(classNum) != 3:
+        if classNum == "" or len(classNum) < 2 or len(classNum) > 4:
             classNum = "???"
 
-        if hiraganaCode == "" or hiraganaCode not in DATA_SET_OCR.DATA_SET_OCR.HIRAGANA_LIST_ALL:
+        if hiraganaCode == "" or hiraganaCode not in DATA_SET_OCR.HIRAGANA_LIST_ALL:
             hiraganaCode = "?"
 
-        regiNum = "".join(regiNum)
         if regiNum == "" or (len(regiNum) != 4 and len(regiNum) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', regiNum) is None:
             regiNum = "????"
 
-        return f"{typeOfVehicleName}\n\n{officeCode} {classNum} {hiraganaCode} {regiNum}"
+        return f"{officeCode} {classNum} {hiraganaCode} {regiNum}"
 
     def drawMultilineText(self, draw, position, text, font, fill, fontSize):
         x, y = position
