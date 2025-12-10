@@ -519,8 +519,8 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         # 雲光付与
         # 50%の確率で雲光を付与
         if random.random() < 0.5:
-            maxRadiusRatio = random.uniform(0, 0.5)
-            maxIntensity = random.randint(50, 150)
+            maxRadiusRatio = random.uniform(0, 0.8)
+            maxIntensity = random.randint(50, 200)
             img = self.makeSunGlare(img, maxRadiusRatio, maxIntensity)
 
         # 阴影付与
@@ -568,7 +568,7 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
         # 解像度変更
         # 20%の確率で解像度を変更
         if random.random() < 0.2:
-            levelOfResolutionChange = random.randint(0, 5)
+            levelOfResolutionChange = random.randint(0, 10)
             img = self.makeResolutionChange(img, levelOfResolutionChange)
 
         # 射影変換付与
