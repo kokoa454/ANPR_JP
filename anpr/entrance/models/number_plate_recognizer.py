@@ -68,16 +68,21 @@ class NumberPlateRecognizer:
                 
                 if approx.shape[0] == 4:
                     source_points = np.float32(approx.reshape(4, 2))
-                    source_points = self._sort_source_points(source_points)
+                    source_points = self.sortPoints(source_points)
+                else:
+                    rectangle = cv2.minAreaRect(main_hull)
+                    box = cv2.boxPoints(rectangle)
+                    source_points = np.float32(box)
+                    source_points = self.sortPoints(source_points)
                     
-                    if source_points is not None:
-                        np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-                        np_image = self._transform_perspective(np_image, source_points)
+                if source_points is not None:
+                    np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+                    np_image = self._transform_perspective(np_image, source_points)
 
-                        file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp_for_local()}.png"
-                        cv2.imwrite(file_name, np_image)
+                    file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp_for_local()}.png"
+                    cv2.imwrite(file_name, np_image)
                         
-                        return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
+                    return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
                     
         return None
 
