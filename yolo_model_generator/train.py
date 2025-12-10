@@ -10,14 +10,14 @@ class TRAIN:
     OUTPUT_DIR = "./yolo_output"
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
-    MODEL_NAME = "yolo11n"
+    MODEL_NAME = "yolo11m"
     DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
     DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
     DATA_PATH = None
     PATIENCE = 10
     BATCH_SIZE = 16
     IMGSZ = 640
-    NAME = "number_plate_11n"
+    NAME = "number_plate_11m"
     PROJECT_PATH = "yolo_output"
 
     def __init__(self, dataSetNumber, trainingNumber):
@@ -29,7 +29,7 @@ class TRAIN:
                 self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
                 self.NAME = f"{self.NAME}_detect"
                 self.PROJECT_PATH = f"{self.PROJECT_PATH}_detect"
-                self.MODEL_NAME = "yolo11n-seg"
+                self.MODEL_NAME = "yolo11m-seg"
             else:
                 raise Exception("ERROR: 検知用データセットがありません。")
 

@@ -16,11 +16,11 @@ class TEST_OCR:
     TEST_DIR = "./test_ocr"
     OUTPUT_DETECT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
     OUTPUT_OCR_DIR = f"{TRAIN.OUTPUT_DIR}_ocr"
-    MODEL_NAME = "yolo11n"
+    MODEL_NAME = "yolo11m"
     MODEL_DETECT = None
     MODEL_OCR = None
-    NAME_DETECT = "number_plate_11n_detect"
-    NAME_OCR = "number_plate_11n_ocr"
+    NAME_DETECT = "number_plate_11m_detect"
+    NAME_OCR = "number_plate_11m_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
     def __init__(self, confNumber):
