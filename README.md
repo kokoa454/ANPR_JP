@@ -1,6 +1,6 @@
 # ANPR-JP
 
-### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO11n-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート).
+### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO11m-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート).
 
 ![number-plate-pic-1](https://i.ibb.co/y7gkbT4/number-plate-pic1.jpg)
 
@@ -29,14 +29,14 @@
 
 
 ## Detection Approach
-### ✨️yolo11n-seg-anpr-jp-detect
+### ✨️yolo11m-seg-anpr-jp-detect
 ##### ① Input an image
 ##### ② Detect segments
 ##### ③ Find convex hulls
 ##### ④ Perform a perspective transformation
 ##### ⑤ Hand a number plate image over to the OCR model
 
-### ✨️yolo11n-anpr-jp-ocr
+### ✨️yolo11m-anpr-jp-ocr
 ##### ① Receive a number plate image
 ##### ② Divide into two parts, top and bottom
 ##### ③ Detect characters
@@ -56,7 +56,7 @@
 
 ### 3. Start Machine Learning For Detecting Number Plates [^4]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo11n-seg
+##### ② Learning starts automatically with yolo11m-seg
 
 ### 4. Test Result for Detecting Number Plates [^5]
 ##### ① Put test images into `./generate_yolo_model/test_detect/`
@@ -69,7 +69,7 @@
 
 ### 6. Start Machine Learning For OCR [^6]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo11n
+##### ② Learning starts automatically with yolo11m
 
 ### 7. Test Result for OCR [^7]
 ##### ① Put test images into `./generate_yolo_model/test_ocr/`
@@ -81,7 +81,7 @@
 #### For entrance
 ```
 # DETECTION SETTINGS
-DETECTION_MODEL = ./yolo11n-seg-anpr-jp-detect.pt
+DETECTION_MODEL = ./yolo11m-seg-anpr-jp-detect.pt
 DETECTION_IMG_SIZE = 640
 DETECTION_CONFIDENCE = 0.5
 DETECTION_IOU = 0.3
@@ -89,7 +89,7 @@ DETECTION_TARGET_WIDTH = 880
 DETECTION_TARGET_HEIGHT = 440
 
 # OCR SETTINGS
-OCR_MODEL = ./yolo11n-anpr-jp-ocr.pt
+OCR_MODEL = ./yolo11m-anpr-jp-ocr.pt
 OCR_IMG_SIZE = 640
 OCR_CONFIDENCE = 0.5
 OCR_IOU = 0.3
