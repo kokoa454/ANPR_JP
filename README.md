@@ -136,12 +136,12 @@ MAIN_LOOP_DELAY_SEC = 0.5
 
 [^2]: About Usage Of Machine Learning. Users of this program can select menus by running `./yolo_model_generator/yolo_model_generator.py`.
 
-[^3]: About Data Set For Detecting Number Plates. The author used the project _"License Plate Computer Vision Model by Questions"_. Here is the [URL](https://universe.roboflow.com/questions/license-plate-1sowi).
+[^3]: About Data Set For Detecting Number Plates. The author used the project _"License plate final Computer Vision Model by demo"_. Here is the [URL](https://universe.roboflow.com/demo-z9q8y/license-plate-final-fgqza).
 
-[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_11n{n}_detect/weights` into `yolo11n-seg-anpr-jp-detect.pt`.
+[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_11m{n}_detect/weights` into `yolo11m-seg-anpr-jp-detect.pt`.
 
 [^5]: About Test Result for Detecting Number Plates. The test results will be put in `./yolo_model_generator/test_detect/results_images/`.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_11n{n}_ocr/weights` into `yolo11n-anpr-jp-ocr.pt`.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_11m{n}_ocr/weights` into `yolo11m-anpr-jp-ocr.pt`.
 
 [^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
