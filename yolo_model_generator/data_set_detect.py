@@ -9,8 +9,9 @@ class DATA_SET_DETECT:
 
     DATA_SET_DETECT_DIR = "./data_set_detect"
 
-    def __init__(self, apiKey, projectId):
+    def __init__(self, apiKey, projectAuthorId, projectId):
         self.API_KEY = apiKey
+        self.PROJECT_AUTHOR_ID = projectAuthorId
         self.PROJECT_ID = projectId
 
         if os.path.exists(self.DATA_SET_DETECT_DIR):
@@ -19,10 +20,10 @@ class DATA_SET_DETECT:
             print("前回の位置検知用データセットを削除しました。")
 
         print("位置検知用データセットをダウンロードします。")
-        self.downloadDataSet(self.API_KEY, self.PROJECT_ID)
+        self.downloadDataSet(self.API_KEY, self.PROJECT_AUTHOR_ID, self.PROJECT_ID)
         print("位置検知用データセットをダウンロードしました。")
 
-    def downloadDataSet(self, apiKey, projectId):
+    def downloadDataSet(self, apiKey, projectAuthorId, projectId):
         # RoboflowのAPIキー設定
         try:
             rf = Roboflow(api_key = apiKey)
@@ -31,7 +32,7 @@ class DATA_SET_DETECT:
 
         # Roboflowのプロジェクト取得
         try:
-            project = rf.workspace("questions").project(projectId)
+            project = rf.workspace(projectAuthorId).project(projectId)
         except Exception:
             raise Exception("ERROR: プロジェクトIDが正しくありません。")
 
@@ -42,7 +43,7 @@ class DATA_SET_DETECT:
         # フォルダのリネーム
         if os.path.exists(dataset.location):
             try:
-                os.rename(dataset.location, self.DATA_SET_DETECT_DIR)
+                shutil.move(dataset.location, self.DATA_SET_DETECT_DIR)
                 print(f"フォルダを{dataset.location}から{self.DATA_SET_DETECT_DIR}へリネームしました。")
             except Exception:
                 raise Exception("ERROR: フォルダのリネーム中にエラーが発生しました。")

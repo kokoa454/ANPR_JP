@@ -42,6 +42,16 @@ def main():
                 continue
 
             try:
+                projectAuthorId = input("Roboflowのプロジェクト作者ID?: ")
+
+                if projectAuthorId == "":
+                    print("プロジェクト作者IDを入力してください。\n")
+                    continue
+            except Exception:
+                print("プロジェクト作者IDを入力してください。\n")
+                continue
+
+            try:
                 projectId = input("RoboflowのプロジェクトID?: ")
 
                 if projectId == "":
@@ -51,7 +61,7 @@ def main():
                 print("プロジェクトIDを入力してください。\n")
                 continue
                     
-            DATA_SET_DETECT(apiKey, projectId)
+            DATA_SET_DETECT(apiKey, projectAuthorId, projectId)
             print("\n")
 
         # -- OCR用データセット生成 --
