@@ -1,11 +1,11 @@
+import os
+import time
+import config.config as config
+from controllers.datastore_controller import DatastoreController
 from controllers.device_controller import DeviceController
 from controllers.recognizer_controller import RecognizerController
-from controllers.datastore_controller import DatastoreController
-from models.utilities import Utilities
-import config.config as config
 from models.number_plate import NumberPlate
-import time
-import os
+from models.utilities import Utilities
 
 class Main:
     def __init__(self) -> None: 

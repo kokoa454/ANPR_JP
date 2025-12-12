@@ -1,8 +1,8 @@
-from data_set_ocr import DATA_SET_OCR
 from data_set_detect import DATA_SET_DETECT
-from train import TRAIN
+from data_set_ocr import DATA_SET_OCR
 from test_detect import TEST_DETECT
 from test_ocr import TEST_OCR
+from train import TRAIN
 
 def main():
     print("【ANPR_JP】\n")

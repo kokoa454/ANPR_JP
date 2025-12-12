@@ -1,10 +1,10 @@
-from models.db_datastore import DBDatastore
-from models.utilities import Utilities
-import config.config as config
 import os
+import config.config as config
 from models.buffer_datastore import BufferDatastore
-from models.number_plate import NumberPlate
+from models.db_datastore import DBDatastore
 from models.error_log import ErrorLog
+from models.number_plate import NumberPlate
+from models.utilities import Utilities
 
 class DatastoreController:
     _instance = None

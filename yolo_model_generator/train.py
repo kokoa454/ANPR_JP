@@ -1,9 +1,9 @@
-from data_set_detect import DATA_SET_DETECT
-from data_set_ocr import DATA_SET_OCR
-from ultralytics import YOLO
 import os
 import re
 import torch
+from ultralytics import YOLO
+from data_set_detect import DATA_SET_DETECT
+from data_set_ocr import DATA_SET_OCR
 
 # -- 学習用クラス --
 class TRAIN:

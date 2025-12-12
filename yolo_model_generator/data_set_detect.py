@@ -1,6 +1,6 @@
 import os
-from roboflow import Roboflow
 import shutil
+from roboflow import Roboflow
 
 # -- 位置検知用データセット生成クラス --
 class DATA_SET_DETECT:

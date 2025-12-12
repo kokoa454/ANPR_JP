@@ -1,8 +1,8 @@
-import random
-from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter
 import os
-import numpy as np
+import random
 import shutil
+import numpy as np
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 # -- OCR用データセット生成クラス --
 class DATA_SET_OCR:

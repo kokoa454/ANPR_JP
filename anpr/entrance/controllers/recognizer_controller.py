@@ -1,6 +1,6 @@
+from models.number_plate import NumberPlate
 from models.number_plate_recognizer import NumberPlateRecognizer
 from models.number_plate_text_recognizer import NumberPlateTextRecognizer
-from models.number_plate import NumberPlate
 
 class RecognizerController:
     _instance = None

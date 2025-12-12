@@ -1,11 +1,11 @@
-from ultralytics import YOLO
-import cv2
 import os
-from train import TRAIN
-from data_set_ocr import DATA_SET_OCR
 import re
-from PIL import Image, ImageDraw, ImageFont
+import cv2
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+from ultralytics import YOLO
+from data_set_ocr import DATA_SET_OCR
+from train import TRAIN
 
 # -- OCR用テストクラス --
 class TEST_OCR:

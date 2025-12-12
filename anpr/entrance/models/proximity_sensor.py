@@ -1,7 +1,7 @@
 from gpiozero import DistanceSensor
 import config.config as config
-from models.utilities import Utilities
 from models.error_log import ErrorLog
+from models.utilities import Utilities
 
 class ProximitySensor:
     _instance = None

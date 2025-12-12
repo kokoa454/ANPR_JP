@@ -1,8 +1,8 @@
-from ultralytics import YOLO
-import cv2
 import os
-from train import TRAIN
 import re
+import cv2
+from ultralytics import YOLO
+from train import TRAIN
 
 # -- 位置検知用テストクラス --
 class TEST_DETECT:

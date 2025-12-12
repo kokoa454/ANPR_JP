@@ -1,9 +1,9 @@
-from PIL import Image
-from models.utilities import Utilities
 import cv2
 import numpy as np
+from PIL import Image
 from ultralytics import YOLO
 import config.config as config
+from models.utilities import Utilities
 
 class NumberPlateRecognizer:
     _instance = None

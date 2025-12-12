@@ -1,7 +1,7 @@
-from ultralytics import YOLO
-from PIL import Image
 import os
 from datetime import datetime
+from PIL import Image
+from ultralytics import YOLO
 import config.config as config
 
 class NumberPlateTextRecognizer:

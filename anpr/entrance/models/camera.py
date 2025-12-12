@@ -1,8 +1,8 @@
-from PIL import Image
-from models.utilities import Utilities
-from models.error_log import ErrorLog
-import config.config as config
 import os
+from PIL import Image
+import config.config as config
+from models.error_log import ErrorLog
+from models.utilities import Utilities
 
 class Camera:
     _instance = None

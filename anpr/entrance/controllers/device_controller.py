@@ -1,7 +1,7 @@
-from models.camera import Camera
-from models.proximity_sensor import ProximitySensor
 import PIL.Image as Image
 import config.config as config
+from models.camera import Camera
+from models.proximity_sensor import ProximitySensor
 
 class DeviceController:
     _instance = None
