@@ -1,4 +1,3 @@
-# https://gpiozero.readthedocs.io/en/stable/api_input.html
 from gpiozero import DistanceSensor
 import config.config as config
 from models.utilities import Utilities
