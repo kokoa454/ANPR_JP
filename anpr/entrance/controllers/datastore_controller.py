@@ -59,14 +59,8 @@ class DatastoreController:
 
     def _formatData(self, timeStamp: str, number_plate_object: NumberPlate) -> dict:
         region_code = number_plate_object.get_region_code()
-        class_num = number_plate_object.get_class_num()
-        hiragana_code = number_plate_object.get_hiragana_code()
-        regist_num = number_plate_object.get_regist_num()
 
         return {
             "timestamp": timeStamp,
             "region_code": region_code,
-            "class_num": class_num,
-            "hiragana_code": hiragana_code,
-            "regist_num": regist_num
         }
