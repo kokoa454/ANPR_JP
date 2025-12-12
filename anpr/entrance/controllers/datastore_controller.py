@@ -20,12 +20,12 @@ class DatastoreController:
         self.car_buffer_datastore = BufferDatastore.get_instance()
 
     def insert_data_to_dB(self, timestamp: str, number_plate_object: NumberPlate) -> bool:
-        data = self._formatData(timeStamp = timestamp, number_plate_object = number_plate_object)
+        data = self._format_data(timeStamp = timestamp, number_plate_object = number_plate_object)
         status = self.car_db_datastore.insert_data(data = data)
         return status
     
     def insert_data_to_buffer(self, timestamp: str, number_plate_object: NumberPlate) -> bool:
-        data = self._formatData(timeStamp = timestamp, number_plate_object = number_plate_object)
+        data = self._format_data(timeStamp = timestamp, number_plate_object = number_plate_object)
         status = self.car_buffer_datastore.insert_data(data = data)
         return status
 
@@ -35,7 +35,7 @@ class DatastoreController:
                 with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r"):
                     return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
+            ErrorLog.save_error_log_to_file(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
 
     def insert_buffer_data_to_db(self) -> bool:
@@ -57,7 +57,7 @@ class DatastoreController:
             ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "Buffer", error = f"{e}")
             return False
 
-    def _formatData(self, timeStamp: str, number_plate_object: NumberPlate) -> dict:
+    def _format_data(self, timeStamp: str, number_plate_object: NumberPlate) -> dict:
         region_code = number_plate_object.get_region_code()
 
         return {
