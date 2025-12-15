@@ -51,12 +51,12 @@ class NumberPlateRecognizer:
                 
                 if approx.shape[0] == 4:
                     source_points = np.float32(approx.reshape(4, 2))
-                    source_points = self.sortPoints(source_points)
+                    source_points = self._sort_source_points(source_points)
                 else:
                     rectangle = cv2.minAreaRect(main_hull)
                     box = cv2.boxPoints(rectangle)
                     source_points = np.float32(box)
-                    source_points = self.sortPoints(source_points)
+                    source_points = self._sort_source_points(source_points)
                     
                 if source_points is not None:
                     np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)

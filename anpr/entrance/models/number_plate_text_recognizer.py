@@ -1,6 +1,5 @@
-import os
-from datetime import datetime
 from PIL import Image
+from models.utilities import Utilities
 from ultralytics import YOLO
 import config.config as config
 
