@@ -15,7 +15,7 @@ class DBDatastore:
     def insert_data(self, data: dict) -> bool:
         try:
             headers = {config.API_NAME: config.API_KEY}
-            response = requests.post(url = config.API_DATA_URL, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
+            response = requests.post(url = config.API_NUMBER_PLATE_DATA_URL, headers=headers, json=data, timeout = config.DB_TIMEOUT_SEC)
 
             if self._check_request_status(response = response):
                 return True

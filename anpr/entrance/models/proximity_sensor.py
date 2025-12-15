@@ -1,4 +1,8 @@
+import warnings
+warnings.simplefilter('ignore')
+
 from gpiozero import DistanceSensor
+from gpiozero.pins.lgpio import LGPIOFactory
 import config.config as config
 from models.error_log import ErrorLog
 from models.utilities import Utilities
@@ -18,7 +22,8 @@ class ProximitySensor:
                 echo=config.PROXIMITY_SENSOR_ECHO_PIN,
                 trigger=config.PROXIMITY_SENSOR_TRIGGER_PIN,
                 max_distance=config.PROXIMITY_SENSOR_MAX_DISTANCE_METER,
-                )
+                pin_factory=LGPIOFactory()
+            )
         except Exception as e:
             ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "ProximitySensor", error = f"{e}")
             self.sensor = None
