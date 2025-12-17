@@ -13,28 +13,6 @@ class Camera:
             cls._instance = cls()
         return cls._instance
 
-    #-- opencv is not used due to errors with opening the camera
-    # def _openCamera(self):
-    #     capture = cv2.VideoCapture(config.CAMERA_ID)
-    #     return capture
-    
-    # def _closeCamera(self, capture):
-    #     capture.release()
-
-    # def captureImage(self):
-    #     try:
-    #         capture = self._openCamera()
-    #         ret, frame = capture.read()
-    #         self._closeCamera(capture)
-
-    #         if ret:
-    #             fileName = f"./outputs/capture/captured_image_{self.utilities.getTimeStamp()}.jpeg"
-    #             cv2.imwrite(fileName, frame)
-    #             return Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    #     except Exception as e:
-    #         self.errorLog.saveErrorLog(f"Camera: {e}")
-    #         return None
-
     def capture_image(self) -> Image.Image | None:
         try:
             file_name = f"{config.OUTPUT_CAPTURE_DIR}/{Utilities.get_timestamp_for_local()}.jpeg"
