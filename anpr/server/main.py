@@ -1,5 +1,5 @@
 import config.config as config
-import data_models.entrance as Entrance
+from data_models.entrance import Entrance
 from databases import Database
 from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends
 from pydantic import BaseModel, field_validator
@@ -28,34 +28,32 @@ async def lifespan(app: FastAPI):
         raise HTTPException(status_code=500, detail=f"Failed to connect to database: {e}") from e
     
     entrance_table_creation_query = """
-                CREATE TABLE IF NOT EXISTS entrance_records (
+                CREATE TABLE IF NOT EXISTS entrance (
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     timestamp TIMESTAMP NOT NULL,
-                    region_code INT NOT NULL,
-                    INDEX idx_visitor_entrance (id, timestamp)
+                    region_code VARCHAR(8) NOT NULL,
+                    INDEX idx_entrance (id, timestamp)
                 );
     """
     
     try:
         await database.execute(entrance_table_creation_query)
-        print("DBテーブル作成完了(entrance_records)")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create entrance table: {e}") from e
 
     error_table_creation_query = """
-                CREATE TABLE IF NOT EXISTS error_records (
+                CREATE TABLE IF NOT EXISTS error (
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     timestamp TIMESTAMP NOT NULL,
                     raspberry_pi_num VARCHAR(16) NOT NULL,
                     error_type VARCHAR(32) NOT NULL,
                     error VARCHAR(255) NOT NULL,
-                    INDEX idx_error_records (id, timestamp, raspberry_pi_num, error_type, error)
+                    INDEX idx_error (id, timestamp, raspberry_pi_num, error_type, error)
                 );
     """
     
     try:
         await database.execute(error_table_creation_query)
-        print("DBテーブル作成完了(error_records)")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create error table: {e}") from e
 
@@ -80,7 +78,7 @@ app = FastAPI(lifespan=lifespan)
 @app.post("/api/entrance")
 async def record_entrance(items: list[Entrance] = Body(...), auth: bool = Depends(authenticate_api_key)):
     insert_query = """
-        INSERT INTO entrance_records (timestamp, region_code)
+        INSERT INTO entrance (timestamp, region_code)
         VALUES (:timestamp, :region_code)
     """
 
