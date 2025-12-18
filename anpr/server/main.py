@@ -80,11 +80,14 @@ app = FastAPI(lifespan=lifespan)
 # APIエンドポイント
 # 入場記録
 @app.post("/api/entrance")
-async def record_entrance(items: list[Entrance] = Body(...), auth: bool = Depends(authenticate_api_key)):
+async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bool = Depends(authenticate_api_key)):
     insert_query = """
         INSERT INTO entrance (timestamp, region_code)
         VALUES (:timestamp, :region_code)
     """
+
+    if isinstance(items, Entrance):
+        items = [items]
 
     data = []
 
