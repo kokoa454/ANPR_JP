@@ -14,9 +14,13 @@ else:
 
 if config.API_KEY is None:
     raise ValueError("API_KEY is not set")
+else:
+    api_key = config.API_KEY
 
 if config.API_NAME is None:
     raise ValueError("API_NAME is not set")  
+else:
+    api_name = config.API_NAME
 
 # DBライフサイクル
 @asynccontextmanager
@@ -30,7 +34,7 @@ async def lifespan(app: FastAPI):
     entrance_table_creation_query = """
                 CREATE TABLE IF NOT EXISTS entrance (
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    timestamp TIMESTAMP NOT NULL,
+                    timestamp DATETIME NOT NULL,
                     region_code VARCHAR(8) NOT NULL,
                     INDEX idx_entrance (id, timestamp)
                 );
@@ -44,7 +48,7 @@ async def lifespan(app: FastAPI):
     error_table_creation_query = """
                 CREATE TABLE IF NOT EXISTS error (
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    timestamp TIMESTAMP NOT NULL,
+                    timestamp DATETIME NOT NULL,
                     raspberry_pi_num VARCHAR(16) NOT NULL,
                     error_type VARCHAR(32) NOT NULL,
                     error VARCHAR(255) NOT NULL,
@@ -65,8 +69,8 @@ async def lifespan(app: FastAPI):
         raise HTTPException(status_code=500, detail=f"Failed to disconnect from database: {e}") from e
 
 # API認証
-def authenticate_api_key(api_key: str = Header(None, alias=config.API_NAME)):
-    if api_key != config.API_KEY:
+def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
+    if user_api_key != api_key:
         raise HTTPException(status_code=401, detail="Invalid API Key")
     return True
 
@@ -86,7 +90,7 @@ async def record_entrance(items: list[Entrance] = Body(...), auth: bool = Depend
 
     try:
         for item in items:
-            # timestamp_pattern = "%Y-%m-%d_%H:%M:%S.%f"
+            # timestamp_pattern = "%Y-%m-%d_%H:%M:%S"
             item.timestamp = item.timestamp.replace("_", " ")
             data.append({"timestamp": item.timestamp, "region_code": item.region_code})
 
