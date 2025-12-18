@@ -1,5 +1,6 @@
 import config.config as config
 from data_models.entrance import Entrance
+from data_models.error import Error
 from databases import Database
 from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends
 from pydantic import BaseModel, field_validator
@@ -101,3 +102,18 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
         return {"status": "OK", "message": "Entrance data recorded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record data into entrance table: {e}")
+
+# エラー記録
+@app.post("/api/error")
+async def record_error(error: Error, auth: bool = Depends(authenticate_api_key)):
+    insert_query = """
+        INSERT INTO error (timestamp, raspberry_pi_num, error_type, error)
+        VALUES (:timestamp, :raspberry_pi_num, :error_type, :error)
+    """
+
+    try:
+        error.timestamp = error.timestamp.replace("_", " ")
+        await database.execute(insert_query, values={"timestamp": error.timestamp, "raspberry_pi_num": error.raspberry_pi_num, "error_type": error.error_type, "error": error.error})
+        return {"status": "OK", "message": "Error recorded successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to record data into error table: {e}")
