@@ -42,7 +42,7 @@ class Main:
                     image = self.device_controller.capture_number_plate()
                     
                     number_plate_object = NumberPlate()
-                    timestamp = Utilities.get_timestamp_for_db()
+                    timestamp = Utilities.get_timestamp()
 
                     if image is not None:
                         recognized_number_plate = self.recognizer_controller.recognize_number_plate(image = image, number_plate_object = number_plate_object)

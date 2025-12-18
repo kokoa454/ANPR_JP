@@ -22,7 +22,7 @@ class DBDatastore:
             else:
                 return False
         except requests.RequestException as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "DB", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "DB", error = f"{e}")
             return False
 
     def insert_buffer_data(self, data: list[dict]) -> bool:
@@ -32,12 +32,12 @@ class DBDatastore:
             else:
                 return False
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "DB", error = f"{e}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "DB", error = f"{e}")
             return False
 
     def _check_request_status(self, response: requests.Response) -> bool:
         if response.status_code == 200:
             return True
         else:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp_for_local(), error_type = "DB", error = f"API connection check failed with status code. {response.status_code}")
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "DB", error = f"API connection check failed with status code. {response.status_code}")
             return False
