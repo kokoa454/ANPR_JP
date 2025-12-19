@@ -1,4 +1,5 @@
 import config.config as config
+import config.constance as constance
 from data_models.entrance import Entrance
 from data_models.error import Error
 from data_models.get_csv_from_entrance import GetCSVFromEntrance
@@ -115,8 +116,9 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     """
 
     try:
-        count = await database.fetch_all(select_query)
-        return {"status": "OK", "message": "Entrance data fetched successfully", "count": count}
+        data = await database.fetch_all(select_query)
+        data = data[0]["COUNT(*)"]
+        return {"status": "OK", "message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
@@ -137,7 +139,7 @@ async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depen
     try:
         data = await database.fetch_all(select_query)
         if len(data) == 0:
-            return HTTPException(status_code=404, detail="No data found")
+            raise HTTPException(status_code=404, detail="No data found")
         
         await database.execute(delete_query)
 
@@ -148,6 +150,28 @@ async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depen
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f"attachment; filename={date_from}_{date_to}.csv"
         return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
+
+@app.post("/api/get_today_region_code_from_entrance")
+async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_api_key)):
+    select_query = """
+        SELECT region_code, COUNT(*) as count FROM entrance WHERE DATE(timestamp) = DATE(NOW()) GROUP BY region_code
+    """
+
+    try:
+        region_code_list = constance.REGION_CODE_LIST        
+        data = await database.fetch_all(select_query)
+        data = {row["region_code"]: row["count"] for row in data}
+        
+        if len(data) == 0:
+            return {"status": "OK", "message": "Entrance data fetched successfully", "data": []}
+
+        for item in data:
+            if item not in region_code_list:
+                raise HTTPException(status_code=500, detail="Invalid region code")
+
+        return {"status": "OK", "message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
@@ -175,8 +199,8 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
     try:
         data = await database.fetch_all(select_query)
         if len(data) == 0:
-            return {"status": "OK", "message": "No error data found", "bool": False}
+            return {"status": "OK", "message": "No error data found", "data": False}
         else:
-            return {"status": "OK", "message": "Error data found", "bool": True}
+            return {"status": "OK", "message": "Error data found", "data": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
