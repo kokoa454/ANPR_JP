@@ -113,6 +113,7 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     select_query = """
         SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
     """
+
     try:
         count = await database.fetch_all(select_query)
         return {"status": "OK", "message": "Entrance data fetched successfully", "count": count}
@@ -128,11 +129,17 @@ async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depen
     select_query = f"""
         SELECT * FROM entrance WHERE DATE(timestamp) BETWEEN DATE('{date_from}') AND DATE('{date_to}')
     """
+
+    delete_query = """
+        DELETE FROM entrance WHERE DATE(timestamp) < DATE(NOW())
+    """
+    
     try:
         data = await database.fetch_all(select_query)
-
         if len(data) == 0:
             return HTTPException(status_code=404, detail="No data found")
+        
+        await database.execute(delete_query)
 
         df = pd.DataFrame(dict(row) for row in data)
         stream = io.StringIO()
