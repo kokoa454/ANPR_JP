@@ -1,11 +1,16 @@
 import config.config as config
 from data_models.entrance import Entrance
 from data_models.error import Error
+from data_models.get_csv_from_entrance import GetCSVFromEntrance
 from databases import Database
 from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends
 from pydantic import BaseModel, field_validator
 from contextlib import asynccontextmanager
 from datetime import datetime
+import io 
+from fastapi.responses import StreamingResponse
+import csv
+import pandas as pd
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -102,6 +107,42 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
         return {"status": "OK", "message": "Entrance data recorded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record data into entrance table: {e}")
+
+@app.post("/api/get_today_count_from_entrance")
+async def get_entrance(auth: bool = Depends(authenticate_api_key)):
+    select_query = """
+        SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
+    """
+    try:
+        count = await database.fetch_all(select_query)
+        return {"status": "OK", "message": "Entrance data fetched successfully", "count": count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
+
+@app.post("/api/get_csv_from_entrance")
+async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depends(authenticate_api_key)):
+    # dates = {"date_from": "2025-01-01", "date_to": "2025-12-31"}
+    date_from = dates.date_from
+    date_to = dates.date_to
+    
+    select_query = f"""
+        SELECT * FROM entrance WHERE DATE(timestamp) BETWEEN DATE('{date_from}') AND DATE('{date_to}')
+    """
+    try:
+        data = await database.fetch_all(select_query)
+
+        if len(data) == 0:
+            return HTTPException(status_code=404, detail="No data found")
+
+        df = pd.DataFrame(dict(row) for row in data)
+        stream = io.StringIO()
+        df.to_csv(stream, index=False)
+        stream.seek(0)
+        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+        response.headers["Content-Disposition"] = f"attachment; filename={date_from}_{date_to}.csv"
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
 # エラー記録
 @app.post("/api/error")
