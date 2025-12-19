@@ -165,3 +165,18 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
         return {"status": "OK", "message": "Error recorded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record data into error table: {e}")
+
+@app.post("/api/get_today_status_from_error")
+async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)):
+    select_query = """
+        SELECT * FROM error WHERE DATE(timestamp) = DATE(NOW())
+    """
+
+    try:
+        data = await database.fetch_all(select_query)
+        if len(data) == 0:
+            return {"status": "OK", "message": "No error data found", "bool": False}
+        else:
+            return {"status": "OK", "message": "Error data found", "bool": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
