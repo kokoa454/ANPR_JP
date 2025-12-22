@@ -2,7 +2,6 @@ import config.config as config
 import config.constance as constance
 from data_models.entrance import Entrance
 from data_models.error import Error
-from data_models.get_csv_from_entrance import GetCSVFromEntrance
 from databases import Database
 from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends
 from pydantic import BaseModel, field_validator
@@ -12,6 +11,7 @@ import io
 from fastapi.responses import StreamingResponse
 import csv
 import pandas as pd
+from datetime import date
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -86,7 +86,7 @@ app = FastAPI(lifespan=lifespan)
 
 # APIエンドポイント
 # 入場記録
-@app.post("/api/entrance")
+@app.post("/api/entrance", status_code=201)
 async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bool = Depends(authenticate_api_key)):
     insert_query = """
         INSERT INTO entrance (timestamp, region_code)
@@ -105,11 +105,12 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
             data.append({"timestamp": item.timestamp, "region_code": item.region_code})
 
         await database.execute_many(insert_query, values=data)
-        return {"status": "OK", "message": "Entrance data recorded successfully"}
+        return {"message": "Entrance data recorded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record data into entrance table: {e}")
 
-@app.post("/api/get_today_count_from_entrance")
+# 今日の入場記録数
+@app.get("/api/entrance/count", status_code=200)
 async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     select_query = """
         SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
@@ -118,31 +119,25 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     try:
         data = await database.fetch_all(select_query)
         data = data[0]["COUNT(*)"]
-        return {"status": "OK", "message": "Entrance data fetched successfully", "data": data}
+        return {"message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
-@app.post("/api/get_csv_from_entrance")
-async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depends(authenticate_api_key)):
-    # dates = {"date_from": "2025-01-01", "date_to": "2025-12-31"}
-    date_from = dates.date_from
-    date_to = dates.date_to
+# 指定日付の入場記録CSV
+@app.get("/api/entrance/csv", status_code=200)
+async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(authenticate_api_key)):
+    # date_from: "2025-01-01", 
+    # date_to: "2025-12-31"
     
-    select_query = f"""
-        SELECT * FROM entrance WHERE DATE(timestamp) BETWEEN DATE('{date_from}') AND DATE('{date_to}')
-    """
-
-    delete_query = """
-        DELETE FROM entrance WHERE DATE(timestamp) < DATE(NOW())
+    select_query = """
+        SELECT * FROM entrance WHERE DATE(timestamp) BETWEEN DATE(:date_from) AND DATE(:date_to)
     """
     
     try:
-        data = await database.fetch_all(select_query)
+        data = await database.fetch_all(select_query, values={"date_from": date_from, "date_to": date_to})
         if len(data) == 0:
             raise HTTPException(status_code=404, detail="No data found")
         
-        await database.execute(delete_query)
-
         df = pd.DataFrame(dict(row) for row in data)
         stream = io.StringIO()
         df.to_csv(stream, index=False)
@@ -153,7 +148,8 @@ async def get_entrance(dates: GetCSVFromEntrance = Body(...), auth: bool = Depen
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
-@app.post("/api/get_today_region_code_from_entrance")
+# 今日の入場記録の各エリアの入場数
+@app.get("/api/entrance/region_code", status_code=200)
 async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_api_key)):
     select_query = """
         SELECT region_code, COUNT(*) as count FROM entrance WHERE DATE(timestamp) = DATE(NOW()) GROUP BY region_code
@@ -165,18 +161,18 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
         data = {row["region_code"]: row["count"] for row in data}
         
         if len(data) == 0:
-            return {"status": "OK", "message": "Entrance data fetched successfully", "data": []}
+            return {"message": "Entrance data fetched successfully", "data": []}
 
         for item in data:
             if item not in region_code_list:
                 raise HTTPException(status_code=500, detail="Invalid region code")
 
-        return {"status": "OK", "message": "Entrance data fetched successfully", "data": data}
+        return {"message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
 # エラー記録
-@app.post("/api/error")
+@app.post("/api/error", status_code=201)
 async def record_error(error: Error, auth: bool = Depends(authenticate_api_key)):
     insert_query = """
         INSERT INTO error (timestamp, raspberry_pi_num, error_type, error)
@@ -186,11 +182,12 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
     try:
         error.timestamp = error.timestamp.replace("_", " ")
         await database.execute(insert_query, values={"timestamp": error.timestamp, "raspberry_pi_num": error.raspberry_pi_num, "error_type": error.error_type, "error": error.error})
-        return {"status": "OK", "message": "Error recorded successfully"}
+        return {"message": "Error recorded successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to record data into error table: {e}")
 
-@app.post("/api/get_today_status_from_error")
+# 今日のエラー記録
+@app.get("/api/error/status", status_code=200)
 async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)):
     select_query = """
         SELECT * FROM error WHERE DATE(timestamp) = DATE(NOW())
@@ -199,8 +196,8 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
     try:
         data = await database.fetch_all(select_query)
         if len(data) == 0:
-            return {"status": "OK", "message": "No error data found", "data": False}
+            return {"message": "No error data found", "data": []}
         else:
-            return {"status": "OK", "message": "Error data found", "data": True}
+            return {"message": "Error data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
