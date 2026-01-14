@@ -42,7 +42,7 @@ async def lifespan(app: FastAPI):
                 CREATE TABLE IF NOT EXISTS entrance (
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     timestamp DATETIME NOT NULL,
-                    region_code VARCHAR(8) NOT NULL,
+                    region_code VARCHAR(16) NOT NULL,
                     INDEX idx_entrance (id, timestamp)
                 );
     """
