@@ -6,6 +6,7 @@ from controllers.device_controller import DeviceController
 from controllers.recognizer_controller import RecognizerController
 from models.number_plate import NumberPlate
 from models.utilities import Utilities
+from models.notification import Notification
 
 class Main:
     def __init__(self) -> None: 
@@ -24,8 +25,10 @@ class Main:
         # Variables
         self.car_detected = False
         self.detection_paused = False
+        self.daily_first_detection = False
+        self.daily_first_detection_date = None
     
-    def run(self) -> None: # TODO: group each part of the loop into controllers and simplify this function
+    def run(self) -> None:
         try:
             print("システムをスタートアップします\n")
             while True:
@@ -38,6 +41,15 @@ class Main:
                 elif self.car_detected == True and self.detection_paused == False:
                     self.detection_paused = True
                     print("車両を検出しました")
+
+                    if self.daily_first_detection == False:
+                        Notification.send_daily_first_notification()
+                        self.daily_first_detection = True
+                        self.daily_first_detection_date = Utilities.get_date()
+                    elif self.daily_first_detection == True:
+                        if self.daily_first_detection_date != Utilities.get_date():
+                            self.daily_first_detection = False
+                            self.daily_first_detection_date = None
 
                     image = self.device_controller.capture_number_plate()
                     
