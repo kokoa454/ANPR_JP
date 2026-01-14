@@ -5,5 +5,5 @@ class Utilities:
     @staticmethod
     def get_timestamp() -> str:
         now = datetime.now()
-        timestamp = now.strftime(config.TIME_STAMP_DB_FORMAT)
+        timestamp = now.strftime(config.TIME_STAMP_FORMAT)
         return timestamp

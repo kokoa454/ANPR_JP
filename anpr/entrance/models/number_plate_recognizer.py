@@ -62,7 +62,7 @@ class NumberPlateRecognizer:
                     np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
                     np_image = self._transform_perspective(np_image, source_points)
 
-                    file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp_for_local()}.png"
+                    file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp()}.png"
                     cv2.imwrite(file_name, np_image)
                         
                     return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))

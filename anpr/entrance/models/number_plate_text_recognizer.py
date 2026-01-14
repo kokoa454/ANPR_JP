@@ -60,7 +60,7 @@ class NumberPlateTextRecognizer:
                 concat_img.paste(upper_img, (0, 0))
                 concat_img.paste(lower_img, (upper_img.width, 0))
 
-                file_name = f"{config.OUTPUT_OCR_DIR}/{Utilities.get_timestamp_for_local()}.png"
+                file_name = f"{config.OUTPUT_OCR_DIR}/{Utilities.get_timestamp()}.png"
                 concat_img.save(file_name)
 
                 # OCRの検出結果を取得
