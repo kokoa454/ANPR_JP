@@ -34,7 +34,7 @@ class Notification:
     def send_daily_first_notification():
         service = Notification._get_credentials()
         try:
-            message = MIMEText(config.GMAIL_DAILY_FIRST_MESSAGE)
+            message = MIMEText(f"{config.GMAIL_DAILY_FIRST_MESSAGE}\n\n検知時間: {Utilities.get_timestamp()}")
             message['To'] = config.GMAIL_RECEIVER
             message['From'] = config.GMAIL_SENDER
             message['Subject'] = config.GMAIL_DAILY_FIRST_SUBJECT
@@ -44,5 +44,14 @@ class Notification:
             ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "GMAIL", error = f"{error}")
     
     @staticmethod
-    def send_error_notification():
-        pass
+    def send_error_notification(timestamp: str, error_type: str, error: str):
+        service = Notification._get_credentials()
+        try:
+            message = MIMEText(f"{config.GMAIL_ERROR_MESSAGE}\n\nエラータイプ: {error_type}\nエラー内容: {error}\n発生時間: {timestamp}")
+            message['To'] = config.GMAIL_RECEIVER
+            message['From'] = config.GMAIL_SENDER
+            message['Subject'] = config.GMAIL_ERROR_SUBJECT
+            message = {'raw': base64.urlsafe_b64encode(message.as_bytes()).decode()}
+            message = service.users().messages().send(userId = "me", body = message).execute()
+        except HttpError as error:
+            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "GMAIL", error = f"{error}")

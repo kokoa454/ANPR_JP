@@ -6,6 +6,7 @@ from gpiozero.pins.lgpio import LGPIOFactory
 import config.config as config
 from models.error_log import ErrorLog
 from models.utilities import Utilities
+from models.notification import Notification
 
 class ProximitySensor:
     _instance = None
@@ -25,7 +26,9 @@ class ProximitySensor:
                 pin_factory=LGPIOFactory()
             )
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log(timestamp = timestamp, error_type = "ProximitySensor", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "ProximitySensor", error = f"{e}")
             self.sensor = None
 
     def get_distance(self) -> float | None:
@@ -33,5 +36,7 @@ class ProximitySensor:
             distance = float(self.sensor.distance) * 100 # convert to centimeter
             return distance
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "ProximitySensor", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log(timestamp = timestamp, error_type = "ProximitySensor", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "ProximitySensor", error = f"{e}")
             return None

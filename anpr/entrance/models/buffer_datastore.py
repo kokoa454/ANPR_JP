@@ -3,6 +3,7 @@ import os
 import config.config as config
 from models.error_log import ErrorLog
 from models.utilities import Utilities
+from models.notification import Notification
 
 class BufferDatastore:
     _instance = None
@@ -27,7 +28,9 @@ class BufferDatastore:
                 json.dump(buffer_data, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
             return False
     
     def read_data(self) -> tuple[bool, list[dict]]:
@@ -36,5 +39,7 @@ class BufferDatastore:
                 data = json.load(f)
                 return True, data
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
             return False, None

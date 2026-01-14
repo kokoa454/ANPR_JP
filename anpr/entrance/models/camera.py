@@ -3,6 +3,7 @@ from PIL import Image
 import config.config as config
 from models.error_log import ErrorLog
 from models.utilities import Utilities
+from models.notification import Notification
 
 class Camera:
     _instance = None
@@ -19,5 +20,7 @@ class Camera:
             os.system(f"rpicam-still --hdr --zsl --metering {config.RPICAM_METERING} -n --autofocus-mode {config.RPICAM_AUTOFOCUS_MODE} --output {file_name} --timeout {config.RPICAM_TIMEOUT}")
             return Image.open(file_name)
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Camera", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log(timestamp = timestamp, error_type = "Camera", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "Camera", error = f"{e}")
             return None

@@ -5,6 +5,7 @@ from models.db_datastore import DBDatastore
 from models.error_log import ErrorLog
 from models.number_plate import NumberPlate
 from models.utilities import Utilities
+from models.notification import Notification
 
 class DatastoreController:
     _instance = None
@@ -35,7 +36,9 @@ class DatastoreController:
                 with open(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}", "r"):
                     return True
         except Exception as e:
-            ErrorLog.save_error_log_to_file(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log_to_file(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
             return False
 
     def insert_buffer_data_to_db(self) -> bool:
@@ -54,7 +57,9 @@ class DatastoreController:
             os.remove(f"{config.OUTPUT_BUFFER_DIR}/{config.BUFFER_JSON_FILE_NAME}")
             return True
         except Exception as e:
-            ErrorLog.save_error_log(timestamp = Utilities.get_timestamp(), error_type = "Buffer", error = f"{e}")
+            timestamp = Utilities.get_timestamp()
+            ErrorLog.save_error_log_to_file(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
+            Notification.send_error_notification(timestamp = timestamp, error_type = "Buffer", error = f"{e}")
             return False
 
     def _format_data(self, timeStamp: str, number_plate_object: NumberPlate) -> dict:
