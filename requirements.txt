@@ -1,13 +1,17 @@
-# python 3.13.7
-
+databases
+fastapi
+google_api_python_client
+google_auth_oauthlib
+gpiozero
 numpy
 opencv_python
 opencv_python_headless
+pandas
 Pillow
+protobuf
+pydantic
 python-dotenv
+Requests
 roboflow
 torch
 ultralytics
-fastapi
-uvicorn
-requests
