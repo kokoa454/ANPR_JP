@@ -88,8 +88,7 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
 async def refer_waiting_time() -> None:
     while True:
         start_processing_time = datetime.now()
-        # working_hours = await check_open_or_closed(str(datetime.now().year), str(datetime.now().month), str(datetime.now().day))
-        working_hours = await check_open_or_closed("2026", "1", "1")
+        working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
         if working_hours != "休業日":
             start_working_hour = working_hours.split("~")[0]
             end_working_hour = working_hours.split("~")[1]
