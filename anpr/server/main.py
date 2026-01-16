@@ -17,6 +17,9 @@ from data_models.attraction import Attraction
 import requests
 from bs4 import BeautifulSoup
 import re
+import httpx
+import asyncio
+import logging
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -34,12 +37,59 @@ if config.API_NAME is None:
 else:
     api_name = config.API_NAME
 
+logger_info = logging.getLogger("uvicorn.info")
+logger_error = logging.getLogger("uvicorn.error")
+
+
+# 営業日チェック
+async def check_open_or_closed(year: str, month: str, day: str) -> str:
+    if  int(month) < 10:
+        month = "0" + month
+
+    try:
+            
+        url = f"https://pal2.co.jp/fee/{year}/{month}/#calendar"
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url)
+        data = response.text
+
+        soup = BeautifulSoup(data, "html.parser")
+        table = soup.find("table")
+        rows = table.find_all("tr")
+
+        for row in rows:
+            cols = row.find_all("td")
+            
+            for col in cols:
+                if re.search("0", month):
+                    month = month[1]
+
+                rel = col.get("rel")
+                regex = f"{month}/{day}$"
+
+                if rel is not None and re.match(regex, rel):
+                    if col.find("p", class_ = "rest") is not None:
+                        return "休業日"
+                    else:
+                        working_hours = col.find("a", class_ = "t_inner").get("data-time")
+                        working_hours = working_hours.replace("～", "~")
+                        
+                        if working_hours[0] == "1" or "2":
+                            working_hours = "0" + working_hours
+                        
+                        return str(working_hours)
+        
+        logger_info.info("Completed to check working day")
+    except Exception as e:
+        logger_error.error(f"Failed to check working day: {e}")
+        return "Error"
+
 # DBライフサイクル
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
         await database.connect()
-        print("DB接続完了")
+        logger_info.info("Completed to connect to database")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to connect to database: {e}") from e
     
@@ -54,6 +104,7 @@ async def lifespan(app: FastAPI):
     
     try:
         await database.execute(entrance_table_creation_query)
+        logger_info.info("Completed to create entrance table")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create entrance table: {e}") from e
 
@@ -70,6 +121,7 @@ async def lifespan(app: FastAPI):
     
     try:
         await database.execute(error_table_creation_query)
+        logger_info.info("Completed to create error table")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create error table: {e}") from e
 
@@ -85,13 +137,23 @@ async def lifespan(app: FastAPI):
 
     try:
         await database.execute(waiting_time_table_creation_query)
+        logger_info.info("Completed to create waiting_time table")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create waiting_time table: {e}") from e
+
+    try:
+        bg_task = asyncio.create_task(refer_waiting_time())
+        logger_info.info("Completed to create background task")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create task: {e}") from e
 
     yield
 
     try:
+        bg_task.cancel()
+        logger_info.info("Completed to cancel background task")
         await database.disconnect()
+        logger_info.info("Completed to disconnect from database")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to disconnect from database: {e}") from e
 
@@ -103,40 +165,6 @@ def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
 
 # FastAPIアプリケーション起動
 app = FastAPI(lifespan=lifespan)
-
-# 営業日チェック
-def check_open_or_closed() -> str:
-    year = str(datetime.now().year)
-    month = str(datetime.now().month)
-    if  int(month) < 10:
-        month = "0" + month
-    day = str(datetime.now().day)
-
-    url = f"https://pal2.co.jp/fee/{year}/{month}/#calendar"
-    response = requests.get(url)
-    data = response.text
-
-    soup = BeautifulSoup(data, "html.parser")
-    table = soup.find("table")
-    rows = table.find_all("tr")
-
-    for row in rows:
-        cols = row.find_all("td")
-        
-        for col in cols:
-            if re.search("0", month):
-                month = month[1]
-
-            rel = col.get("rel")
-            regex = f"{month}/{day}$"
-
-            if rel is not None and re.match(regex, rel):
-                if col.find("p", class_ = "rest") is not None:
-                    return "休業日"
-                else:
-                    working_hours = col.find("a", class_ = "t_inner").get("data-time")
-                    working_hours = working_hours.replace("ï½", "~")
-                    return "営業時間: " + working_hours
 
 # APIエンドポイント
 # 入場記録
@@ -152,14 +180,18 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
 
     data = []
 
-    if check_open_or_closed() == "休業日":
-        return {"message": "Entrance data not recorded due to the park is closed today"}
-
     try:
         for item in items:
             # timestamp_pattern = "%Y-%m-%d_%H:%M:%S"
             item.timestamp = item.timestamp.replace("_", " ")
-            data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+            year = str(item.timestamp.split(" ")[0].split("-")[0])
+            month = str(item.timestamp.split(" ")[0].split("-")[1])
+            day = str(item.timestamp.split(" ")[0].split("-")[2])
+
+            if await check_open_or_closed(year = year, month = month, day = day) == "休業日":
+                print("skipped data: ", item)
+            else:
+                data.append({"timestamp": item.timestamp, "region_code": item.region_code})
 
         await database.execute_many(insert_query, values=data)
         return {"message": "Entrance data recorded successfully"}
@@ -173,7 +205,7 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
         SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
     """
 
-    if check_open_or_closed() == "休業日":
+    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
         raise HTTPException(status_code=401, detail="The park is closed today")
 
     try:
@@ -215,7 +247,7 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
         SELECT region_code, COUNT(*) as count FROM entrance WHERE DATE(timestamp) = DATE(NOW()) GROUP BY region_code
     """
 
-    if check_open_or_closed() == "休業日":
+    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
         raise HTTPException(status_code=401, detail="The park is closed today")
 
     try:
