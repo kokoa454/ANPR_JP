@@ -20,6 +20,8 @@ import re
 import httpx
 import asyncio
 import logging
+from logging.handlers import RotatingFileHandler
+from uvicorn.logging import ColourizedFormatter
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -67,17 +69,18 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
 
                 if rel is not None and re.match(regex, rel):
                     if col.find("p", class_ = "rest") is not None:
+                        logger_info.info("Completed to check working day: Closed")
                         return "休業日"
                     else:
                         working_hours = col.find("a", class_ = "t_inner").get("data-time")
                         working_hours = working_hours.replace("～", "~")
                         
-                        if working_hours[0] == "1" or "2":
+                        if working_hours[0] != "1" and working_hours[0] != "2":
                             working_hours = "0" + working_hours
                         
-                        return str(working_hours)
+                        logger_info.info(f"Completed to check working day: Open ({working_hours})")
+                        return working_hours
         
-        logger_info.info("Completed to check working day")
     except Exception as e:
         logger_error.error(f"Failed to check working day: {e}")
         return "Error"
@@ -87,6 +90,7 @@ async def refer_waiting_time() -> None:
     while True:
         start_processing_time = datetime.now()
         working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+
         if working_hours != "休業日":
             start_working_hour = working_hours.split("~")[0]
             end_working_hour = working_hours.split("~")[1]
@@ -96,7 +100,7 @@ async def refer_waiting_time() -> None:
             if current_hm >= start_working_hour and current_hm <= end_working_hour:
                 logger_info.info("Started to refer waiting time")
                 select_query = """
-                    SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
+                    SELECT COUNT(*) FROM entrance WHERE timestamp >= CURDATE()
                 """
 
                 insert_query = """
@@ -104,7 +108,7 @@ async def refer_waiting_time() -> None:
                     VALUES (:timestamp, :attraction_name, :waiting_time)
                 """
 
-                timestamp = datetime.now().strftime(config.TIME_STAMP_FORMAT)
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 now = datetime.now()
                 
                 try:
@@ -154,8 +158,10 @@ async def refer_waiting_time() -> None:
                     if referred_attraction_count == len(Attraction):
                         logger_info.info("Completed to refer waiting time for all attractions")
                     else:
+                        for error_attraction in error_attractions_list:
+                            await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": error_attraction, "waiting_time": 999})
                         logger_info.info(f"Completed to refer waiting time for {referred_attraction_count} attractions")
-                        logger_error.info(f"Error attractions: {error_attractions_list}")
+                        logger_error.error(f"Error attractions: {error_attractions_list}")
                 
                 except Exception as e:
                     logger_error.error(f"Failed to refer waiting time: {e}")
@@ -287,7 +293,7 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
 @app.get("/api/entrance/count", status_code=200)
 async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     select_query = """
-        SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
+        SELECT COUNT(*) FROM entrance WHERE timestamp >= CURDATE()
     """
 
     if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
@@ -329,7 +335,7 @@ async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(auth
 @app.get("/api/entrance/region_code", status_code=200)
 async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_api_key)):
     select_query = """
-        SELECT region_code, COUNT(*) as count FROM entrance WHERE DATE(timestamp) = DATE(NOW()) GROUP BY region_code
+        SELECT region_code, COUNT(*) as count FROM entrance WHERE timestamp >= CURDATE() GROUP BY region_code
     """
 
     if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
@@ -370,7 +376,7 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
 @app.get("/api/error/status", status_code=200)
 async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)):
     select_query = """
-        SELECT * FROM error WHERE DATE(timestamp) = DATE(NOW())
+        SELECT * FROM error WHERE timestamp >= CURDATE()
     """
 
     try:
@@ -381,3 +387,22 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
             return {"message": "Error data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
+
+# 現在の待ち時間
+@app.get("/api/waiting_time", status_code=200)
+async def get_waiting_time(auth: bool = Depends(authenticate_api_key)):
+    select_query = """
+        SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time)
+    """
+
+    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
+        raise HTTPException(status_code=401, detail="The park is closed today")
+
+    try:
+        data = await database.fetch_all(select_query)
+        if len(data) == 0:
+            return {"message": "No waiting time data found", "data": []}
+        else:
+            return {"message": "Waiting time data fetched successfully", "data": data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from waiting time table: {e}")
