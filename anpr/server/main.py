@@ -40,14 +40,12 @@ else:
 logger_info = logging.getLogger("uvicorn.info")
 logger_error = logging.getLogger("uvicorn.error")
 
-
 # 営業日チェック
 async def check_open_or_closed(year: str, month: str, day: str) -> str:
     if  int(month) < 10:
         month = "0" + month
 
     try:
-            
         url = f"https://pal2.co.jp/fee/{year}/{month}/#calendar"
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -141,7 +139,8 @@ async def refer_waiting_time() -> None:
 
                     for attraction in Attraction:
                         attraction_name = attraction.name
-                        schedules = reference_list.get(attraction)                  
+                        schedules = reference_list.get(attraction)
+                        
                         for time_range, waiting_time in schedules.items():
                             start_hm = time_range.split("-")[0]
                             end_hm = time_range.split("-")[1]
@@ -248,6 +247,11 @@ def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
 app = FastAPI(lifespan=lifespan)
 
 # APIエンドポイント
+# API生存確認
+@app.get("/api", status_code=200)
+async def get_api_status(auth: bool = Depends(authenticate_api_key)):
+    return {"message": "API is running"}
+
 # 入場記録
 @app.post("/api/entrance", status_code=201)
 async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bool = Depends(authenticate_api_key)):
