@@ -39,6 +39,35 @@ if config.API_NAME is None:
 else:
     api_name = config.API_NAME
 
+# ログ設定
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+
+logger_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+console_formatter = ColourizedFormatter(
+    fmt = "%(asctime)s - %(levelprefix)s - %(message)s",
+    style = "%",
+    use_colors = True
+)
+
+info_handler = RotatingFileHandler("info.log", maxBytes = 1024 * 1024 * 10, backupCount = 10)
+info_handler.setLevel(logging.INFO)
+info_handler.setFormatter(logger_formatter)
+
+error_handler = RotatingFileHandler("error.log", maxBytes = 1024 * 1024 * 10, backupCount = 10)
+error_handler.setLevel(logging.ERROR)
+error_handler.setFormatter(logger_formatter)
+
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(console_formatter)
+
+root_logger.addHandler(info_handler)
+root_logger.addHandler(error_handler)
+root_logger.addHandler(console_handler)
+
+logging.getLogger("uvicorn").handlers = root_logger.handlers
+logging.getLogger("uvicorn.access").handlers = root_logger.handlers
+
 logger_info = logging.getLogger("uvicorn.info")
 logger_error = logging.getLogger("uvicorn.error")
 
@@ -91,7 +120,7 @@ async def refer_waiting_time() -> None:
         start_processing_time = datetime.now()
         working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
 
-        if working_hours != "休業日":
+        if working_hours != "休業日" and working_hours != "Error":
             start_working_hour = working_hours.split("~")[0]
             end_working_hour = working_hours.split("~")[1]
 
@@ -279,8 +308,10 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
             month = str(item.timestamp.split(" ")[0].split("-")[1])
             day = str(item.timestamp.split(" ")[0].split("-")[2])
 
-            if await check_open_or_closed(year = year, month = month, day = day) == "休業日":
-                print("skipped data: ", item)
+            working_hours = await check_open_or_closed(year = year, month = month, day = day)
+            
+            if working_hours == "休業日":
+                logger_info.info(f"Skipped data: {item}")
             else:
                 data.append({"timestamp": item.timestamp, "region_code": item.region_code})
 
@@ -296,8 +327,13 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
         SELECT COUNT(*) FROM entrance WHERE timestamp >= CURDATE()
     """
 
-    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
+    working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+    
+    if working_hours == "休業日":
         raise HTTPException(status_code=401, detail="The park is closed today")
+    
+    if working_hours == "Error":
+        raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
         data = await database.fetch_all(select_query)
@@ -338,8 +374,13 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
         SELECT region_code, COUNT(*) as count FROM entrance WHERE timestamp >= CURDATE() GROUP BY region_code
     """
 
-    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
+    working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+    
+    if working_hours == "休業日":
         raise HTTPException(status_code=401, detail="The park is closed today")
+    
+    if working_hours == "Error":
+        raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
         region_code_list = constance.REGION_CODE_LIST        
@@ -395,8 +436,13 @@ async def get_waiting_time(auth: bool = Depends(authenticate_api_key)):
         SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time)
     """
 
-    if await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day)) == "休業日":
+    working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+    
+    if working_hours == "休業日":
         raise HTTPException(status_code=401, detail="The park is closed today")
+    
+    if working_hours == "Error":
+        raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
         data = await database.fetch_all(select_query)
