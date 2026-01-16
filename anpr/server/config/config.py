@@ -10,3 +10,6 @@ API_NAME = os.getenv("API_NAME")
 
 # DIRECTORY設定
 TEMP_DIR = os.getenv("TEMP_DIR")
+
+# TIME STAMP設定
+TIME_STAMP_FORMAT = os.getenv("TIME_STAMP_FORMAT")

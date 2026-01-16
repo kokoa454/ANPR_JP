@@ -84,6 +84,88 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
         logger_error.error(f"Failed to check working day: {e}")
         return "Error"
 
+# 5分おきに待ち時間参照
+async def refer_waiting_time() -> None:
+    while True:
+        start_processing_time = datetime.now()
+        # working_hours = await check_open_or_closed(str(datetime.now().year), str(datetime.now().month), str(datetime.now().day))
+        working_hours = await check_open_or_closed("2026", "1", "1")
+        if working_hours != "休業日":
+            start_working_hour = working_hours.split("~")[0]
+            end_working_hour = working_hours.split("~")[1]
+
+            current_hm = datetime.now().strftime("%H:%M")
+            
+            if current_hm >= start_working_hour and current_hm <= end_working_hour:
+                logger_info.info("Started to refer waiting time")
+                select_query = """
+                    SELECT COUNT(*) FROM entrance WHERE DATE(timestamp) = DATE(NOW())
+                """
+
+                insert_query = """
+                    INSERT INTO waiting_time (timestamp, attraction_name, waiting_time)
+                    VALUES (:timestamp, :attraction_name, :waiting_time)
+                """
+
+                timestamp = datetime.now().strftime(config.TIME_STAMP_FORMAT)
+                now = datetime.now()
+                
+                try:
+                    data = await database.fetch_all(select_query)
+                    car_count = data[0]["COUNT(*)"]
+
+                    logger_info.info(f"Car count: {car_count}")
+
+                    if car_count < 50:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_FIFTY
+                    elif car_count < 100:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_ONE_HUNDRED
+                    elif car_count < 200:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_TWO_HUNDRED
+                    elif car_count < 300:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_THREE_HUNDRED
+                    elif car_count < 400:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_FOUR_HUNDRED
+                    elif car_count < 500:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_FIVE_HUNDRED
+                    elif car_count < 600:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_SIX_HUNDRED
+                    elif car_count < 700:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_SEVEN_HUNDRED
+                    elif car_count < 800:
+                        reference_list = constance.SCHEDULE_DATA_UNDER_EIGHT_HUNDRED
+                    else:
+                        reference_list = constance.SCHEDULE_DATA_OVER_EIGHT_HUNDRED
+                    
+                    referred_attraction_count = 0
+                    error_attractions_list = []
+
+                    for attraction in Attraction:
+                        attraction_name = attraction.name
+                        schedules = reference_list.get(attraction)                  
+                        for time_range, waiting_time in schedules.items():
+                            start_hm = time_range.split("-")[0]
+                            end_hm = time_range.split("-")[1]
+
+                            if start_hm <= current_hm and end_hm >= current_hm:
+                                await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": attraction_name, "waiting_time": waiting_time})
+                                logger_info.info(f"Completed to insert waiting time: {attraction_name}")
+                                referred_attraction_count += 1
+                                break
+                    
+                    if referred_attraction_count == len(Attraction):
+                        logger_info.info("Completed to refer waiting time for all attractions")
+                    else:
+                        logger_info.info(f"Completed to refer waiting time for {referred_attraction_count} attractions")
+                        logger_error.info(f"Error attractions: {error_attractions_list}")
+                
+                except Exception as e:
+                    logger_error.error(f"Failed to refer waiting time: {e}")
+        
+        end_processing_time = datetime.now()
+        total_processing_time = (end_processing_time - start_processing_time).total_seconds()
+        await asyncio.sleep(max(0, 300 - total_processing_time))
+
 # DBライフサイクル
 @asynccontextmanager
 async def lifespan(app: FastAPI):
