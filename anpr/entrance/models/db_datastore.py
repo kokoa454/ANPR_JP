@@ -41,7 +41,7 @@ class DBDatastore:
             return False
 
     def _check_request_status(self, response: requests.Response) -> bool:
-        if response.status_code == 200:
+        if response.status_code == 201:
             return True
         else:
             timestamp = Utilities.get_timestamp()
