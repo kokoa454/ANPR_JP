@@ -15,3 +15,5 @@ Requests
 roboflow
 torch
 ultralytics
+beautifulsoup4
+httpx
