@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="DPwa2SHwuw495MocNYNu" name="entrance">
-        <mxGraphModel dx="776" dy="508" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="1940" dy="1833" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -73,7 +73,7 @@
                 <mxCell id="163" value="NumberPlateRecognizer" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="600" y="360" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="164" value="&lt;div&gt;位置検知を行う&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;モジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="164" value="&lt;div&gt;位置検知を行う&lt;span style=&quot;background-color: transparent;&quot;&gt;モジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="600" y="400" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="165" value="" style="endArrow=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;rounded=0;curved=0;" parent="1" source="166" edge="1">
@@ -101,7 +101,7 @@
                 <mxCell id="169" value="NumberPlate" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="880" y="520" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="170" value="&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;ナンバープレート情報を&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;保持するモジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="170" value="&lt;span style=&quot;background-color: transparent;&quot;&gt;ナンバープレート情報を&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;保持するモジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="880" y="560" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="171" value="" style="endArrow=none;html=1;rounded=0;curved=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="172" edge="1">
@@ -116,7 +116,7 @@
                 <mxCell id="172" value="DataSaverController" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1200" y="200" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="173" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;font color=&quot;#000000&quot;&gt;データを&lt;/font&gt;&lt;/span&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;制御するモジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="173" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;データを&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;制御するモジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="1200" y="240" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="174" value="" style="endArrow=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" parent="1" source="175" edge="1">
@@ -186,7 +186,7 @@
                 <mxCell id="190" value="ErrorLog" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="2040" y="200" width="240" height="40" as="geometry"/>
                 </mxCell>
-                <mxCell id="191" value="各種エラー発生時に&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;ローカル環境へ&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;color: rgb(63, 63, 63); background-color: transparent;&quot;&gt;エラー内容を保存するモジュール&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                <mxCell id="191" value="&lt;font color=&quot;#f8f6f6&quot;&gt;各種エラー発生時に&lt;span style=&quot;background-color: transparent;&quot;&gt;ローカル環境へ&lt;/span&gt;&lt;/font&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;font color=&quot;#f8f6f6&quot;&gt;エラー内容を保存するモジュール&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
                     <mxGeometry x="2040" y="240" width="240" height="40" as="geometry"/>
                 </mxCell>
                 <mxCell id="TCG6s1d8LKDuw_p-bgWo-191" value="" style="endArrow=none;html=1;rounded=0;curved=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" edge="1">
@@ -217,6 +217,21 @@
                             <mxPoint x="1760" y="640"/>
                             <mxPoint x="1440" y="640"/>
                             <mxPoint x="1160" y="640"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="192" value="Utilities" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="2330" y="200" width="240" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="193" value="&lt;font color=&quot;#ffffff&quot;&gt;各モジュールのユーティリティ処理を行うモジュール&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="2330" y="240" width="240" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="194" value="" style="endArrow=none;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;rounded=0;curved=0;" edge="1" parent="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="2460" y="200" as="sourcePoint"/>
+                        <mxPoint x="2160" y="160" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="2460" y="160"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
