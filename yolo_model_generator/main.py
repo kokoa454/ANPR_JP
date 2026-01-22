@@ -92,13 +92,7 @@ def main():
                 continue
 
             try:
-                print(
-                    """\n学習するデータセット番号 (
-                    0: 位置検知用
-                    1: OCR用
-                    )\n"""
-                )
-                dataSetNumber = int(input("学習するデータセット番号?: "))
+                dataSetNumber = int(input("学習するデータセット番号? (0: 位置検知用 1: OCR用): "))
 
                 if dataSetNumber not in [0, 1]:
                     print("0~1の数字を入力してください。\n")
@@ -107,7 +101,101 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            TRAIN(dataSetNumber, trainingNumber)
+            batchSize = input("バッチサイズ? (デフォルト: 2): ")
+
+            if batchSize == "":
+                batchSize = 2
+
+            batchSize = int(batchSize)
+
+            if batchSize < 1:
+                print("1以上の数字を入力してください。\n")
+                continue
+
+            patience = input("Patience? (デフォルト: 20): ")
+
+            if patience == "":
+                patience = 20
+
+            patience = int(patience)
+
+            if patience < 1:
+                print("1以上の数字を入力してください。\n")
+                continue
+
+            optimizer = input("オプティマイザ? (デフォルト: AdamW): ")
+
+            if optimizer == "":
+                optimizer = "AdamW"
+
+            learning_rate = input("学習率? (デフォルト: 0.001): ")
+
+            if learning_rate == "":
+                learning_rate = 0.001
+
+            learning_rate = float(learning_rate)
+
+            if learning_rate <= 0:
+                print("0より大きい数字を入力してください。\n")
+                continue
+
+            cos_lr_input = input("コサイン変化学習率? (True / False) (デフォルト: True): ")
+
+            if cos_lr_input == "":
+                cos_lr = True
+            elif cos_lr_input == "True" or cos_lr_input == "true" :
+                cos_lr = True
+            elif cos_lr_input == "False" or cos_lr_input == "false":
+                cos_lr = False
+            else:
+                print("TrueかFalseを入力してください。\n")
+                continue
+
+            hsv_s = input("HSV S値? (デフォルト: 0.7): ")
+
+            if hsv_s == "":
+                hsv_s = 0.7
+
+            hsv_s = float(hsv_s)
+
+            if hsv_s < 0:
+                print("0以上の数字を入力してください。\n")
+                continue
+
+            hsv_v = input("HSV V値? (デフォルト: 0.4): ")
+
+            if hsv_v == "":
+                hsv_v = 0.4
+
+            hsv_v = float(hsv_v)
+
+            if hsv_v < 0:
+                print("0以上の数字を入力してください。\n")
+                continue
+
+            imgsz = input("画像サイズ? (デフォルト: 1280): ")
+
+            if imgsz == "":
+                imgsz = 1280
+
+            imgsz = int(imgsz)
+
+            if imgsz < 1:
+                print("1以上の数字を入力してください。\n")
+                continue
+
+            TRAIN(
+                dataSetNumber = dataSetNumber,
+                trainingNumber= trainingNumber,
+                patience = patience,
+                batch_size = batchSize,
+                optimizer = optimizer,
+                learning_rate = learning_rate,
+                cos_lr = cos_lr,
+                hsv_s = hsv_s,
+                hsv_v = hsv_v,
+                imgsz = imgsz
+            )
             print("\n")
 
         # -- テスト --
@@ -126,21 +214,28 @@ def main():
                 continue
 
             try:
-                print(
-                    """\nテストするデータセット番号 (
-                    0: 位置検知用
-                    1: OCR用
-                    )\n"""
-                )
-                dataSetNumber = int(input("テストするデータセット番号?: "))
+                dataSetNumber = int(input("テストするデータセット番号? (0: 位置検知用 1: OCR用): "))
 
                 if dataSetNumber not in [0, 1]:
                     print("0~1の数字を入力してください。\n")
                     continue
-                elif dataSetNumber == 0:
-                    TEST_DETECT(confNumber)
-                elif dataSetNumber == 1:
-                    TEST_OCR(confNumber)
+
+                else:
+                    imgsz = input("画像サイズ? (デフォルト: 1280): ")
+
+                    if imgsz == "":
+                        imgsz = 1280
+                    else:
+                        imgsz = int(imgsz)
+
+                    if imgsz < 1:
+                        print("1以上の数字を入力してください。\n")
+                        continue
+
+                    if dataSetNumber == 0:
+                        TEST_DETECT(confNumber, imgsz)
+                    elif dataSetNumber == 1:
+                        TEST_OCR(confNumber, imgsz)
             except ValueError:
                 print("数字を入力してください。\n")
                 continue

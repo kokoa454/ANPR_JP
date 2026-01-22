@@ -23,11 +23,11 @@ class TEST_OCR:
     NAME_OCR = "number_plate_11m_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
-    def __init__(self, confNumber):
+    def __init__(self, confNumber, imgsz):
         confNumber = float(confNumber) / 100.0
         
         self.loadModel()
-        self.runTest(confNumber)
+        self.runTest(confNumber, imgsz)
         
     def loadModel(self):
         try:
@@ -104,7 +104,7 @@ class TEST_OCR:
         except FileNotFoundError:
             raise RuntimeError("ERROR: OCRモデルが見つかりません。")
 
-    def runTest(self, confNumber):
+    def runTest(self, confNumber, imgsz):
         try:
             testImagesDir = os.path.join(self.TEST_DIR, "test_images")
             resultImagesDir = os.path.join(self.TEST_DIR, "results_images")
@@ -130,7 +130,7 @@ class TEST_OCR:
                 overlay = image.copy()
                 
                 # 位置検知推論結果取得
-                detectResult = self.MODEL_DETECT(image, conf=confNumber, save=False)
+                detectResult = self.MODEL_DETECT(image, conf=confNumber, imgsz=imgsz, save=False)
                 detections = detectResult[0].boxes.xyxy
                 masks = detectResult[0].masks
                 numberPlateNumber = len(detections)
@@ -182,7 +182,7 @@ class TEST_OCR:
                         cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
                         # OCR推論結果取得
-                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, save=False)
+                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, imgsz=imgsz, save=False)
                         detectedChars = []
                         classes = ocrResult[0].boxes.cls
 

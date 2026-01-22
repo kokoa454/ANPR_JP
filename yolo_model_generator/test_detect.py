@@ -14,7 +14,7 @@ class TEST_DETECT:
     NAME = "number_plate_11m_detect"
     MODEL = None
 
-    def __init__(self, confNumber):
+    def __init__(self, confNumber, imgsz):
         confNumber = float(confNumber) / 100.0
 
         self.loadModel()
@@ -69,7 +69,7 @@ class TEST_DETECT:
         except FileNotFoundError:
             raise RuntimeError("ERROR: モデルが見つかりません。")
         
-    def runTest(self, confNumber):
+    def runTest(self, confNumber, imgsz):
         try:
             if not os.path.exists(self.TEST_DIR):
                 print("ERROR: テスト画像を追加してください。")
@@ -101,6 +101,7 @@ class TEST_DETECT:
                 result = self.MODEL(
                     image,
                     conf = confNumber,
+                    imgsz = imgsz,
                     save = False
                 )
 

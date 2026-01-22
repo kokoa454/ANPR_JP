@@ -14,13 +14,10 @@ class TRAIN:
     DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
     DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
     DATA_PATH = None
-    PATIENCE = 10
-    BATCH_SIZE = 16
-    IMGSZ = 640
     NAME = "number_plate_11m"
     PROJECT_PATH = "yolo_output"
 
-    def __init__(self, dataSetNumber, trainingNumber):
+    def __init__(self, dataSetNumber, trainingNumber, patience, batch_size, optimizer, learning_rate, cos_lr, hsv_s, hsv_v, imgsz):
         dataSetNumber = int(dataSetNumber)
 
         if dataSetNumber == 0:
@@ -43,7 +40,7 @@ class TRAIN:
                 raise Exception("ERROR: OCR用データセットがありません。")
 
         trainingNumber = int(trainingNumber)
-        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {self.BATCH_SIZE}, Image Size: {self.IMGSZ}, Name: {self.NAME})")
+        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {batch_size}, Image Size: {imgsz}, Optimizer: {optimizer}, Learning Rate: {learning_rate}, Cosine LR: {cos_lr}, HSV S: {hsv_s}, HSV V: {hsv_v}, Patience: {patience}, Name: {self.NAME})")
 
         if not os.path.exists(self.PROJECT_PATH):
             os.makedirs(self.PROJECT_PATH)
@@ -107,14 +104,19 @@ class TRAIN:
             results = self.MODEL.train(
                     data = self.DATA_PATH,
                     epochs = trainingNumber,
-                    patience = self.PATIENCE,
-                    batch = self.BATCH_SIZE,
-                    imgsz = self.IMGSZ,
+                    patience = patience,
+                    batch = batch_size,
+                    imgsz = imgsz,
                     name = self.NAME,
                     project = self.PROJECT_PATH,
                     workers = 0,
                     device = device,
-                    cache = True
+                    cache = True,
+                    optimizer = optimizer,
+                    lr0 = learning_rate,
+                    cos_lr = cos_lr,
+                    hsv_s = hsv_s,
+                    hsv_v = hsv_v
                 )
         except RuntimeError:
             raise RuntimeError("ERROR: 学習に失敗しました。")
