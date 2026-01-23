@@ -16,11 +16,11 @@ class TEST_OCR:
     TEST_DIR = "./test_ocr"
     OUTPUT_DETECT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
     OUTPUT_OCR_DIR = f"{TRAIN.OUTPUT_DIR}_ocr"
-    MODEL_NAME = "yolo11m"
+    MODEL_NAME = "yolo26m"
     MODEL_DETECT = None
     MODEL_OCR = None
-    NAME_DETECT = "number_plate_11m_detect"
-    NAME_OCR = "number_plate_11m_ocr"
+    NAME_DETECT = "number_plate_26m_detect"
+    NAME_OCR = "number_plate_26m_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
     def __init__(self, confNumber, imgsz):
@@ -127,25 +127,40 @@ class TEST_OCR:
             # 推論実行開始
             for file in os.listdir(testImagesDir):
                 image = cv2.imread(os.path.join(testImagesDir, file))
+                if image is None: continue
+                
                 overlay = image.copy()
                 
-                # 位置検知推論結果取得
-                detectResult = self.MODEL_DETECT(image, conf=confNumber, imgsz=imgsz, save=False)
+                # 位置検知推論
+                detectResult = self.MODEL_DETECT(
+                    image, 
+                    conf=confNumber, 
+                    imgsz=imgsz, 
+                    save=False
+                )
                 detections = detectResult[0].boxes.xyxy
                 masks = detectResult[0].masks
                 numberPlateNumber = len(detections)
-                
-                pilImageOverlay = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
-                drawOverlay = ImageDraw.Draw(pilImageOverlay)
 
-                if masks is not None and numberPlateNumber > 0:
+                # 推論結果の描画
+                if masks is not None:
                     segmentMasks = masks.data.cpu().numpy()
-                    for i, mask in enumerate(segmentMasks):
-                        boundingBox = detections[i]
-                        
-                        x1, y1, x2, y2 = map(int, boundingBox)
+                    n = min(len(segmentMasks), len(detections))
 
-                        # ライセンスプレートの切り抜き
+                    for i in range(n):
+                        mask = segmentMasks[i]
+                        resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
+                        maskBoolean = resizedMask > 0.5
+                        overlay[maskBoolean] = (0, 255, 0) # マスク描画
+                        
+                        x1, y1, x2, y2 = map(int, detections[i])
+                        cv2.rectangle(overlay, (x1, y1), (x2, y2), (255, 0, 0), 2) # バウンディングボックス描画
+
+                        # OCR処理用の変形
+                        mask8bit = (maskBoolean * 255).astype(np.uint8)
+                        mask8bit = cv2.morphologyEx(cv2.medianBlur(mask8bit, 7), cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
+                        contours, _ = cv2.findContours(mask8bit, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
                         resizedMask = cv2.resize(mask, (image.shape[1], image.shape[0]), interpolation=cv2.INTER_NEAREST)
                         maskBoolean = resizedMask > 0.5
                         mask8bit = (maskBoolean * 255).astype(np.uint8)
@@ -156,74 +171,88 @@ class TEST_OCR:
                         # 凸包判定
                         contours, _ = cv2.findContours(mask8bit, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
                         sourcePoints = None
-
+                        
                         if contours:
                             mainHull = max(contours, key=cv2.contourArea)
-                            perimeter = cv2.arcLength(mainHull, True)
-                            epsilon = 0.02 * perimeter                            
-                            approx = cv2.approxPolyDP(mainHull, epsilon, True)
-                            
-                            if approx.shape[0] == 4:
-                                sourcePoints = np.float32(approx.reshape(4, 2))
-                                sourcePoints = self.sortPoints(sourcePoints)
-                            else:
-                                rectangle = cv2.minAreaRect(mainHull)
-                                box = cv2.boxPoints(rectangle)
-                                sourcePoints = np.float32(box)
-                                sourcePoints = self.sortPoints(sourcePoints)
-
-                        # 射影変換
-                        if sourcePoints is not None:
+                            approx = cv2.approxPolyDP(mainHull, 0.02 * cv2.arcLength(mainHull, True), True)
+                            sourcePoints = self.sortPoints(np.float32(approx.reshape(-1, 2)) if len(approx) == 4 else cv2.boxPoints(cv2.minAreaRect(mainHull)))
                             plateImage = self.perspectiveTransform(image, sourcePoints)
-                        else:
-                            print(f"Skipping detection {i}: Could not find source points.")
-                            continue
 
-                        cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
+                            if contours:
+                                mainHull = max(contours, key=cv2.contourArea)
+                                perimeter = cv2.arcLength(mainHull, True)
+                                epsilon = 0.02 * perimeter                            
+                                approx = cv2.approxPolyDP(mainHull, epsilon, True)
+                                
+                                if approx.shape[0] == 4:
+                                    sourcePoints = np.float32(approx.reshape(4, 2))
+                                    sourcePoints = self.sortPoints(sourcePoints)
+                                else:
+                                    rectangle = cv2.minAreaRect(mainHull)
+                                    box = cv2.boxPoints(rectangle)
+                                    sourcePoints = np.float32(box)
+                                    sourcePoints = self.sortPoints(sourcePoints)
 
-                        # OCR推論結果取得
-                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, imgsz=1280, save=False)
-                        detectedChars = []
-                        classes = ocrResult[0].boxes.cls
+                            # 射影変換
+                            if sourcePoints is not None:
+                                plateImage = self.perspectiveTransform(image, sourcePoints)
+                            else:
+                                print(f"Skipping detection {i}: Could not find source points.")
+                                continue
 
-                        if len(classes) == 0:
-                            continue
+                            cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
-                        # OCR推論結果解析
-                        for ocrR in ocrResult:
-                            boxes = ocrR.boxes
-                            classIds = boxes.cls
-                            xyxy = boxes.xyxy
-                            for j in range(len(classIds)):
-                                classId = int(classIds[j])
-                                className = self.MODEL_OCR.names[classId]
-                                centerX = (xyxy[j][0] + xyxy[j][2]) / 2
-                                centerY = (xyxy[j][1] + xyxy[j][3]) / 2
-                                if classId >= 4: 
-                                    detectedChars.append((centerX, className, centerY))
+                            
+                            ocrResult = self.MODEL_OCR(
+                                plateImage, 
+                                conf=confNumber, 
+                                imgsz=imgsz, 
+                                save=False
+                            )
 
-                        # 文字列整形
-                        upperRowChars, lowerRowChars = [], []
-                        h = plateImage.shape[0]
-                        centerY = h / 2
+                            detectedChars = []
 
-                        for cx, ch, cy in detectedChars:
-                            (upperRowChars if cy < centerY else lowerRowChars).append((cx, ch))
+                            for ocrR in ocrResult:
+                                boxes = ocrR.boxes
+                                classIds = boxes.cls
+                                xyxy = boxes.xyxy
+                                
+                                for j in range(len(classIds)):
+                                    classId = int(classIds[j])
+                                    className = self.MODEL_OCR.names[classId]
+                                    centerX = (xyxy[j][0] + xyxy[j][2]) / 2
+                                    centerY = (xyxy[j][1] + xyxy[j][3]) / 2
 
-                        upperRowChars.sort(key=lambda x: x[0])
-                        lowerRowChars.sort(key=lambda x: x[0])
+                                    if classId >= 4: 
+                                        detectedChars.append((centerX, className, centerY))
 
-                        upperRow = "".join([c[1] for c in upperRowChars])
-                        lowerRow = "".join([c[1] for c in lowerRowChars])
-                        
-                        plateText = self.formatNumberPlateText(upperRow, lowerRow)
-                        
-                        self.drawMultilineText(drawOverlay, (x1, y1 - 150), plateText, font, (255, 0, 0), 45)
+                            # 文字列整形
+                            upperRowChars, lowerRowChars = [], []
+                            h = plateImage.shape[0]
+                            centerY = h / 2
 
-                overlay = cv2.cvtColor(np.array(pilImageOverlay), cv2.COLOR_RGB2BGR)
+                            for cx, ch, cy in detectedChars:
+                                (upperRowChars if cy < centerY else lowerRowChars).append((cx, ch))
+
+                            upperRowChars.sort(key=lambda x: x[0])
+                            lowerRowChars.sort(key=lambda x: x[0])
+
+                            upperRow = "".join([c[1] for c in upperRowChars])
+                            lowerRow = "".join([c[1] for c in lowerRowChars])
+                                
+                            plateText = self.formatNumberPlateText(upperRow, lowerRow)
+                            
+                            pilOverlay = Image.fromarray(cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB))
+                            draw = ImageDraw.Draw(pilOverlay)
+                            self.drawMultilineText(draw, (x1, y1 - 150), plateText, font, (255, 0, 0), 45)
+                            overlay = cv2.cvtColor(np.array(pilOverlay), cv2.COLOR_RGB2BGR)
+
+                # 最終合成
                 finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
+                
                 cv2.putText(finalImage, f"Number of Number Plates: {numberPlateNumber}", (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
+                
                 cv2.imwrite(os.path.join(resultImagesDir, "result_" + file), finalImage)
 
         except Exception as e:
