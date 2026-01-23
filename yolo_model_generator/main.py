@@ -101,10 +101,10 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            batchSize = input("バッチサイズ? (デフォルト: 4): ")
+            batchSize = input("バッチサイズ? (デフォルト: 8): ")
 
             if batchSize == "":
-                batchSize = 4
+                batchSize = 8
 
             batchSize = int(batchSize)
 
@@ -173,10 +173,10 @@ def main():
                 print("0以上の数字を入力してください。\n")
                 continue
 
-            imgsz = input("画像サイズ? (デフォルト: 1280): ")
+            imgsz = input("画像サイズ? (デフォルト: 1024): ")
 
             if imgsz == "":
-                imgsz = 1280
+                imgsz = 1024
 
             imgsz = int(imgsz)
 
@@ -263,6 +263,19 @@ def main():
                 if close_mosaic < 0:
                     print("0以上の数字を入力してください。\n")
                     continue
+
+                retina_masks = input("Retina Masks? (True / False) (デフォルト: True): ")
+
+                if retina_masks == "":
+                    retina_masks = True
+                elif retina_masks == "True" or retina_masks == "true" :
+                    retina_masks = True
+                elif retina_masks == "False" or retina_masks == "false":
+                    retina_masks = False
+                else:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
             else:
                 mosaic = input("Mosaic? (True / False) (デフォルト: False): ")
 
@@ -320,6 +333,18 @@ def main():
                     print("0以上の数字を入力してください。\n")
                     continue
 
+                retina_masks = input("Retina Masks? (デフォルト: False): ")
+
+                if retina_masks == "":
+                    retina_masks = False
+                elif retina_masks == "True" or retina_masks == "true" :
+                    retina_masks = True
+                elif retina_masks == "False" or retina_masks == "false":
+                    retina_masks = False
+                else:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
 
             TRAIN(
                 dataSetNumber = dataSetNumber,
@@ -339,6 +364,7 @@ def main():
                 fliplr = fliplr,
                 close_mosaic = close_mosaic,
                 iou = iou,
+                retina_masks = retina_masks
             )
             print("\n")
 
@@ -365,10 +391,10 @@ def main():
                     continue
 
                 else:
-                    imgsz = input("画像サイズ? (デフォルト: 1280): ")
+                    imgsz = input("画像サイズ? (デフォルト: 1024): ")
 
                     if imgsz == "":
-                        imgsz = 1280
+                        imgsz = 1024
                     else:
                         imgsz = int(imgsz)
 
