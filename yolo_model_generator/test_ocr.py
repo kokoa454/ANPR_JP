@@ -182,7 +182,7 @@ class TEST_OCR:
                         cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
                         # OCR推論結果取得
-                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, iou=0.3, imgsz=imgsz, save=False)
+                        ocrResult = self.MODEL_OCR(plateImage, conf=confNumber, imgsz=1280, save=False)
                         detectedChars = []
                         classes = ocrResult[0].boxes.cls
 

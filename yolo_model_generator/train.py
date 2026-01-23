@@ -17,7 +17,26 @@ class TRAIN:
     NAME = "number_plate_11m"
     PROJECT_PATH = "yolo_output"
 
-    def __init__(self, dataSetNumber, trainingNumber, patience, batch_size, optimizer, learning_rate, cos_lr, hsv_s, hsv_v, imgsz):
+    def __init__(
+        self, 
+        dataSetNumber, 
+        trainingNumber, 
+        patience, 
+        batch_size, 
+        optimizer, 
+        learning_rate, 
+        cos_lr, 
+        hsv_s, 
+        hsv_v, 
+        imgsz,
+        mosaic,
+        scale,
+        translate,
+        augment,
+        fliplr,
+        close_mosaic,
+        iou,
+    ):
         dataSetNumber = int(dataSetNumber)
 
         if dataSetNumber == 0:
@@ -40,7 +59,7 @@ class TRAIN:
                 raise Exception("ERROR: OCR用データセットがありません。")
 
         trainingNumber = int(trainingNumber)
-        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {batch_size}, Image Size: {imgsz}, Optimizer: {optimizer}, Learning Rate: {learning_rate}, Cosine LR: {cos_lr}, HSV S: {hsv_s}, HSV V: {hsv_v}, Patience: {patience}, Name: {self.NAME})")
+        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {batch_size}, Image Size: {imgsz}, Optimizer: {optimizer}, Learning Rate: {learning_rate}, Cosine LR: {cos_lr}, HSV S: {hsv_s}, HSV V: {hsv_v}, Patience: {patience}, Mosaic: {mosaic}, Scale: {scale}, Translate: {translate}, Augment: {augment}, Fliplr: {fliplr}, Close Mosaic: {close_mosaic}, IoU: {iou}, Name: {self.NAME})")
 
         if not os.path.exists(self.PROJECT_PATH):
             os.makedirs(self.PROJECT_PATH)
@@ -116,7 +135,14 @@ class TRAIN:
                     lr0 = learning_rate,
                     cos_lr = cos_lr,
                     hsv_s = hsv_s,
-                    hsv_v = hsv_v
+                    hsv_v = hsv_v,
+                    mosaic = mosaic,
+                    scale = scale,
+                    translate = translate,
+                    augment = augment,
+                    fliplr = fliplr,
+                    close_mosaic = close_mosaic,
+                    iou = iou,
                 )
         except RuntimeError:
             raise RuntimeError("ERROR: 学習に失敗しました。")

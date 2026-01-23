@@ -18,7 +18,7 @@ class TEST_DETECT:
         confNumber = float(confNumber) / 100.0
 
         self.loadModel()
-        self.runTest(confNumber)
+        self.runTest(confNumber, imgsz)
         
     def loadModel(self):
         try:
@@ -113,9 +113,11 @@ class TEST_DETECT:
                 if masks is not None:
                     segmentMasks = masks.data.cpu().numpy()
                     
-                    for i, mask in enumerate(segmentMasks):
-                        resizedMask = cv2.resize(
-                            mask,
+                    if masks is not None and detections is not None:
+                        n = min(len(segmentMasks), len(detections))
+                        for i in range(n):
+                            resizedMask = cv2.resize(
+                                segmentMasks[i],
                             (image.shape[1], image.shape[0]),
                             interpolation=cv2.INTER_NEAREST
                         )

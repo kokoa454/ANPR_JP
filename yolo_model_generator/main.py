@@ -82,16 +82,6 @@ def main():
         # -- 学習 --
         elif selectedNum == 2:
             try:
-                trainingNumber = int(input("Epoch数?: "))
-
-                if trainingNumber < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
-            except ValueError:
-                print("数字を入力してください。\n")
-                continue
-
-            try:
                 dataSetNumber = int(input("学習するデータセット番号? (0: 位置検知用 1: OCR用): "))
 
                 if dataSetNumber not in [0, 1]:
@@ -101,10 +91,20 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            batchSize = input("バッチサイズ? (デフォルト: 2): ")
+            try:
+                trainingNumber = int(input("Epoch数?: "))
+
+                if trainingNumber < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+            except ValueError:
+                print("数字を入力してください。\n")
+                continue
+
+            batchSize = input("バッチサイズ? (デフォルト: 4): ")
 
             if batchSize == "":
-                batchSize = 2
+                batchSize = 4
 
             batchSize = int(batchSize)
 
@@ -184,6 +184,143 @@ def main():
                 print("1以上の数字を入力してください。\n")
                 continue
 
+            iou = input("IoU? (デフォルト: 0.6): ")
+
+            if iou == "":
+                iou = 0.6
+
+            iou = float(iou)
+
+            if iou < 0 or iou > 1:
+                print("0以上1以下の数字を入力してください。\n")
+                continue
+
+            augment = input("Augment? (True / False) (デフォルト: True): ")
+
+            if augment == "":
+                augment = True
+            elif augment == "True" or augment == "true" :
+                augment = True
+            elif augment == "False" or augment == "false":
+                augment = False
+            else:
+                print("TrueかFalseを入力してください。\n")
+                continue
+
+            if dataSetNumber == 0:
+                mosaic = input("Mosaic? (True / False) (デフォルト: True): ")
+
+                if mosaic == "":
+                    mosaic = True
+                elif mosaic == "True" or mosaic == "true" :
+                    mosaic = True
+                elif mosaic == "False" or mosaic == "false":
+                    mosaic = False
+                else:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
+                scale = input("Scale? (デフォルト: 0.5): ")
+
+                if scale == "":
+                    scale = 0.5
+
+                scale = float(scale)
+
+                if scale < 0 or scale > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                translate = input("Translate? (デフォルト: 0.1): ")
+
+                if translate == "":
+                    translate = 0.1
+
+                translate = float(translate)
+
+                if translate < 0 or translate > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                fliplr = input("Fliplr? (デフォルト: 0.5): ")
+
+                if fliplr == "":
+                    fliplr = 0.5
+
+                fliplr = float(fliplr)
+
+                if fliplr < 0 or fliplr > 1:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
+                close_mosaic = input("Close Mosaic? (デフォルト: 10): ")
+
+                if close_mosaic == "":
+                    close_mosaic = 10
+                else:
+                    close_mosaic = int(close_mosaic)
+
+                if close_mosaic < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue
+            else:
+                mosaic = input("Mosaic? (True / False) (デフォルト: False): ")
+
+                if mosaic == "":
+                    mosaic = False
+                elif mosaic == "True" or mosaic == "true" :
+                    mosaic = True
+                elif mosaic == "False" or mosaic == "false":
+                    mosaic = False
+                else:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
+                scale = input("Scale? (デフォルト: 0.2): ")
+
+                if scale == "":
+                    scale = 0.2
+
+                scale = float(scale)
+
+                if scale < 0 or scale > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                translate = input("Translate? (デフォルト: 0.05): ")
+
+                if translate == "":
+                    translate = 0.05
+
+                translate = float(translate)
+
+                if translate < 0 or translate > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                fliplr = input("Fliplr? (デフォルト: 0): ")
+
+                if fliplr == "":
+                    fliplr = 0
+
+                fliplr = float(fliplr)
+
+                if fliplr < 0 or fliplr > 1:
+                    print("TrueかFalseを入力してください。\n")
+                    continue
+
+                close_mosaic = input("Close Mosaic? (デフォルト: 10): ")
+
+                if close_mosaic == "":
+                    close_mosaic = 10
+                else:
+                    close_mosaic = int(close_mosaic)
+
+                if close_mosaic < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue
+
+
             TRAIN(
                 dataSetNumber = dataSetNumber,
                 trainingNumber= trainingNumber,
@@ -194,7 +331,14 @@ def main():
                 cos_lr = cos_lr,
                 hsv_s = hsv_s,
                 hsv_v = hsv_v,
-                imgsz = imgsz
+                imgsz = imgsz,
+                mosaic = mosaic,
+                scale = scale,
+                translate = translate,
+                augment = augment,
+                fliplr = fliplr,
+                close_mosaic = close_mosaic,
+                iou = iou,
             )
             print("\n")
 
