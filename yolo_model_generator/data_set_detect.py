@@ -37,8 +37,11 @@ class DATA_SET_DETECT:
             raise Exception("ERROR: プロジェクトIDが正しくありません。")
 
         # データセットのダウンロード
-        version = project.version(2)
-        dataset = version.download("yolov11")
+        versions = project.versions()
+        if len(versions) > 0:
+            latest_version_num = versions[0].version
+            version = project.version(latest_version_num)
+            dataset = version.download("yolov26")
 
         # フォルダのリネーム
         if os.path.exists(dataset.location):
