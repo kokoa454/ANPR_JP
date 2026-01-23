@@ -10,11 +10,11 @@ class TRAIN:
     OUTPUT_DIR = "./yolo_output"
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
-    MODEL_NAME = "yolo11m"
+    MODEL_NAME = "yolo26m"
     DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
     DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
     DATA_PATH = None
-    NAME = "number_plate_11m"
+    NAME = "number_plate_26m"
     PROJECT_PATH = "yolo_output"
 
     def __init__(
@@ -36,6 +36,7 @@ class TRAIN:
         fliplr,
         close_mosaic,
         iou,
+        retina_masks
     ):
         dataSetNumber = int(dataSetNumber)
 
@@ -45,7 +46,7 @@ class TRAIN:
                 self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
                 self.NAME = f"{self.NAME}_detect"
                 self.PROJECT_PATH = f"{self.PROJECT_PATH}_detect"
-                self.MODEL_NAME = "yolo11m-seg"
+                self.MODEL_NAME = "yolo26m-seg"
             else:
                 raise Exception("ERROR: 検知用データセットがありません。")
 
@@ -127,7 +128,6 @@ class TRAIN:
                     batch = batch_size,
                     imgsz = imgsz,
                     name = self.NAME,
-                    project = self.PROJECT_PATH,
                     workers = 0,
                     device = device,
                     cache = True,
@@ -143,6 +143,8 @@ class TRAIN:
                     fliplr = fliplr,
                     close_mosaic = close_mosaic,
                     iou = iou,
+                    retina_masks = retina_masks,
+                    project = os.path.abspath(self.PROJECT_PATH)
                 )
         except RuntimeError:
             raise RuntimeError("ERROR: 学習に失敗しました。")

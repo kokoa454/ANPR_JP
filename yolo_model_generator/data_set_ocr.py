@@ -196,7 +196,7 @@ class DATA_SET_OCR:
     
     def createYamlFile(self):
         yamlContent = f"""
-# YOLO11 data.yaml
+# YOLO26 data.yaml
 train: ../train/images
 val: ../valid/images
 nc: {len(DATA_SET_OCR.CHARACTER_NAMES)}
