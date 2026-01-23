@@ -10,8 +10,8 @@ class TEST_DETECT:
     LAST_PT_PATH = None
     TEST_DIR = "./test_detect"
     OUTPUT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
-    MODEL_NAME = "yolo11m-seg"
-    NAME = "number_plate_11m_detect"
+    MODEL_NAME = "yolo26m-seg"
+    NAME = "number_plate_26m_detect"
     MODEL = None
 
     def __init__(self, confNumber, imgsz):
@@ -112,39 +112,26 @@ class TEST_DETECT:
                 # 推論結果のセグメンテーションマスク描画
                 if masks is not None:
                     segmentMasks = masks.data.cpu().numpy()
-                    
-                    if masks is not None and detections is not None:
-                        n = min(len(segmentMasks), len(detections))
-                        for i in range(n):
-                            resizedMask = cv2.resize(
-                                segmentMasks[i],
+                    n = min(len(segmentMasks), len(detections))
+
+                    for i in range(n):
+                        resizedMask = cv2.resize(
+                            segmentMasks[i],
                             (image.shape[1], image.shape[0]),
                             interpolation=cv2.INTER_NEAREST
                         )
-
                         maskBoolean = resizedMask > 0.5
-                        color = (0, 255, 0)
-
-                        for channel in range(3):
-                            overlay[:, :, channel][maskBoolean] = (
-                                0.5 * overlay[:, :, channel][maskBoolean] + 0.5 * color[channel]
-                            )
                         
-                        boundingBox = detections[i]
-                        x1, y1, x2, y2 = map(int, boundingBox)
-                        cv2.rectangle(
-                            overlay,
-                            (x1, y1),
-                            (x2, y2),
-                            (255, 0, 0),
-                            2
-                        )
-                
-                finalImage = cv2.addWeighted(overlay, 0.7, image, 0.3, 0)
+                        overlay[maskBoolean] = (0, 255, 0)
+                        
+                        x1, y1, x2, y2 = map(int, detections[i])
+                        cv2.rectangle(overlay, (x1, y1), (x2, y2), (255, 0, 0), 2)
+
+                finalImage = cv2.addWeighted(overlay, 0.5, image, 0.5, 0)
                 
                 cv2.putText(
                     finalImage,
-                    f"Number of Number Plates: {str(numberPlateNumber)}",
+                    f"Number of Number Plates: {numberPlateNumber}",
                     (10, 50),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     1.5,
@@ -153,7 +140,7 @@ class TEST_DETECT:
                 )
 
                 cv2.imwrite(
-                    os.path.join(self.TEST_DIR + "/results_images", "result_" + file),
+                    os.path.join(self.TEST_DIR, "results_images", "result_" + file),
                     finalImage
                 )
 
