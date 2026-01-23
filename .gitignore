@@ -6,9 +6,9 @@ __pycache__
 /yolo_model_generator/yolo_output_ocr/
 /yolo_model_generator/test_detect/
 /yolo_model_generator/test_ocr/
-/yolo_model_generator/yolo11n.pt
-/yolo_model_generator/yolo11m.pt
-/yolo_model_generator/yolo11m-seg.pt
+/yolo_model_generator/yolo26n.pt
+/yolo_model_generator/yolo26m.pt
+/yolo_model_generator/yolo26m-seg.pt
 /anpr/*/logs
 /anpr/*/outputs
 .env
