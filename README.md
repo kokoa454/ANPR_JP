@@ -1,6 +1,11 @@
 # ANPR-JP
 
-### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO11m-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート).
+### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO26m-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート). Also this project owns api programs between Raspberry Pi and a server.
+
+#### Folder Structure
+##### YOLO Model Generator: `./yolo_model_generator`
+##### ANPR on Raspberry Pi: `./anpr/entrance`
+##### API Programs: `./anpr/server`
 
 ![number-plate-pic-1](https://i.ibb.co/y7gkbT4/number-plate-pic1.jpg)
 
@@ -56,7 +61,7 @@
 
 ### 3. Start Machine Learning For Detecting Number Plates [^4]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo11m-seg
+##### ② Learning starts automatically with yolo26m-seg
 
 ### 4. Test Result for Detecting Number Plates [^5]
 ##### ① Put test images into `./generate_yolo_model/test_detect/`
@@ -69,29 +74,28 @@
 
 ### 6. Start Machine Learning For OCR [^6]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo11m
+##### ② Learning starts automatically with yolo26m
 
 ### 7. Test Result for OCR [^7]
 ##### ① Put test images into `./generate_yolo_model/test_ocr/`
 ##### ② Set inference rate
 ##### ③ Test starts automatically
 
-## Usage of ANPR
+## Usage of ANPR on Raspberry Pi
 ### 1. Create `.env` files and make sure every params are filled in
-#### For entrance
 ```
 # DETECTION SETTINGS
-DETECTION_MODEL = ./yolo11m-seg-anpr-jp-detect.pt
-DETECTION_IMG_SIZE = 640
-DETECTION_CONFIDENCE = 0.5
+DETECTION_MODEL = ./yolo26m-seg-anpr-jp-detect.pt
+DETECTION_IMG_SIZE = 1024
+DETECTION_CONFIDENCE = 0.8
 DETECTION_IOU = 0.3
 DETECTION_TARGET_WIDTH = 880
 DETECTION_TARGET_HEIGHT = 440
 
 # OCR SETTINGS
-OCR_MODEL = ./yolo11m-anpr-jp-ocr.pt
-OCR_IMG_SIZE = 640
-OCR_CONFIDENCE = 0.5
+OCR_MODEL = ./yolo26m-anpr-jp-ocr.pt
+OCR_IMG_SIZE = 1024
+OCR_CONFIDENCE = 0.8
 OCR_IOU = 0.3
 OCR_START_REGION_CODE_CLASS_ID = 4
 UNDEFINED_TEXT = UNDEFINED
@@ -105,15 +109,26 @@ OUTPUT_BUFFER_DIR = ./outputs/buffer
 ERROR_LOG_FILE_NAME = error.log
 BUFFER_JSON_FILE_NAME = buffer.json
 
+# GMAIL SETTINGS
+GMAIL_RECEIVER = YOUR_RECEIVER_EMAIL_ADDRESS
+GMAIL_SENDER = YOUR_SENDER_EMAIL_ADDRESS
+GMAIL_SCOPES = https://mail.google.com/
+GMAIL_CREDENTIALS_FILE = ./credentials.json
+GMAIL_TOKEN_FILE = ./token.json
+GMAIL_DAILY_FIRST_SUBJECT = YOUR_DAILY_FIRST_SUBJECT
+GMAIL_DAILY_FIRST_MESSAGE = YOUR_DAILY_FIRST_MESSAGE
+GMAIL_ERROR_SUBJECT = YOUR_ERROR_SUBJECT
+GMAIL_ERROR_MESSAGE = YOUR_ERROR_MESSAGE
+
 # RPICAM SETTINGS
 CAMERA_ID = 0
-RPICAM_METERING = spot
+RPICAM_METERING = average
 RPICAM_AUTOFOCUS_MODE = continuous
-RPICAM_TIMEOUT = 1000
+RPICAM_TIMEOUT = 500
 
 # TIME STAMP SETTINGS
-TIME_STAMP_DB_FORMAT = %Y-%m-%d_%H:%M:%S.%f
-TIME_STAMP_LOCAL_FORMAT = %Y-%m-%d-%H-%M-%S
+TIME_STAMP_FORMAT = %Y-%m-%d_%H:%M:%S
+DATE_FORMAT = %Y-%m-%d
 
 # PROXIMITY SENSOR SETTINGS
 PROXIMITY_SENSOR_THRESHOLD_CM = 150.0
@@ -123,14 +138,30 @@ PROXIMITY_SENSOR_MAX_DISTANCE_METER = 4.5
 PROXIMITY_SENSOR_OUT_OF_RANGE = OUT_OF_RANGE
 
 # DB SETTINGS
-API_DATA_URL = YOUR_API_DATA_URL
+API_NUMBER_PLATE_DATA_URL = YOUR_API_NUMBER_PLATE_DATA_URL
+API_ERROR_DATA_URL = YOUR_API_ERROR_DATA_URL
 API_KEY = YOUR_API_KEY
 API_NAME = YOUR_API_NAME
-DB_TIMEOUT_SEC = 5
+DB_TIMEOUT_SEC = 1.0
+RASPBERRY_PI_NUM = YOUR_RASPBERRY_PI_NUM
 
 # MAIN SETTINGS
 MAIN_LOOP_DELAY_SEC = 0.5
 ```
+
+### 2. Run `python ./main.py`
+
+## Usage of API Programs
+### 1. Create `.env` files and make sure every params are filled in
+```
+# DB Settings
+DATABASE_URL = YOUR_DATABASE_URL
+API_KEY = YOUR_API_KEY
+API_NAME = YOUR_API_NAME
+```
+
+### 2. Run `uvicorn main:app --host 0.0.0.0 --port 8000`
+
 
 [^1]: About Number Plate Color. In addition, there are special number plates in Japan, such as number plates with graphic backgrounds and diplomatic number plates, but the YOLO models included in this program cannot recognize number plates that are not listed in the table.
 
