@@ -101,10 +101,10 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            batchSize = input("バッチサイズ? (デフォルト: 8): ")
+            batchSize = input("バッチサイズ? (デフォルト: 4): ")
 
             if batchSize == "":
-                batchSize = 8
+                batchSize = 4
 
             batchSize = int(batchSize)
 
@@ -112,10 +112,33 @@ def main():
                 print("1以上の数字を入力してください。\n")
                 continue
 
-            patience = input("Patience? (デフォルト: 20): ")
+            workers = input("Workers? (デフォルト: 0): ")
+
+            if workers == "":
+                workers = 0
+
+            workers = int(workers)
+
+            if workers < 0:
+                print("0以上の数字を入力してください。\n")
+                continue
+
+            cache = input("キャッシュ? (デフォルト: True): ")
+
+            if cache == "":
+                cache = True
+            elif cache == "True" or cache == "true" :
+                cache = True
+            elif cache == "False" or cache == "false":
+                cache = False
+            else:
+                print("TrueかFalseを入力してください。\n")
+                continue
+
+            patience = input("Patience? (デフォルト: 10): ")
 
             if patience == "":
-                patience = 20
+                patience = 10
 
             patience = int(patience)
 
@@ -128,10 +151,10 @@ def main():
             if optimizer == "":
                 optimizer = "AdamW"
 
-            learning_rate = input("学習率? (デフォルト: 0.001): ")
+            learning_rate = input("学習率? (デフォルト: 0.0005): ")
 
             if learning_rate == "":
-                learning_rate = 0.001
+                learning_rate = 0.0005
 
             learning_rate = float(learning_rate)
 
@@ -151,28 +174,6 @@ def main():
                 print("TrueかFalseを入力してください。\n")
                 continue
 
-            hsv_s = input("HSV S値? (デフォルト: 0.7): ")
-
-            if hsv_s == "":
-                hsv_s = 0.7
-
-            hsv_s = float(hsv_s)
-
-            if hsv_s < 0:
-                print("0以上の数字を入力してください。\n")
-                continue
-
-            hsv_v = input("HSV V値? (デフォルト: 0.4): ")
-
-            if hsv_v == "":
-                hsv_v = 0.4
-
-            hsv_v = float(hsv_v)
-
-            if hsv_v < 0:
-                print("0以上の数字を入力してください。\n")
-                continue
-
             imgsz = input("画像サイズ? (デフォルト: 1024): ")
 
             if imgsz == "":
@@ -182,17 +183,6 @@ def main():
 
             if imgsz < 1:
                 print("1以上の数字を入力してください。\n")
-                continue
-
-            iou = input("IoU? (デフォルト: 0.6): ")
-
-            if iou == "":
-                iou = 0.6
-
-            iou = float(iou)
-
-            if iou < 0 or iou > 1:
-                print("0以上1以下の数字を入力してください。\n")
                 continue
 
             augment = input("Augment? (True / False) (デフォルト: True): ")
@@ -208,12 +198,45 @@ def main():
                 continue
 
             if dataSetNumber == 0:
+                iou = input("IoU? (デフォルト: 0.6): ")
+
+                if iou == "":
+                    iou = 0.6
+
+                iou = float(iou)
+
+                if iou < 0 or iou > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                hsv_s = input("HSV S値? (デフォルト: 0.7): ")
+
+                if hsv_s == "":
+                    hsv_s = 0.7
+
+                hsv_s = float(hsv_s)
+
+                if hsv_s < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue
+
+                hsv_v = input("HSV V値? (デフォルト: 0.4): ")
+
+                if hsv_v == "":
+                    hsv_v = 0.4
+
+                hsv_v = float(hsv_v)
+
+                if hsv_v < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue
+
                 mosaic = input("Mosaic? (True / False) (デフォルト: True): ")
 
                 if mosaic == "":
                     mosaic = True
                 elif mosaic == "True" or mosaic == "true" :
-                    mosaic = True
+                        mosaic = True
                 elif mosaic == "False" or mosaic == "false":
                     mosaic = False
                 else:
@@ -277,6 +300,39 @@ def main():
                     continue
 
             else:
+                iou = input("IoU? (デフォルト: 0.5): ")
+
+                if iou == "":
+                    iou = 0.5
+
+                iou = float(iou)
+
+                if iou < 0 or iou > 1:
+                    print("0以上1以下の数字を入力してください。\n")
+                    continue
+
+                hsv_s = input("HSV S値? (デフォルト: 0.3): ")
+
+                if hsv_s == "":
+                    hsv_s = 0.3
+
+                hsv_s = float(hsv_s)
+
+                if hsv_s < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue
+
+                hsv_v = input("HSV V値? (デフォルト: 0.2): ")
+
+                if hsv_v == "":
+                    hsv_v = 0.2
+
+                hsv_v = float(hsv_v)
+
+                if hsv_v < 0:
+                    print("0以上の数字を入力してください。\n")
+                    continue    
+
                 mosaic = input("Mosaic? (True / False) (デフォルト: False): ")
 
                 if mosaic == "":
@@ -289,10 +345,10 @@ def main():
                     print("TrueかFalseを入力してください。\n")
                     continue
 
-                scale = input("Scale? (デフォルト: 0.2): ")
+                scale = input("Scale? (デフォルト: 0.05): ")
 
                 if scale == "":
-                    scale = 0.2
+                    scale = 0.05
 
                 scale = float(scale)
 
@@ -300,10 +356,10 @@ def main():
                     print("0以上1以下の数字を入力してください。\n")
                     continue
 
-                translate = input("Translate? (デフォルト: 0.05): ")
+                translate = input("Translate? (デフォルト: 0.02): ")
 
                 if translate == "":
-                    translate = 0.05
+                    translate = 0.02
 
                 translate = float(translate)
 
@@ -322,10 +378,10 @@ def main():
                     print("TrueかFalseを入力してください。\n")
                     continue
 
-                close_mosaic = input("Close Mosaic? (デフォルト: 10): ")
+                close_mosaic = input("Close Mosaic? (デフォルト: 0): ")
 
                 if close_mosaic == "":
-                    close_mosaic = 10
+                    close_mosaic = 0
                 else:
                     close_mosaic = int(close_mosaic)
 
@@ -364,48 +420,75 @@ def main():
                 fliplr = fliplr,
                 close_mosaic = close_mosaic,
                 iou = iou,
-                retina_masks = retina_masks
+                retina_masks = retina_masks,
+                workers = workers,
+                cache = cache
             )
             print("\n")
 
         # -- テスト --
         elif selectedNum == 3:
             try:
-                confNumber = int(input("推論精度(%)?: "))
-
-                if confNumber < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
-                elif confNumber > 100:
-                    print("100以下の数字を入力してください。\n")
-                    continue
-            except ValueError:
-                print("数字を入力してください。\n")
-                continue
-
-            try:
                 dataSetNumber = int(input("テストするデータセット番号? (0: 位置検知用 1: OCR用): "))
 
                 if dataSetNumber not in [0, 1]:
                     print("0~1の数字を入力してください。\n")
                     continue
+            
+                imgsz = input("画像サイズ? (デフォルト: 1024): ")
 
+                if imgsz == "":
+                    imgsz = 1024
                 else:
-                    imgsz = input("画像サイズ? (デフォルト: 1024): ")
+                    imgsz = int(imgsz)
 
-                    if imgsz == "":
-                        imgsz = 1024
-                    else:
-                        imgsz = int(imgsz)
+                if imgsz < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
 
-                    if imgsz < 1:
-                        print("1以上の数字を入力してください。\n")
+                if dataSetNumber == 0:
+                    try:
+                        confNumber = int(input("推論精度(%)?: "))
+
+                        if confNumber < 1:
+                            print("1以上の数字を入力してください。\n")
+                            continue
+                        elif confNumber > 100:
+                            print("100以下の数字を入力してください。\n")
+                            continue
+                    except ValueError:
+                        print("数字を入力してください。\n")
                         continue
 
-                    if dataSetNumber == 0:
-                        TEST_DETECT(confNumber, imgsz)
-                    elif dataSetNumber == 1:
-                        TEST_OCR(confNumber, imgsz)
+                    TEST_DETECT(confNumber, imgsz)
+                elif dataSetNumber == 1:
+                    try:
+                        confNumberForDetect = int(input("ナンバープレート検出推論精度(%)?: "))
+
+                        if confNumberForDetect < 1:
+                            print("1以上の数字を入力してください。\n")
+                            continue
+                        elif confNumberForDetect > 100:
+                            print("100以下の数字を入力してください。\n")
+                            continue
+                    except ValueError:
+                        print("数字を入力してください。\n")
+                        continue
+
+                    try:
+                        confNumberForOCR = int(input("OCR推論精度(%)?: "))
+
+                        if confNumberForOCR < 1:
+                            print("1以上の数字を入力してください。\n")
+                            continue
+                        elif confNumberForOCR > 100:
+                            print("100以下の数字を入力してください。\n")
+                            continue
+                    except ValueError:
+                        print("数字を入力してください。\n")
+                        continue
+
+                    TEST_OCR(confNumberForDetect, confNumberForOCR, imgsz)
             except ValueError:
                 print("数字を入力してください。\n")
                 continue

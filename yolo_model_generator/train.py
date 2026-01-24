@@ -36,7 +36,9 @@ class TRAIN:
         fliplr,
         close_mosaic,
         iou,
-        retina_masks
+        retina_masks,
+        workers,
+        cache
     ):
         dataSetNumber = int(dataSetNumber)
 
@@ -128,9 +130,8 @@ class TRAIN:
                     batch = batch_size,
                     imgsz = imgsz,
                     name = self.NAME,
-                    workers = 0,
                     device = device,
-                    cache = True,
+                    cache = cache,
                     optimizer = optimizer,
                     lr0 = learning_rate,
                     cos_lr = cos_lr,
@@ -144,6 +145,7 @@ class TRAIN:
                     close_mosaic = close_mosaic,
                     iou = iou,
                     retina_masks = retina_masks,
+                    workers = workers,
                     project = os.path.abspath(self.PROJECT_PATH)
                 )
         except RuntimeError:
