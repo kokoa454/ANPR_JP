@@ -116,22 +116,22 @@ class NumberPlateRecognizer:
         )
 
     def _transform_perspective(self, image: np.ndarray, source_points: np.ndarray) -> Image:
-        TARGET_WIDTH = 440 * 2
-        TARGET_HEIGHT = 220 * 2
+        target_width = config.OCR_IMG_SIZE
+        target_height = int(config.OCR_IMG_SIZE / 2)
 
         destination = np.array(
             [
                 [0, 0], 
-                [TARGET_WIDTH - 1, 0],
-                [TARGET_WIDTH - 1, TARGET_HEIGHT - 1],
-                [0, TARGET_HEIGHT - 1]
+                [target_width - 1, 0],
+                [target_width - 1, target_height - 1],
+                [0, target_height - 1]
             ], 
             dtype = "float32"
         )
 
         homography_matrix, _ = cv2.findHomography(source_points, destination, cv2.RANSAC, 5.0)
 
-        warped_perspective = cv2.warpPerspective(image, homography_matrix, (TARGET_WIDTH, TARGET_HEIGHT), cv2.INTER_CUBIC)
+        warped_perspective = cv2.warpPerspective(image, homography_matrix, (target_width, target_height), cv2.INTER_CUBIC)
 
         final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)
         return final_image
