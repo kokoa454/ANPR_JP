@@ -39,11 +39,12 @@
 ##### ② Detect segments
 ##### ③ Find convex hulls
 ##### ④ Perform a perspective transformation
-##### ⑤ Anti-sharp masking
-##### ⑥ Bilateral filtering
-##### ⑦ Detail enhancement
-##### ⑧ Noise removal
-##### ⑨ Hand a number plate image over to the OCR model
+##### ⑤ Resize image
+##### ⑥ Anti-sharp masking
+##### ⑦ Bilateral filtering
+##### ⑧ Detail enhancement
+##### ⑨ Noise removal
+##### ⑩ Hand a number plate image over to the OCR model
 
 ### ✨️yolo26m-anpr-jp-ocr
 ##### ① Receive a number plate image
@@ -93,8 +94,6 @@ DETECTION_MODEL = ./yolo26m-seg-anpr-jp-detect.pt
 DETECTION_IMG_SIZE = 1024
 DETECTION_CONFIDENCE = 0.8
 DETECTION_IOU = 0.3
-DETECTION_TARGET_WIDTH = 880
-DETECTION_TARGET_HEIGHT = 440
 
 # OCR SETTINGS
 OCR_MODEL = ./yolo26m-anpr-jp-ocr.pt
