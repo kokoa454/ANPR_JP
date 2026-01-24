@@ -209,6 +209,10 @@ class TEST_OCR:
                             else:
                                 print(f"Skipping detection {i}: Could not find source points.")
                                 continue
+
+                            # 射影変換後の画像のリサイズ
+                            if plateImage.shape[0] < imgsz:
+                                plateImage = cv2.resize(plateImage, (imgsz, int(imgsz / 2)), interpolation=cv2.INTER_AREA)
                             
                             # アンシャープマスキング
                             gaussian = cv2.GaussianBlur(plateImage, (0, 0), 2)
