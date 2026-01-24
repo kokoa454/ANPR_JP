@@ -44,11 +44,15 @@ class NumberPlateRecognizer:
             hull = self._detect_convex_hull(resized_mask)
             
             if hull:
+                # 最大の凸包を取得
                 main_hull = max(hull, key=cv2.contourArea)
                 perimeter = cv2.arcLength(main_hull, True)
                 epsilon = 0.02 * perimeter
+                
+                # 凸包を多角形に近似
                 approx = cv2.approxPolyDP(main_hull, epsilon, True)
                 
+                # 射影変換のための座標を取得
                 if approx.shape[0] == 4:
                     source_points = np.float32(approx.reshape(4, 2))
                     source_points = self._sort_source_points(source_points)
@@ -57,14 +61,28 @@ class NumberPlateRecognizer:
                     box = cv2.boxPoints(rectangle)
                     source_points = np.float32(box)
                     source_points = self._sort_source_points(source_points)
-                    
+                
                 if source_points is not None:
+                    # 射影変換
                     np_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
                     np_image = self._transform_perspective(np_image, source_points)
 
                     file_name = f"{config.OUTPUT_DETECT_DIR}/{Utilities.get_timestamp()}.png"
+
+                    # アンシャープマスキング
+                    np_image = self._unsharp_masking(np_image)
+
+                    # バイラテラルフィルタ
+                    np_image = self._bilateral_filter(np_image)
+
+                    # ディテールエンハンス
+                    np_image = self._detail_enhance(np_image)
+
+                    # ノイズ除去
+                    np_image = self._noise_removal(np_image)
+
                     cv2.imwrite(file_name, np_image)
-                        
+                    
                     return Image.fromarray(cv2.cvtColor(np_image, cv2.COLOR_BGR2RGB))
                     
         return None
@@ -117,3 +135,16 @@ class NumberPlateRecognizer:
 
         final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)
         return final_image
+
+    def _unsharp_masking(self, image: np.ndarray) -> np.ndarray:
+        gaussian = cv2.GaussianBlur(src = image, ksize = (0, 0), sigmaX = 2)
+        return cv2.addWeighted(src1 = image, alpha = 1.5, src2 = gaussian, beta = -0.5, gamma = 0)
+
+    def _bilateral_filter(self, image: np.ndarray) -> np.ndarray:
+        return cv2.bilateralFilter(src = image, d = 9, sigmaColor = 75, sigmaSpace = 75)
+
+    def _detail_enhance(self, image: np.ndarray) -> np.ndarray:
+        return cv2.detailEnhance(src = image, sigma_s = 10, sigma_r = 0.15)
+
+    def _noise_removal(self, image: np.ndarray) -> np.ndarray:
+        return cv2.fastNlMeansDenoisingColored(src = image, h = 10, hColor = 10, templateWindowSize = 7, searchWindowSize = 21)
