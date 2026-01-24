@@ -23,11 +23,12 @@ class TEST_OCR:
     NAME_OCR = "number_plate_26m_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
-    def __init__(self, confNumber, imgsz):
-        confNumber = float(confNumber) / 100.0
+    def __init__(self, confNumberForDetect, confNumberForOCR, imgsz):
+        confNumberForDetect = float(confNumberForDetect) / 100.0
+        confNumberForOCR = float(confNumberForOCR) / 100.0
         
         self.loadModel()
-        self.runTest(confNumber, imgsz)
+        self.runTest(confNumberForDetect, confNumberForOCR, imgsz)
         
     def loadModel(self):
         try:
@@ -104,7 +105,7 @@ class TEST_OCR:
         except FileNotFoundError:
             raise RuntimeError("ERROR: OCRモデルが見つかりません。")
 
-    def runTest(self, confNumber, imgsz):
+    def runTest(self, confNumberForDetect, confNumberForOCR, imgsz):
         try:
             testImagesDir = os.path.join(self.TEST_DIR, "test_images")
             resultImagesDir = os.path.join(self.TEST_DIR, "results_images")
@@ -127,15 +128,24 @@ class TEST_OCR:
             # 推論実行開始
             for file in os.listdir(testImagesDir):
                 image = cv2.imread(os.path.join(testImagesDir, file))
-                if image is None: continue
+
+                if image.shape[0] < imgsz * 1.5:
+                    newHeight = int(imgsz * 1.5)
+                    newWidth = int(image.shape[1] * (newHeight / image.shape[0]))
+                    image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
+                if image.shape[1] < imgsz * 1.5:
+                    newWidth = int(imgsz * 1.5)
+                    newHeight = int(image.shape[0] * (newWidth / image.shape[1]))
+                    image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
                 
                 overlay = image.copy()
                 
                 # 位置検知推論
                 detectResult = self.MODEL_DETECT(
                     image, 
-                    conf=confNumber, 
+                    conf=confNumberForDetect, 
                     imgsz=imgsz, 
+                    iou=0.5,
                     save=False
                 )
                 detections = detectResult[0].boxes.xyxy
@@ -199,13 +209,25 @@ class TEST_OCR:
                             else:
                                 print(f"Skipping detection {i}: Could not find source points.")
                                 continue
+                            
+                            # アンシャープマスキング
+                            gaussian = cv2.GaussianBlur(plateImage, (0, 0), 2)
+                            plateImage = cv2.addWeighted(plateImage, 1.5, gaussian, -0.5, 0)
+
+                            # バイラテラルフィルタ
+                            plateImage = cv2.bilateralFilter(plateImage, d=9, sigmaColor=75, sigmaSpace=75)
+
+                            # ディテールエンハンス
+                            plateImage = cv2.detailEnhance(plateImage, sigma_s=10, sigma_r=0.15)
+
+                            # ノイズ除去
+                            plateImage = cv2.fastNlMeansDenoisingColored(plateImage, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
 
                             cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
-                            
                             ocrResult = self.MODEL_OCR(
                                 plateImage, 
-                                conf=confNumber, 
+                                conf=confNumberForOCR, 
                                 imgsz=imgsz, 
                                 save=False
                             )
