@@ -95,6 +95,16 @@ class TEST_DETECT:
             # 推論実行開始
             for file in os.listdir(self.TEST_DIR + "/test_images"):
                 image = cv2.imread(os.path.join(self.TEST_DIR, "test_images", file))
+
+                if image.shape[0] < imgsz * 1.5:
+                    newHeight = int(imgsz * 1.5)
+                    newWidth = int(image.shape[1] * (newHeight / image.shape[0]))
+                    image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
+                if image.shape[1] < imgsz * 1.5:
+                    newWidth = int(imgsz * 1.5)
+                    newHeight = int(image.shape[0] * (newWidth / image.shape[1]))
+                    image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
+                
                 overlay = image.copy()
                 
                 # 推論結果取得
