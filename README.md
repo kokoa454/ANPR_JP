@@ -34,14 +34,18 @@
 
 
 ## Detection Approach
-### ✨️yolo11m-seg-anpr-jp-detect
+### ✨️yolo26m-seg-anpr-jp-detect
 ##### ① Input an image
 ##### ② Detect segments
 ##### ③ Find convex hulls
 ##### ④ Perform a perspective transformation
-##### ⑤ Hand a number plate image over to the OCR model
+##### ⑤ Anti-sharp masking
+##### ⑥ Bilateral filtering
+##### ⑦ Detail enhancement
+##### ⑧ Noise removal
+##### ⑨ Hand a number plate image over to the OCR model
 
-### ✨️yolo11m-anpr-jp-ocr
+### ✨️yolo26m-anpr-jp-ocr
 ##### ① Receive a number plate image
 ##### ② Divide into two parts, top and bottom
 ##### ③ Detect characters
@@ -169,10 +173,10 @@ API_NAME = YOUR_API_NAME
 
 [^3]: About Data Set For Detecting Number Plates. The author used the project _"License plate final Computer Vision Model by demo"_. Here is the [URL](https://universe.roboflow.com/demo-z9q8y/license-plate-final-fgqza).
 
-[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_11m{n}_detect/weights` into `yolo11m-seg-anpr-jp-detect.pt`.
+[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_26m{n}_detect/weights` into `yolo26m-seg-anpr-jp-detect.pt`.
 
 [^5]: About Test Result for Detecting Number Plates. The test results will be put in `./yolo_model_generator/test_detect/results_images/`.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_11m{n}_ocr/weights` into `yolo11m-anpr-jp-ocr.pt`.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26m{n}_ocr/weights` into `yolo26m-anpr-jp-ocr.pt`.
 
 [^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
