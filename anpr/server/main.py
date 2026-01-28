@@ -22,6 +22,7 @@ import asyncio
 import logging
 from logging.handlers import RotatingFileHandler
 from uvicorn.logging import ColourizedFormatter
+from datetime import timedelta
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -71,6 +72,18 @@ logging.getLogger("uvicorn.access").handlers = root_logger.handlers
 logger_info = logging.getLogger("uvicorn.info")
 logger_error = logging.getLogger("uvicorn.error")
 
+# 営業時間変形 (例: 09:00~17:00 -> 08:45~17:00)
+async def transform_working_hours(working_hours: str) -> str:
+    start_working_hour = working_hours.split("~")[0]
+    end_working_hour = working_hours.split("~")[1]
+
+    start_working_hour_dt = datetime.strptime(start_working_hour, "%H:%M")
+    start_working_hour_dt -= timedelta(minutes = 15)
+    start_working_hour = start_working_hour_dt.strftime("%H:%M")
+
+    logger_info.info(f"Completed to transform working hours: ({working_hours} -> {start_working_hour}~{end_working_hour})")
+    return f"{start_working_hour}~{end_working_hour}"
+
 # 営業日チェック
 async def check_open_or_closed(year: str, month: str, day: str) -> str:
     if  int(month) < 10:
@@ -108,7 +121,7 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
                             working_hours = "0" + working_hours
                         
                         logger_info.info(f"Completed to check working day: Open ({working_hours})")
-                        return working_hours
+                        return await transform_working_hours(working_hours)
         
     except Exception as e:
         logger_error.error(f"Failed to check working day: {e}")
