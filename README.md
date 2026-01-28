@@ -53,6 +53,13 @@
 ##### ④ Format texts
 ##### ⑤ Output formatted texts
 
+## Installation
+### 1. Make sure git and git lfs are installed
+### 2. Run `git clone [the URL of this repository]` to clone this repository
+### 3. Run `git lfs pull`, `git lfs fetch --all`, then `git lfs checkout` to get .pt files
+### 4. Make sure Python 3.13.7 and pip are instaled
+### 5. Run `pip install -r requirement.txt` in each folders 
+
 ## Usage of YOLO MODEL GENERATOR [^2]
 ### 1. Download fonts and put them into `./fonts/`
 ###### ・HiraginoMaruGothicProNW4.otf
@@ -98,7 +105,7 @@ DETECTION_IOU = 0.3
 # OCR SETTINGS
 OCR_MODEL = ./yolo26m-anpr-jp-ocr.pt
 OCR_IMG_SIZE = 1024
-OCR_CONFIDENCE = 0.8
+OCR_CONFIDENCE = 0.5
 OCR_IOU = 0.3
 OCR_START_REGION_CODE_CLASS_ID = 4
 UNDEFINED_TEXT = UNDEFINED
