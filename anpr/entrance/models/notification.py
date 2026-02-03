@@ -23,7 +23,7 @@ class Notification:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(config.GMAIL_CREDENTIALS_FILE, config.GMAIL_SCOPES)
-                creds = flow.run_local_server(port = 0)
+                creds = flow.run_local_server(port = 0, access_type='offline', prompt='consent')
             with open(config.GMAIL_TOKEN_FILE, 'w') as token:
                 token.write(creds.to_json())
 
