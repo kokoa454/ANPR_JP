@@ -487,7 +487,7 @@ async def record_attraction_status(attraction_status: AttractionStatus, auth: bo
 @app.get("/api/waiting_time", status_code=200)
 async def get_waiting_time(auth: bool = Depends(authenticate_api_key)):
     select_query = """
-        SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time)
+        SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time WHERE CAST(timestamp AS DATE) = CURRENT_DATE)
     """
 
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
