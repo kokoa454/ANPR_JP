@@ -23,6 +23,7 @@ import logging
 from logging.handlers import RotatingFileHandler
 from uvicorn.logging import ColourizedFormatter
 from datetime import timedelta
+from data_models.attraction_comparison_chart import ATTRACTION_COMPARISON_CHART
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -269,6 +270,22 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create waiting_time table: {e}") from e
 
+    attraction_status_table_creation_query = """
+                CREATE TABLE IF NOT EXISTS attraction_status (
+                    id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    timestamp DATETIME NOT NULL,
+                    attraction_name VARCHAR(32) NOT NULL,
+                    status VARCHAR(32) NOT NULL,
+                    INDEX idx_attraction_status (id, timestamp, attraction_name, status)
+                );
+    """
+
+    try:
+        await database.execute(attraction_status_table_creation_query)
+        logger_info.info("Completed to create attraction_status table")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create attraction_status table: {e}") from e
+
     try:
         bg_task = asyncio.create_task(refer_waiting_time())
         logger_info.info("Completed to create background task")
@@ -441,6 +458,30 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
             return {"message": "Error data fetched successfully", "data": data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
+
+# アトラクション運行状況
+@app.post("/api/attraction_status", status_code=201)
+async def record_attraction_status(attraction_status: AttractionStatus, auth: bool = Depends(authenticate_api_key)):
+    timestamp = datetime.now().strftime(config.TIME_STAMP_FORMAT)
+    insert_query = """
+        INSERT INTO attraction_status (timestamp, attraction_name, status)
+        VALUES (:timestamp, :attraction_name, :status)
+    """
+
+    try:
+        for item in attraction_status:
+            item.buttonId = item.buttonId.replace("status-", "")
+            
+            for attraction in ATTRACTION_COMPARISON_CHART:
+                if item.buttonId == attraction["attraction_name_local"]:
+                    item.buttonId = attraction["attraction_name_server"]
+                    break
+                
+            await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": item.buttonId, "status": item.status})
+        
+        return {"message": "Attraction status recorded successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to record data into attraction_status table: {e}")
 
 # 現在の待ち時間
 @app.get("/api/waiting_time", status_code=200)
