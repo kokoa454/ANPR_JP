@@ -1,6 +1,6 @@
 # ANPR-JP
 
-### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO26m-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート). Also this project owns api programs between Raspberry Pi and a server.
+### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO26n-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート). Also this project owns api programs between Raspberry Pi and a server.
 
 #### Folder Structure
 ##### YOLO Model Generator: `./yolo_model_generator`
@@ -34,7 +34,7 @@
 
 
 ## Detection Approach
-### ✨️yolo26m-seg-anpr-jp-detect
+### ✨️yolo26n-seg-anpr-jp-detect
 ##### ① Input an image
 ##### ② Detect segments
 ##### ③ Find convex hulls
@@ -46,7 +46,7 @@
 ##### ⑨ Noise removal
 ##### ⑩ Hand a number plate image over to the OCR model
 
-### ✨️yolo26m-anpr-jp-ocr
+### ✨️yolo26n-anpr-jp-ocr
 ##### ① Receive a number plate image
 ##### ② Divide into two parts, top and bottom
 ##### ③ Detect characters
@@ -73,7 +73,7 @@
 
 ### 3. Start Machine Learning For Detecting Number Plates [^4]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo26m-seg
+##### ② Learning starts automatically with yolo26n-seg
 
 ### 4. Test Result for Detecting Number Plates [^5]
 ##### ① Put test images into `./generate_yolo_model/test_detect/`
@@ -86,7 +86,7 @@
 
 ### 6. Start Machine Learning For OCR [^6]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo26m
+##### ② Learning starts automatically with yolo26n
 
 ### 7. Test Result for OCR [^7]
 ##### ① Put test images into `./generate_yolo_model/test_ocr/`
@@ -97,14 +97,14 @@
 ### 1. Create `.env` files and make sure every params are filled in
 ```
 # DETECTION SETTINGS
-DETECTION_MODEL = ./yolo26m-seg-anpr-jp-detect.pt
+DETECTION_MODEL = ./yolo26n-seg-anpr-jp-detect.pt
 DETECTION_IMG_SIZE = 1024
 DETECTION_CONFIDENCE = 0.8
 DETECTION_IOU = 0.3
 
 # OCR SETTINGS
-OCR_MODEL = ./yolo26m-anpr-jp-ocr.pt
-OCR_IMG_SIZE = 1024
+OCR_MODEL = ./yolo26n-anpr-jp-ocr.pt
+OCR_IMG_SIZE = 640
 OCR_CONFIDENCE = 0.5
 OCR_IOU = 0.3
 OCR_START_REGION_CODE_CLASS_ID = 4
@@ -120,11 +120,12 @@ ERROR_LOG_FILE_NAME = error.log
 BUFFER_JSON_FILE_NAME = buffer.json
 
 # GMAIL SETTINGS
+APP_PASSWORD = YOUR_APP_PASSWORD
+GMAIL_SERVER = YOUR_GMAIL_SERVER
+GMAIL_SMTP_ADDRESS = YOUR_GMAIL_SMTP_ADDRESS
 GMAIL_RECEIVER = YOUR_RECEIVER_EMAIL_ADDRESS
 GMAIL_SENDER = YOUR_SENDER_EMAIL_ADDRESS
 GMAIL_SCOPES = https://mail.google.com/
-GMAIL_CREDENTIALS_FILE = ./credentials.json
-GMAIL_TOKEN_FILE = ./token.json
 GMAIL_DAILY_FIRST_SUBJECT = YOUR_DAILY_FIRST_SUBJECT
 GMAIL_DAILY_FIRST_MESSAGE = YOUR_DAILY_FIRST_MESSAGE
 GMAIL_ERROR_SUBJECT = YOUR_ERROR_SUBJECT
@@ -179,10 +180,10 @@ API_NAME = YOUR_API_NAME
 
 [^3]: About Data Set For Detecting Number Plates. The author used the project _"License plate final Computer Vision Model by demo"_. Here is the [URL](https://universe.roboflow.com/demo-z9q8y/license-plate-final-fgqza).
 
-[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_26m{n}_detect/weights` into `yolo26m-seg-anpr-jp-detect.pt`.
+[^4]: About Machine Learning For Detecting Number Plates. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_detect/number_plate_26n{n}_detect/weights` into `yolo26n-seg-anpr-jp-detect.pt`.
 
 [^5]: About Test Result for Detecting Number Plates. The test results will be put in `./yolo_model_generator/test_detect/results_images/`.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26m{n}_ocr/weights` into `yolo26m-anpr-jp-ocr.pt`.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26n{n}_ocr/weights` into `yolo26n-anpr-jp-ocr.pt`.
 
 [^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
