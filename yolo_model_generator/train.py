@@ -10,11 +10,11 @@ class TRAIN:
     OUTPUT_DIR = "./yolo_output"
     MODEL_TO_LOAD = None
     LAST_PT_PATH = None
-    MODEL_NAME = "yolo26m"
+    MODEL_NAME = "yolo26n"
     DATA_DETECT_PATH = f"{DATA_SET_DETECT.DATA_SET_DETECT_DIR}/data.yaml"
     DATA_OCR_PATH = f"{DATA_SET_OCR.DATA_SET_OCR_DIR}/data.yaml"
     DATA_PATH = None
-    NAME = "number_plate_26m"
+    NAME = "number_plate_26n"
     PROJECT_PATH = "yolo_output"
 
     def __init__(
@@ -48,7 +48,7 @@ class TRAIN:
                 self.OUTPUT_DIR = f"{self.OUTPUT_DIR}_detect"
                 self.NAME = f"{self.NAME}_detect"
                 self.PROJECT_PATH = f"{self.PROJECT_PATH}_detect"
-                self.MODEL_NAME = "yolo26m-seg"
+                self.MODEL_NAME = "yolo26n-seg"
             else:
                 raise Exception("ERROR: 検知用データセットがありません。")
 
@@ -62,7 +62,7 @@ class TRAIN:
                 raise Exception("ERROR: OCR用データセットがありません。")
 
         trainingNumber = int(trainingNumber)
-        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {batch_size}, Image Size: {imgsz}, Optimizer: {optimizer}, Learning Rate: {learning_rate}, Cosine LR: {cos_lr}, HSV S: {hsv_s}, HSV V: {hsv_v}, Patience: {patience}, Mosaic: {mosaic}, Scale: {scale}, Translate: {translate}, Augment: {augment}, Fliplr: {fliplr}, Close Mosaic: {close_mosaic}, IoU: {iou}, Name: {self.NAME})")
+        print(f"{self.MODEL_NAME}による学習を開始します。(Epochs: {trainingNumber}, Batch Size: {batch_size}, Image Size: {imgsz}, Optimizer: {optimizer}, Learning Rate: {learning_rate}, Cosine LR: {cos_lr}, HSV S: {hsv_s}, HSV V: {hsv_v}, Patience: {patience}, Mosaic: {mosaic}, Scale: {scale}, Translate: {translate}, Augment: {augment}, Fliplr: {fliplr}, Close Mosaic: {close_mosaic}, IoU: {iou}, Retina Masks: {retina_masks}, Workers: {workers}, Cache: {cache}, Name: {self.NAME})")
 
         if not os.path.exists(self.PROJECT_PATH):
             os.makedirs(self.PROJECT_PATH)

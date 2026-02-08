@@ -16,19 +16,19 @@ class TEST_OCR:
     TEST_DIR = "./test_ocr"
     OUTPUT_DETECT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
     OUTPUT_OCR_DIR = f"{TRAIN.OUTPUT_DIR}_ocr"
-    MODEL_NAME = "yolo26m"
+    MODEL_NAME = "yolo26n"
     MODEL_DETECT = None
     MODEL_OCR = None
-    NAME_DETECT = "number_plate_26m_detect"
-    NAME_OCR = "number_plate_26m_ocr"
+    NAME_DETECT = "number_plate_26n_detect"
+    NAME_OCR = "number_plate_26n_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
-    def __init__(self, confNumberForDetect, confNumberForOCR, imgsz):
+    def __init__(self, confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR):
         confNumberForDetect = float(confNumberForDetect) / 100.0
         confNumberForOCR = float(confNumberForOCR) / 100.0
         
         self.loadModel()
-        self.runTest(confNumberForDetect, confNumberForOCR, imgsz)
+        self.runTest(confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR)
         
     def loadModel(self):
         try:
@@ -105,7 +105,7 @@ class TEST_OCR:
         except FileNotFoundError:
             raise RuntimeError("ERROR: OCRモデルが見つかりません。")
 
-    def runTest(self, confNumberForDetect, confNumberForOCR, imgsz):
+    def runTest(self, confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR):
         try:
             testImagesDir = os.path.join(self.TEST_DIR, "test_images")
             resultImagesDir = os.path.join(self.TEST_DIR, "results_images")
@@ -129,12 +129,12 @@ class TEST_OCR:
             for file in os.listdir(testImagesDir):
                 image = cv2.imread(os.path.join(testImagesDir, file))
 
-                if image.shape[0] < imgsz * 1.5:
-                    newHeight = int(imgsz * 1.5)
+                if image.shape[0] < imgszForDetect * 1.5:
+                    newHeight = int(imgszForDetect * 1.5)
                     newWidth = int(image.shape[1] * (newHeight / image.shape[0]))
                     image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
-                if image.shape[1] < imgsz * 1.5:
-                    newWidth = int(imgsz * 1.5)
+                if image.shape[1] < imgszForDetect * 1.5:
+                    newWidth = int(imgszForDetect * 1.5)
                     newHeight = int(image.shape[0] * (newWidth / image.shape[1]))
                     image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
                 
@@ -144,7 +144,7 @@ class TEST_OCR:
                 detectResult = self.MODEL_DETECT(
                     image, 
                     conf=confNumberForDetect, 
-                    imgsz=imgsz, 
+                    imgsz=imgszForDetect, 
                     iou=0.5,
                     save=False
                 )
@@ -211,8 +211,8 @@ class TEST_OCR:
                                 continue
 
                             # 射影変換後の画像のリサイズ
-                            if plateImage.shape[0] < imgsz:
-                                plateImage = cv2.resize(plateImage, (imgsz, int(imgsz / 2)), interpolation=cv2.INTER_AREA)
+                            if plateImage.shape[0] < imgszForOCR:
+                                plateImage = cv2.resize(plateImage, (imgszForOCR, int(imgszForOCR / 2)), interpolation=cv2.INTER_AREA)
                             
                             # アンシャープマスキング
                             gaussian = cv2.GaussianBlur(plateImage, (0, 0), 2)
@@ -232,7 +232,7 @@ class TEST_OCR:
                             ocrResult = self.MODEL_OCR(
                                 plateImage, 
                                 conf=confNumberForOCR, 
-                                imgsz=imgsz, 
+                                imgsz=imgszForOCR, 
                                 save=False
                             )
 
@@ -337,7 +337,7 @@ class TEST_OCR:
         if officeCode == "" or officeCode not in DATA_SET_OCR.PLACE_CODE_LIST:
             officeCode = "??"
 
-        if classNum == "" or len(classNum) < 2 or len(classNum) > 4:
+        if classNum == "" or len(classNum) < 2 or len(classNum) > 3:
             classNum = "???"
 
         if hiraganaCode == "" or hiraganaCode not in DATA_SET_OCR.HIRAGANA_LIST_ALL:

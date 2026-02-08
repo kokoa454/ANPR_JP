@@ -10,8 +10,8 @@ class TEST_DETECT:
     LAST_PT_PATH = None
     TEST_DIR = "./test_detect"
     OUTPUT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
-    MODEL_NAME = "yolo26m-seg"
-    NAME = "number_plate_26m_detect"
+    MODEL_NAME = "yolo26n-seg"
+    NAME = "number_plate_26n_detect"
     MODEL = None
 
     def __init__(self, confNumber, imgsz):

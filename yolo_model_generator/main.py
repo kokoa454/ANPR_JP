@@ -101,21 +101,10 @@ def main():
                 print("数字を入力してください。\n")
                 continue
 
-            batchSize = input("バッチサイズ? (デフォルト: 4): ")
-
-            if batchSize == "":
-                batchSize = 4
-
-            batchSize = int(batchSize)
-
-            if batchSize < 1:
-                print("1以上の数字を入力してください。\n")
-                continue
-
-            workers = input("Workers? (デフォルト: 0): ")
+            workers = input("Workers? (デフォルト: 8): ")
 
             if workers == "":
-                workers = 0
+                workers = 8
 
             workers = int(workers)
 
@@ -174,17 +163,6 @@ def main():
                 print("TrueかFalseを入力してください。\n")
                 continue
 
-            imgsz = input("画像サイズ? (デフォルト: 1024): ")
-
-            if imgsz == "":
-                imgsz = 1024
-
-            imgsz = int(imgsz)
-
-            if imgsz < 1:
-                print("1以上の数字を入力してください。\n")
-                continue
-
             augment = input("Augment? (True / False) (デフォルト: True): ")
 
             if augment == "":
@@ -198,10 +176,32 @@ def main():
                 continue
 
             if dataSetNumber == 0:
-                iou = input("IoU? (デフォルト: 0.6): ")
+                batchSize = input("バッチサイズ? (デフォルト: 16): ")
+
+                if batchSize == "":
+                    batchSize = 16
+
+                batchSize = int(batchSize)
+
+                if batchSize < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+
+                imgsz = input("画像サイズ? (デフォルト: 1024): ")
+
+                if imgsz == "":
+                    imgsz = 1024
+
+                imgsz = int(imgsz)
+
+                if imgsz < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+
+                iou = input("IoU? (デフォルト: 0.65): ")
 
                 if iou == "":
-                    iou = 0.6
+                    iou = 0.65
 
                 iou = float(iou)
 
@@ -209,10 +209,10 @@ def main():
                     print("0以上1以下の数字を入力してください。\n")
                     continue
 
-                hsv_s = input("HSV S値? (デフォルト: 0.7): ")
+                hsv_s = input("HSV S値? (デフォルト: 0.6): ")
 
                 if hsv_s == "":
-                    hsv_s = 0.7
+                    hsv_s = 0.6
 
                 hsv_s = float(hsv_s)
 
@@ -243,10 +243,10 @@ def main():
                     print("TrueかFalseを入力してください。\n")
                     continue
 
-                scale = input("Scale? (デフォルト: 0.5): ")
+                scale = input("Scale? (デフォルト: 0.6): ")
 
                 if scale == "":
-                    scale = 0.5
+                    scale = 0.6
 
                 scale = float(scale)
 
@@ -254,10 +254,10 @@ def main():
                     print("0以上1以下の数字を入力してください。\n")
                     continue
 
-                translate = input("Translate? (デフォルト: 0.1): ")
+                translate = input("Translate? (デフォルト: 0.15): ")
 
                 if translate == "":
-                    translate = 0.1
+                    translate = 0.15
 
                 translate = float(translate)
 
@@ -276,10 +276,10 @@ def main():
                     print("TrueかFalseを入力してください。\n")
                     continue
 
-                close_mosaic = input("Close Mosaic? (デフォルト: 10): ")
+                close_mosaic = input("Close Mosaic? (デフォルト: 20): ")
 
                 if close_mosaic == "":
-                    close_mosaic = 10
+                    close_mosaic = 20
                 else:
                     close_mosaic = int(close_mosaic)
 
@@ -300,6 +300,28 @@ def main():
                     continue
 
             else:
+                batchSize = input("バッチサイズ? (デフォルト: 32): ")
+
+                if batchSize == "":
+                    batchSize = 32
+
+                batchSize = int(batchSize)
+
+                if batchSize < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+
+                imgsz = input("画像サイズ? (デフォルト: 640): ")
+
+                if imgsz == "":
+                    imgsz = 640
+
+                imgsz = int(imgsz)
+
+                if imgsz < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+
                 iou = input("IoU? (デフォルト: 0.5): ")
 
                 if iou == "":
@@ -311,10 +333,10 @@ def main():
                     print("0以上1以下の数字を入力してください。\n")
                     continue
 
-                hsv_s = input("HSV S値? (デフォルト: 0.3): ")
+                hsv_s = input("HSV S値? (デフォルト: 0.2): ")
 
                 if hsv_s == "":
-                    hsv_s = 0.3
+                    hsv_s = 0.2
 
                 hsv_s = float(hsv_s)
 
@@ -322,10 +344,10 @@ def main():
                     print("0以上の数字を入力してください。\n")
                     continue
 
-                hsv_v = input("HSV V値? (デフォルト: 0.2): ")
+                hsv_v = input("HSV V値? (デフォルト: 0.15): ")
 
                 if hsv_v == "":
-                    hsv_v = 0.2
+                    hsv_v = 0.15
 
                 hsv_v = float(hsv_v)
 
@@ -345,10 +367,10 @@ def main():
                     print("TrueかFalseを入力してください。\n")
                     continue
 
-                scale = input("Scale? (デフォルト: 0.05): ")
+                scale = input("Scale? (デフォルト: 0.08): ")
 
                 if scale == "":
-                    scale = 0.05
+                    scale = 0.08
 
                 scale = float(scale)
 
@@ -356,10 +378,10 @@ def main():
                     print("0以上1以下の数字を入力してください。\n")
                     continue
 
-                translate = input("Translate? (デフォルト: 0.02): ")
+                translate = input("Translate? (デフォルト: 0.03): ")
 
                 if translate == "":
-                    translate = 0.02
+                    translate = 0.03
 
                 translate = float(translate)
 
@@ -434,17 +456,6 @@ def main():
                 if dataSetNumber not in [0, 1]:
                     print("0~1の数字を入力してください。\n")
                     continue
-            
-                imgsz = input("画像サイズ? (デフォルト: 1024): ")
-
-                if imgsz == "":
-                    imgsz = 1024
-                else:
-                    imgsz = int(imgsz)
-
-                if imgsz < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
 
                 if dataSetNumber == 0:
                     try:
@@ -458,6 +469,17 @@ def main():
                             continue
                     except ValueError:
                         print("数字を入力してください。\n")
+                        continue
+
+                    imgsz = input("ナンバープレート検出画像サイズ? (デフォルト: 1024): ")
+
+                    if imgsz == "":
+                        imgsz = 1024
+                    else:
+                        imgsz = int(imgsz)
+
+                    if imgsz < 1:
+                        print("1以上の数字を入力してください。\n")
                         continue
 
                     TEST_DETECT(confNumber, imgsz)
@@ -488,7 +510,29 @@ def main():
                         print("数字を入力してください。\n")
                         continue
 
-                    TEST_OCR(confNumberForDetect, confNumberForOCR, imgsz)
+                    imgszForDetect = input("ナンバープレート検出画像サイズ? (デフォルト: 1024): ")
+
+                    if imgszForDetect == "":
+                        imgszForDetect = 1024
+                    else:
+                        imgszForDetect = int(imgszForDetect)
+
+                    if imgszForDetect < 1:
+                        print("1以上の数字を入力してください。\n")
+                        continue
+
+                    imgszForOCR = input("ナンバープレート検出画像サイズ? (デフォルト: 640): ")
+
+                    if imgszForOCR == "":
+                        imgszForOCR = 640
+                    else:
+                        imgszForOCR = int(imgszForOCR)
+
+                    if imgszForOCR < 1:
+                        print("1以上の数字を入力してください。\n")
+                        continue
+
+                    TEST_OCR(confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR)
             except ValueError:
                 print("数字を入力してください。\n")
                 continue
@@ -503,4 +547,5 @@ def main():
         else:
             print("0~4の数字を入力してください。\n")
 
-main()
+if __name__ == '__main__':
+    main()
