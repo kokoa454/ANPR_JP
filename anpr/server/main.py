@@ -338,6 +338,9 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
             month = str(item.timestamp.split(" ")[0].split("-")[1])
             day = str(item.timestamp.split(" ")[0].split("-")[2])
 
+            if month[0] == "0":
+                month = month[1:]
+
             working_hours = await check_open_or_closed(year = year, month = month, day = day)
             
             if working_hours == "休業日":
