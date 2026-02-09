@@ -24,6 +24,7 @@ from logging.handlers import RotatingFileHandler
 from uvicorn.logging import ColourizedFormatter
 from datetime import timedelta
 from data_models.attraction_comparison_chart import ATTRACTION_COMPARISON_CHART
+from data_models.attraction_status import AttractionStatus
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -86,11 +87,12 @@ async def transform_working_hours(working_hours: str) -> str:
     return f"{start_working_hour}~{end_working_hour}"
 
 # 営業日チェック
-async def check_open_or_closed(year: str, month: str, day: str) -> str:
+async def check_open_or_closed(year: str, month: str, day: str, transform: bool = True) -> str:
     if  int(month) < 10:
         month = "0" + month
 
     try:
+        logger_info.info(f"Checking the park is open or closed: {year}/{month}/{day}")
         url = f"https://pal2.co.jp/fee/{year}/{month}/#calendar"
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -113,7 +115,7 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
                 if rel is not None and re.match(regex, rel):
                     if col.find("p", class_ = "rest") is not None:
                         logger_info.info("Completed to check working day: Closed")
-                        return "休業日"
+                        return "Closed"
                     else:
                         working_hours = col.find("a", class_ = "t_inner").get("data-time")
                         working_hours = working_hours.replace("～", "~")
@@ -122,7 +124,10 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
                             working_hours = "0" + working_hours
                         
                         logger_info.info(f"Completed to check working day: Open ({working_hours})")
-                        return await transform_working_hours(working_hours)
+                        if transform:
+                            return await transform_working_hours(working_hours)
+                        else:
+                            return working_hours
         
     except Exception as e:
         logger_error.error(f"Failed to check working day: {e}")
@@ -132,9 +137,9 @@ async def check_open_or_closed(year: str, month: str, day: str) -> str:
 async def refer_waiting_time() -> None:
     while True:
         start_processing_time = datetime.now()
-        working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+        working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
 
-        if working_hours != "休業日" and working_hours != "Error":
+        if working_hours != "Closed" and working_hours != "Error":
             start_working_hour = working_hours.split("~")[0]
             end_working_hour = working_hours.split("~")[1]
 
@@ -142,20 +147,24 @@ async def refer_waiting_time() -> None:
             
             if current_hm >= start_working_hour and current_hm <= end_working_hour:
                 logger_info.info("Started to refer waiting time")
-                select_query = """
+                select_car_count_query = """
                     SELECT COUNT(*) FROM entrance WHERE timestamp >= CURDATE()
                 """
 
+                select_attraction_status_query = """
+                    SELECT attraction_name, status FROM attraction_status WHERE attraction_name = :attraction_name ORDER BY timestamp DESC LIMIT 1
+                """
+
                 insert_query = """
-                    INSERT INTO waiting_time (timestamp, attraction_name, waiting_time)
-                    VALUES (:timestamp, :attraction_name, :waiting_time)
+                    INSERT INTO waiting_time (timestamp, attraction_name, waiting_time, attraction_status)
+                    VALUES (:timestamp, :attraction_name, :waiting_time, :attraction_status)
                 """
 
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 now = datetime.now()
                 
                 try:
-                    data = await database.fetch_all(select_query)
+                    data = await database.fetch_all(select_car_count_query)
                     car_count = data[0]["COUNT(*)"]
 
                     logger_info.info(f"Car count: {car_count}")
@@ -180,12 +189,19 @@ async def refer_waiting_time() -> None:
                         reference_list = constance.SCHEDULE_DATA_UNDER_EIGHT_HUNDRED
                     else:
                         reference_list = constance.SCHEDULE_DATA_OVER_EIGHT_HUNDRED
+
+                except Exception as e:
+                    logger_error.error(f"Failed to set reference list: {e}")
                     
+                try:
                     referred_attraction_count = 0
                     error_attractions_list = []
 
                     for attraction in Attraction:
-                        attraction_name = attraction.name
+                        attraction_name = attraction.value
+                        attraction_status_data = await database.fetch_one(select_attraction_status_query, values = {"attraction_name": attraction_name})
+                        attraction_status = attraction_status_data.status
+
                         schedules = reference_list.get(attraction)
                         
                         for time_range, waiting_time in schedules.items():
@@ -193,22 +209,26 @@ async def refer_waiting_time() -> None:
                             end_hm = time_range.split("-")[1]
 
                             if start_hm <= current_hm and end_hm >= current_hm:
-                                await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": attraction_name, "waiting_time": waiting_time})
+                                if attraction_status == config.ATTRACTION_STATUS_RUNNING:
+                                    await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": attraction_name, "waiting_time": waiting_time, "attraction_status": attraction_status})
+                                else:
+                                    await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": attraction_name, "waiting_time": config.ATTRACTION_WAITING_TIME_ERROR, "attraction_status": attraction_status})
+                                    
                                 logger_info.info(f"Completed to insert waiting time: {attraction_name}")
                                 referred_attraction_count += 1
                                 break
-                    
-                    if referred_attraction_count == len(Attraction):
-                        logger_info.info("Completed to refer waiting time for all attractions")
-                    else:
-                        for error_attraction in error_attractions_list:
-                            await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": error_attraction, "waiting_time": 999})
-                        logger_info.info(f"Completed to refer waiting time for {referred_attraction_count} attractions")
-                        logger_error.error(f"Error attractions: {error_attractions_list}")
-                
                 except Exception as e:
-                    logger_error.error(f"Failed to refer waiting time: {e}")
-        
+                    logger_error.error(f"Failed to insert waiting time: {e}")
+                    error_attractions_list.append(attraction_name)
+                
+                if error_attractions_list:
+                    for error_attraction in error_attractions_list:
+                        attraction_status_data = await database.fetch_one(select_attraction_status_query, values = {"attraction_name": error_attraction})
+                        await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": error_attraction, "waiting_time": config.ATTRACTION_WAITING_TIME_ERROR, "attraction_status": attraction_status_data.status})
+                    logger_error.error(f"Error attractions: {error_attractions_list}")
+                
+                logger_info.info(f"Completed to refer waiting time: {referred_attraction_count}")
+            
         end_processing_time = datetime.now()
         total_processing_time = (end_processing_time - start_processing_time).total_seconds()
         await asyncio.sleep(max(0, 300 - total_processing_time))
@@ -260,7 +280,8 @@ async def lifespan(app: FastAPI):
                     timestamp DATETIME NOT NULL,
                     attraction_name VARCHAR(32) NOT NULL,
                     waiting_time INT NOT NULL,
-                    INDEX idx_waiting_time (id, timestamp, attraction_name, waiting_time)
+                    attraction_status VARCHAR(8) NOT NULL,
+                    INDEX idx_waiting_time (id, timestamp, attraction_name, waiting_time, attraction_status)
                 );
     """
 
@@ -275,7 +296,7 @@ async def lifespan(app: FastAPI):
                     id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     timestamp DATETIME NOT NULL,
                     attraction_name VARCHAR(32) NOT NULL,
-                    status VARCHAR(32) NOT NULL,
+                    status VARCHAR(8) NOT NULL,
                     INDEX idx_attraction_status (id, timestamp, attraction_name, status)
                 );
     """
@@ -331,6 +352,7 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
     data = []
 
     try:
+        logger_info.info("Started to record entrance data into entrance table")
         for item in items:
             # timestamp_pattern = "%Y-%m-%d_%H:%M:%S"
             item.timestamp = item.timestamp.replace("_", " ")
@@ -343,15 +365,18 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
 
             working_hours = await check_open_or_closed(year = year, month = month, day = day)
             
-            if working_hours == "休業日":
-                logger_info.info(f"Skipped data: {item}")
+            if working_hours == "Closed":
+                logger_info.info(f"Skipped entrance data: {item.timestamp}, {item.region_code}")
             else:
                 data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                logger_info.info(f"Recorded entrance data: {item.timestamp}, {item.region_code}")
 
         await database.execute_many(insert_query, values=data)
+        logger_info.info("Completed to record entrance data into entrance table")
         return {"message": "Entrance data recorded successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to record data into entrance table: {e}")
+        logger_error.error(f"Failed to record entrance data into entrance table: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to record entrance data into entrance table: {e}")
 
 # 今日の入場記録数
 @app.get("/api/entrance/count", status_code=200)
@@ -362,17 +387,20 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
 
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
     
-    if working_hours == "休業日":
+    if working_hours == "Closed":
         raise HTTPException(status_code=401, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
+        logger_info.info("Started to fetch today's entrance data from entrance table")
         data = await database.fetch_all(select_query)
         data = data[0]["COUNT(*)"]
+        logger_info.info("Completed to fetch today's entrance data from entrance table")
         return {"message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
+        logger_error.error(f"Failed to fetch data from entrance table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
 # 指定日付の入場記録CSV
@@ -386,8 +414,10 @@ async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(auth
     """
     
     try:
+        logger_info.info("Started to fetch data from entrance table")
         data = await database.fetch_all(select_query, values={"date_from": date_from, "date_to": date_to})
         if len(data) == 0:
+            logger_info.info("No data found")
             raise HTTPException(status_code=404, detail="No data found")
         
         df = pd.DataFrame(dict(row) for row in data)
@@ -396,8 +426,10 @@ async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(auth
         stream.seek(0)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f"attachment; filename={date_from}_{date_to}.csv"
+        logger_info.info("Completed to fetch data from entrance table")
         return response
     except Exception as e:
+        logger_error.error(f"Failed to fetch data from entrance table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
 # 今日の各地域の入場数
@@ -409,26 +441,31 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
 
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
     
-    if working_hours == "休業日":
+    if working_hours == "Closed":
         raise HTTPException(status_code=401, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
+        logger_info.info("Started to fetch data from entrance table")
         region_code_list = constance.REGION_CODE_LIST        
         data = await database.fetch_all(select_query)
         data = {row["region_code"]: row["count"] for row in data}
         
         if len(data) == 0:
+            logger_info.info("No entrance data found")
             return {"message": "Entrance data fetched successfully", "data": []}
 
         for item in data:
             if item not in region_code_list:
+                logger_error.error(f"Invalid region code: {item}")
                 raise HTTPException(status_code=500, detail="Invalid region code")
 
+        logger_info.info("Entrance data fetched successfully")
         return {"message": "Entrance data fetched successfully", "data": data}
     except Exception as e:
+        logger_error.error(f"Failed to fetch data from entrance table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from entrance table: {e}")
 
 # エラー記録
@@ -440,11 +477,14 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
     """
 
     try:
+        logger_info.info("Started to record error data into error table")
         error.timestamp = error.timestamp.replace("_", " ")
         await database.execute(insert_query, values={"timestamp": error.timestamp, "raspberry_pi_num": error.raspberry_pi_num, "error_type": error.error_type, "error": error.error})
+        logger_info.info(f"Error recorded successfully: {error.timestamp}, {error.raspberry_pi_num}, {error.error_type}, {error.error}")
         return {"message": "Error recorded successfully"}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to record data into error table: {e}")
+        logger_error.error(f"Failed to record error data into error table: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to record error data into error table: {e}")
 
 # 今日のエラー記録
 @app.get("/api/error/status", status_code=200)
@@ -454,36 +494,67 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
     """
 
     try:
+        logger_info.info("Started to fetch today's error data from error table")
         data = await database.fetch_all(select_query)
         if len(data) == 0:
+            logger_info.info("No error data found")
             return {"message": "No error data found", "data": []}
         else:
+            logger_info.info("Error data fetched successfully")
             return {"message": "Error data fetched successfully", "data": data}
     except Exception as e:
+        logger_error.error(f"Failed to fetch data from error table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to fetch data from error table: {e}")
 
 # アトラクション運行状況
 @app.post("/api/attraction_status", status_code=201)
-async def record_attraction_status(attraction_status: AttractionStatus, auth: bool = Depends(authenticate_api_key)):
+async def record_attraction_status(items: AttractionStatus | list[AttractionStatus] = Body(...), auth: bool = Depends(authenticate_api_key)):
     timestamp = datetime.now().strftime(config.TIME_STAMP_FORMAT)
     insert_query = """
         INSERT INTO attraction_status (timestamp, attraction_name, status)
         VALUES (:timestamp, :attraction_name, :status)
     """
 
+    if isinstance(items, AttractionStatus):
+        items = [items]
+
+    data = []
+
     try:
-        for item in attraction_status:
+        logger_info.info("Started to record attraction status data into attraction_status table")
+        for item in items:
             item.buttonId = item.buttonId.replace("status-", "")
             
             for attraction in ATTRACTION_COMPARISON_CHART:
                 if item.buttonId == attraction["attraction_name_local"]:
                     item.buttonId = attraction["attraction_name_server"]
+
+                    if item.status == "運行":
+                        item.status = config.ATTRACTION_STATUS_RUNNING
+                    elif item.status == "点検":
+                        item.status = config.ATTRACTION_STATUS_INSPECTION
+                    elif item.status == "休止":
+                        item.status = config.ATTRACTION_STATUS_SUSPENDED
+                    elif item.status == "雨天":
+                        item.status = config.ATTRACTION_STATUS_RAIN
+                    elif item.status == "雷":
+                        item.status = config.ATTRACTION_STATUS_THUNDER
+                    elif item.status == "強風":
+                        item.status = config.ATTRACTION_STATUS_STRONG_WIND
+                    elif item.status == "繰上":
+                        item.status = config.ATTRACTION_STATUS_EARLY_CLOSE
+                    elif item.status == "悪天":
+                        item.status = config.ATTRACTION_STATUS_BAD_WEATHER
+                    
+                    data.append({"timestamp": timestamp, "attraction_name": item.buttonId, "status": item.status})
+                    logger_info.info(f"Recorded attraction status data: {timestamp}, {item.buttonId}, {item.status}")
                     break
-                
-            await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": item.buttonId, "status": item.status})
-        
+            
+        await database.execute_many(query=insert_query, values=data)
+        logger_info.info("Completed to record attraction status data into attraction_status table")
         return {"message": "Attraction status recorded successfully"}
     except Exception as e:
+        logger_error.error(f"Failed to record data into attraction_status table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to record data into attraction_status table: {e}")
 
 # 現在の待ち時間
@@ -493,19 +564,23 @@ async def get_waiting_time(auth: bool = Depends(authenticate_api_key)):
         SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time WHERE CAST(timestamp AS DATE) = CURRENT_DATE)
     """
 
-    working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
+    working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
     
-    if working_hours == "休業日":
+    if working_hours == "Closed":
         raise HTTPException(status_code=401, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
     try:
+        logger_info.info("Started to fetch latest waiting time data from waiting time table")
         data = await database.fetch_all(select_query)
         if len(data) == 0:
+            logger_info.warning("No waiting time data found")
             return {"message": "No waiting time data found", "data": []}
         else:
+            logger_info.info("Waiting time data fetched successfully")
             return {"message": "Waiting time data fetched successfully", "data": data}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to fetch data from waiting time table: {e}")
+        logger_error.error(f"Failed to fetch latest waiting time data from waiting time table: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch latest waiting time data from waiting time table: {e}")

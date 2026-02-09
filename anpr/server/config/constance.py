@@ -1,4 +1,5 @@
 from data_models.attraction import Attraction
+from .config import ATTRACTION_WAITING_TIME_ERROR
 
 # 地名コード
 REGION_CODE_LIST = [
@@ -327,6 +328,30 @@ SCHEDULE_DATA_UNDER_FIFTY = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 15,
+        "12:01-13:00": 15,
+        "13:01-14:00": 15,
+        "14:01-15:00": 15,
+        "15:01-16:00": 15,
+        "16:01-17:00": 15,
+        "17:01-18:00": 15,
+        "18:01-19:00": 15
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -607,6 +632,30 @@ SCHEDULE_DATA_UNDER_ONE_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 15,
+        "12:01-13:00": 15,
+        "13:01-14:00": 15,
+        "14:01-15:00": 15,
+        "15:01-16:00": 15,
+        "16:01-17:00": 15,
+        "17:01-18:00": 15,
+        "18:01-19:00": 15
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -887,6 +936,30 @@ SCHEDULE_DATA_UNDER_TWO_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 15,
+        "12:01-13:00": 15,
+        "13:01-14:00": 15,
+        "14:01-15:00": 15,
+        "15:01-16:00": 15,
+        "16:01-17:00": 15,
+        "17:01-18:00": 15,
+        "18:01-19:00": 15
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -1167,6 +1240,30 @@ SCHEDULE_DATA_UNDER_THREE_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 15,
+        "16:01-17:00": 15,
+        "17:01-18:00": 15,
+        "18:01-19:00": 15
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -1447,6 +1544,30 @@ SCHEDULE_DATA_UNDER_FOUR_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 30,
+        "16:01-17:00": 15,
+        "17:01-18:00": 15,
+        "18:01-19:00": 15
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -1727,6 +1848,30 @@ SCHEDULE_DATA_UNDER_FIVE_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 15,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 30,
+        "16:01-17:00": 30,
+        "17:01-18:00": 30,
+        "18:01-19:00": 30
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -2007,6 +2152,30 @@ SCHEDULE_DATA_UNDER_SIX_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 15,
+        "10:01-11:00": 30,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 30,
+        "16:01-17:00": 30,
+        "17:01-18:00": 30,
+        "18:01-19:00": 30
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -2287,6 +2456,30 @@ SCHEDULE_DATA_UNDER_SEVEN_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 30,
+        "10:01-11:00": 30,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 30,
+        "16:01-17:00": 30,
+        "17:01-18:00": 30,
+        "18:01-19:00": 30
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -2567,6 +2760,30 @@ SCHEDULE_DATA_UNDER_EIGHT_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 30,
+        "10:01-11:00": 30,
+        "11:01-12:00": 30,
+        "12:01-13:00": 30,
+        "13:01-14:00": 30,
+        "14:01-15:00": 30,
+        "15:01-16:00": 30,
+        "16:01-17:00": 30,
+        "17:01-18:00": 30,
+        "18:01-19:00": 30
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
 
@@ -2847,5 +3064,29 @@ SCHEDULE_DATA_OVER_EIGHT_HUNDRED = {
         "16:01-17:00": 15,
         "17:01-18:00": 15,
         "18:01-19:00": 15
+    },
+    Attraction.WILD_STORM: {
+        "09:00-10:00": 30,
+        "10:01-11:00": 30,
+        "11:01-12:00": 30,
+        "12:01-13:00": 60,
+        "13:01-14:00": 60,
+        "14:01-15:00": 60,
+        "15:01-16:00": 60,
+        "16:01-17:00": 30,
+        "17:01-18:00": 30,
+        "18:01-19:00": 30
+    },
+    Attraction.PARACHUTE_TOWER: {
+        "09:00-10:00": ATTRACTION_WAITING_TIME_ERROR,
+        "10:01-11:00": ATTRACTION_WAITING_TIME_ERROR,
+        "11:01-12:00": ATTRACTION_WAITING_TIME_ERROR,
+        "12:01-13:00": ATTRACTION_WAITING_TIME_ERROR,
+        "13:01-14:00": ATTRACTION_WAITING_TIME_ERROR,
+        "14:01-15:00": ATTRACTION_WAITING_TIME_ERROR,
+        "15:01-16:00": ATTRACTION_WAITING_TIME_ERROR,
+        "16:01-17:00": ATTRACTION_WAITING_TIME_ERROR,
+        "17:01-18:00": ATTRACTION_WAITING_TIME_ERROR,
+        "18:01-19:00": ATTRACTION_WAITING_TIME_ERROR
     }
 }
