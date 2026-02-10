@@ -17,17 +17,17 @@ class DatastoreController:
         return cls._instance
     
     def __init__(self) -> None:
-        self.car_db_datastore = DBDatastore.get_instance()
-        self.car_buffer_datastore = BufferDatastore.get_instance()
+        self.db_datastore = DBDatastore.get_instance()
+        self.buffer_datastore = BufferDatastore.get_instance()
 
     def insert_data_to_dB(self, timestamp: str, number_plate_object: NumberPlate) -> bool:
         data = self._format_data(timeStamp = timestamp, number_plate_object = number_plate_object)
-        status = self.car_db_datastore.insert_data(data = data)
+        status = self.db_datastore.insert_data(data = data)
         return status
     
     def insert_data_to_buffer(self, timestamp: str, number_plate_object: NumberPlate) -> bool:
         data = self._format_data(timeStamp = timestamp, number_plate_object = number_plate_object)
-        status = self.car_buffer_datastore.insert_data(data = data)
+        status = self.buffer_datastore.insert_data(data = data)
         return status
 
     def check_buffer(self) -> bool:
@@ -42,9 +42,10 @@ class DatastoreController:
             return False
 
     def insert_buffer_data_to_db(self) -> bool:
-        status, data = self.car_buffer_datastore.read_data()
+        status, data = self.buffer_datastore.read_data()
         if status == True:
-            if self.car_db_datastore.insert_buffer_data(data = data) == True:
+            one_data = data[0]
+            if self.db_datastore.insert_buffer_data(data = one_data) == True:
                 self._clear_buffer()
                 return True
             else:
