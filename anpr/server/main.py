@@ -458,7 +458,7 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
             return {"message": "Entrance data fetched successfully", "data": []}
 
         for item in data:
-            if item not in region_code_list:
+            if item not in region_code_list and item != config.UNDEFINED_TEXT:
                 logger_error.error(f"Invalid region code: {item}")
                 raise HTTPException(status_code=500, detail="Invalid region code")
 
