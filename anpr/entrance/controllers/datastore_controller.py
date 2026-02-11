@@ -44,8 +44,7 @@ class DatastoreController:
     def insert_buffer_data_to_db(self) -> bool:
         status, data = self.buffer_datastore.read_data()
         if status == True:
-            one_data = data[0]
-            if self.db_datastore.insert_buffer_data(data = one_data) == True:
+            if self.db_datastore.insert_buffer_data(data = data) == True:
                 self._clear_buffer()
                 return True
             else:

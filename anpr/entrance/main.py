@@ -68,9 +68,9 @@ class Main:
 
                     if self.datastore_controller.check_buffer() == True:
                         if self.datastore_controller.insert_buffer_data_to_db() == True:
-                            print("ナンバープレートデータをバッファから1件DBに保存しました")
+                            print("ナンバープレートデータをバッファからDBに保存しました")
                         else:
-                            print("ナンバープレートデータをバッファから1件DBに保存できませんでした")
+                            print("ナンバープレートデータをバッファからDBに保存できませんでした")
 
                     if self.datastore_controller.insert_data_to_dB(timestamp = timestamp, number_plate_object = number_plate_object) == True:
                         print("ナンバープレートデータをDBに保存しました")
