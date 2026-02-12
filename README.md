@@ -1,6 +1,6 @@
 # ANPR-JP
 
-### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO26n-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート). Also this project owns api programs between Raspberry Pi and a server.
+### This project is an Automatic Number Plate Recognizer for Raspberry Pi that possesses YOLO26-based learning models for detecting and character recognition of Japanese vehicle identification plates (commonly known as ナンバープレート). Also this project owns api programs between Raspberry Pi and a server.
 
 #### Folder Structure
 ##### YOLO Model Generator: `./yolo_model_generator`
@@ -41,23 +41,34 @@
 ##### ④ Perform a perspective transformation
 ##### ⑤ Resize image
 ##### ⑥ Anti-sharp masking
-##### ⑦ Bilateral filtering
-##### ⑧ Detail enhancement
-##### ⑨ Noise removal
-##### ⑩ Hand a number plate image over to the OCR model
+##### ⑦ Hand a number plate image over to the OCR model
 
-### ✨️yolo26n-anpr-jp-ocr
+##### YOLO learning parameters on my environment
+```
+Ultralytics 8.4.7  Python-3.13.12 torch-2.9.0+cu130 CUDA:0 (NVIDIA GeForce RTX 3080, 10240MiB)
+engine\trainer: agnostic_nms=False, amp=True, angle=1.0, augment=False, auto_augment=randaugment, batch=8, bgr=0.0, box=7.5, cache=True, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data_set_detect/data.yaml, degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=ncnn, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=1024, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolo26n-seg.pt, momentum=0.937, mosaic=1.0, multi_scale=0.0, name=number_plate_26n_detect, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=D:\Programming\ANPR_JP\yolo_model_generator\yolo_output_detect, rect=False, resume=False, retina_masks=False, rle=1.0, save=True, save_conf=False, save_crop=False, save_dir=D:\Programming\ANPR_JP\yolo_model_generator\yolo_output_detect\number_plate_26n_detect, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=segment, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=1
+```
+
+### ✨️yolo26m-anpr-jp-ocr
 ##### ① Receive a number plate image
 ##### ② Divide into two parts, top and bottom
 ##### ③ Detect characters
 ##### ④ Format texts
 ##### ⑤ Output formatted texts
 
+##### YOLO learning parameters on my environment
+```
+Ultralytics 8.4.7  Python-3.13.12 torch-2.9.0+cu130 CUDA:0 (NVIDIA GeForce RTX 3080, 10240MiB)
+engine\trainer: agnostic_nms=False, amp=True, angle=1.0, augment=False, auto_augment=randaugment, batch=4, bgr=0.0, box=7.5, cache=True, cfg=None, classes=None, close_mosaic=10, cls=0.5, compile=False, conf=None, copy_paste=0.0, copy_paste_mode=flip, cos_lr=False, cutmix=0.0, data=./data_set_ocr/data.yaml, degrees=0.0, deterministic=True, device=0, dfl=1.5, dnn=False, dropout=0.0, dynamic=False, embed=None, epochs=100, erasing=0.4, exist_ok=False, fliplr=0.5, flipud=0.0, format=ncnn, fraction=1.0, freeze=None, half=False, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, imgsz=1024, int8=False, iou=0.7, keras=False, kobj=1.0, line_width=None, lr0=0.01, lrf=0.01, mask_ratio=4, max_det=300, mixup=0.0, mode=train, model=yolo26m.pt, momentum=0.937, mosaic=1.0, multi_scale=0.0, name=number_plate_26m_ocr, nbs=64, nms=False, opset=None, optimize=False, optimizer=auto, overlap_mask=True, patience=10, perspective=0.0, plots=True, pose=12.0, pretrained=True, profile=False, project=D:\Programming\ANPR_JP\yolo_model_generator\yolo_output_ocr, rect=False, resume=False, retina_masks=False, rle=1.0, save=True, save_conf=False, save_crop=False, save_dir=D:\Programming\ANPR_JP\yolo_model_generator\yolo_output_ocr\number_plate_26m_ocr, save_frames=False, save_json=False, save_period=-1, save_txt=False, scale=0.5, seed=0, shear=0.0, show=False, show_boxes=True, show_conf=True, show_labels=True, simplify=True, single_cls=False, source=None, split=val, stream_buffer=False, task=detect, time=None, tracker=botsort.yaml, translate=0.1, val=True, verbose=True, vid_stride=1, visualize=False, warmup_bias_lr=0.1, warmup_epochs=3.0, warmup_momentum=0.8, weight_decay=0.0005, workers=4, workspace=None
+Overriding model.yaml nc=80 with nc=202
+```
+
 ## Installation
 ### 1. Make sure git and git lfs are installed
 ### 2. Run `git clone [the URL of this repository]` to clone this repository
 ### 3. Run `git lfs pull`, `git lfs fetch --all`, then `git lfs checkout` to get .pt files
-### 4. Make sure Python 3.13.7 and pip are instaled
+### 4. Make sure Python and pip are instaled
 ### 5. Run `pip install -r requirement.txt` in each folders 
 
 ## Usage of YOLO MODEL GENERATOR [^2]
@@ -66,7 +77,7 @@
 ###### ・TrmFontJB.ttf
 ###### ・FZcarnumberJA.otf
 
-### 2. Make Data Set For Detecting Number Plates [^3]
+### 2. Download Data Set For Detecting Number Plates [^3]
 ##### ① Set your API key On Roboflow
 ##### ② Set project key
 ##### ③ Download starts automatically
@@ -80,13 +91,13 @@
 ##### ② Set inference rate
 ##### ③ Test starts automatically
 
-### 5. Make Data Set For OCR
-##### ① Set a number of number plates, how many you want to generate
+### 5. Generate Data Set For OCR
+##### ① Set a number of number plates, how many you want to generate (recommended: over 50 thousands)
 ##### ② Generating starts automatically
 
 ### 6. Start Machine Learning For OCR [^6]
 ##### ① Input an epochs number
-##### ② Learning starts automatically with yolo26n
+##### ② Learning starts automatically with yolo26m
 
 ### 7. Test Result for OCR [^7]
 ##### ① Put test images into `./generate_yolo_model/test_ocr/`
@@ -99,13 +110,15 @@
 # DETECTION SETTINGS
 DETECTION_MODEL = ./yolo26n-seg-anpr-jp-detect.pt
 DETECTION_IMG_SIZE = 1024
-DETECTION_CONFIDENCE = 0.8
+DETECTION_CONFIDENCE = 0.7
 DETECTION_IOU = 0.3
+DETECTION_TARGET_WIDTH = 1024
+DETECTION_TARGET_HEIGHT = 512
 
 # OCR SETTINGS
-OCR_MODEL = ./yolo26n-anpr-jp-ocr.pt
+OCR_MODEL = ./yolo26m-anpr-jp-ocr.pt
 OCR_IMG_SIZE = 1024
-OCR_CONFIDENCE = 0.5
+OCR_CONFIDENCE = 0.2
 OCR_IOU = 0.3
 OCR_START_REGION_CODE_CLASS_ID = 4
 UNDEFINED_TEXT = UNDEFINED
@@ -160,7 +173,9 @@ RASPBERRY_PI_NUM = YOUR_RASPBERRY_PI_NUM
 MAIN_LOOP_DELAY_SEC = 0.5
 ```
 
-### 2. Run `python ./main.py`
+### 2. Check all hardware devices are connected
+
+### 3. Run `python ./main.py`
 
 ## Usage of API Programs
 ### 1. Create `.env` files and make sure every params are filled in
@@ -203,6 +218,6 @@ UNDEFINED_TEXT = UNDEFINED
 
 [^5]: About Test Result for Detecting Number Plates. The test results will be put in `./yolo_model_generator/test_detect/results_images/`.
 
-[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26n{n}_ocr/weights` into `yolo26n-anpr-jp-ocr.pt`.
+[^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26m{n}_ocr/weights` into `yolo26m-anpr-jp-ocr.pt`.
 
 [^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
