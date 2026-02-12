@@ -92,357 +92,74 @@ def main():
                 continue
 
             try:
-                trainingNumber = int(input("Epoch数?: "))
+                trainingNumber = int(input("Epoch数? (デフォルト: 100): "))
 
-                if trainingNumber < 1:
+                if trainingNumber == "":
+                    trainingNumber = 100
+                elif trainingNumber < 1:
                     print("1以上の数字を入力してください。\n")
                     continue
             except ValueError:
                 print("数字を入力してください。\n")
                 continue
 
-            workers = input("Workers? (デフォルト: 8): ")
+            try:
+                patience = int(input("Patience? (デフォルト: 10): "))
 
-            if workers == "":
-                workers = 8
-
-            workers = int(workers)
-
-            if workers < 0:
-                print("0以上の数字を入力してください。\n")
+                if patience == "":
+                    patience = 10
+                elif patience < 1:
+                    print("1以上の数字を入力してください。\n")
+                    continue
+            except ValueError:
+                print("数字を入力してください。\n")
                 continue
 
-            cache = input("キャッシュ? (デフォルト: True): ")
-
-            if cache == "":
-                cache = True
-            elif cache == "True" or cache == "true" :
-                cache = True
-            elif cache == "False" or cache == "false":
-                cache = False
-            else:
-                print("TrueかFalseを入力してください。\n")
-                continue
-
-            patience = input("Patience? (デフォルト: 10): ")
-
-            if patience == "":
-                patience = 10
-
-            patience = int(patience)
-
-            if patience < 1:
-                print("1以上の数字を入力してください。\n")
-                continue
-
-            optimizer = input("オプティマイザ? (デフォルト: AdamW): ")
-
-            if optimizer == "":
-                optimizer = "AdamW"
-
-            learning_rate = input("学習率? (デフォルト: 0.0005): ")
-
-            if learning_rate == "":
-                learning_rate = 0.0005
-
-            learning_rate = float(learning_rate)
-
-            if learning_rate <= 0:
-                print("0より大きい数字を入力してください。\n")
-                continue
-
-            cos_lr_input = input("コサイン変化学習率? (True / False) (デフォルト: True): ")
-
-            if cos_lr_input == "":
-                cos_lr = True
-            elif cos_lr_input == "True" or cos_lr_input == "true" :
-                cos_lr = True
-            elif cos_lr_input == "False" or cos_lr_input == "false":
-                cos_lr = False
-            else:
-                print("TrueかFalseを入力してください。\n")
-                continue
-
-            augment = input("Augment? (True / False) (デフォルト: True): ")
-
-            if augment == "":
-                augment = True
-            elif augment == "True" or augment == "true" :
-                augment = True
-            elif augment == "False" or augment == "false":
-                augment = False
-            else:
-                print("TrueかFalseを入力してください。\n")
-                continue
-
-            if dataSetNumber == 0:
-                batchSize = input("バッチサイズ? (デフォルト: 16): ")
+            try:
+                batchSize = int(input("Batch Size? (デフォルト: 8): "))
 
                 if batchSize == "":
                     batchSize = 16
-
-                batchSize = int(batchSize)
-
-                if batchSize < 1:
+                elif batchSize < 1:
                     print("1以上の数字を入力してください。\n")
                     continue
+            except ValueError:
+                print("数字を入力してください。\n")
+                continue
 
-                imgsz = input("画像サイズ? (デフォルト: 1024): ")
+            try:
+                workers = int(input("Workers? (デフォルト: 4): "))
 
-                if imgsz == "":
-                    imgsz = 1024
-
-                imgsz = int(imgsz)
-
-                if imgsz < 1:
+                if workers == "":
+                    workers = 8
+                elif workers < 1:
                     print("1以上の数字を入力してください。\n")
                     continue
+            except ValueError:
+                print("数字を入力してください。\n")
+                continue
 
-                iou = input("IoU? (デフォルト: 0.65): ")
+            try:
+                cache = input("Cache? (デフォルト: True): ")
 
-                if iou == "":
-                    iou = 0.65
-
-                iou = float(iou)
-
-                if iou < 0 or iou > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                hsv_s = input("HSV S値? (デフォルト: 0.6): ")
-
-                if hsv_s == "":
-                    hsv_s = 0.6
-
-                hsv_s = float(hsv_s)
-
-                if hsv_s < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue
-
-                hsv_v = input("HSV V値? (デフォルト: 0.4): ")
-
-                if hsv_v == "":
-                    hsv_v = 0.4
-
-                hsv_v = float(hsv_v)
-
-                if hsv_v < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue
-
-                mosaic = input("Mosaic? (True / False) (デフォルト: True): ")
-
-                if mosaic == "":
-                    mosaic = True
-                elif mosaic == "True" or mosaic == "true" :
-                        mosaic = True
-                elif mosaic == "False" or mosaic == "false":
-                    mosaic = False
+                if cache == "":
+                    cache = True
+                elif cache == "True" or cache == "true" :
+                    cache = True
+                elif cache == "False" or cache == "false":
+                    cache = False
                 else:
                     print("TrueかFalseを入力してください。\n")
                     continue
-
-                scale = input("Scale? (デフォルト: 0.6): ")
-
-                if scale == "":
-                    scale = 0.6
-
-                scale = float(scale)
-
-                if scale < 0 or scale > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                translate = input("Translate? (デフォルト: 0.15): ")
-
-                if translate == "":
-                    translate = 0.15
-
-                translate = float(translate)
-
-                if translate < 0 or translate > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                fliplr = input("Fliplr? (デフォルト: 0.5): ")
-
-                if fliplr == "":
-                    fliplr = 0.5
-
-                fliplr = float(fliplr)
-
-                if fliplr < 0 or fliplr > 1:
-                    print("TrueかFalseを入力してください。\n")
-                    continue
-
-                close_mosaic = input("Close Mosaic? (デフォルト: 20): ")
-
-                if close_mosaic == "":
-                    close_mosaic = 20
-                else:
-                    close_mosaic = int(close_mosaic)
-
-                if close_mosaic < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue
-
-                retina_masks = input("Retina Masks? (True / False) (デフォルト: True): ")
-
-                if retina_masks == "":
-                    retina_masks = True
-                elif retina_masks == "True" or retina_masks == "true" :
-                    retina_masks = True
-                elif retina_masks == "False" or retina_masks == "false":
-                    retina_masks = False
-                else:
-                    print("TrueかFalseを入力してください。\n")
-                    continue
-
-            else:
-                batchSize = input("バッチサイズ? (デフォルト: 32): ")
-
-                if batchSize == "":
-                    batchSize = 32
-
-                batchSize = int(batchSize)
-
-                if batchSize < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
-
-                imgsz = input("画像サイズ? (デフォルト: 640): ")
-
-                if imgsz == "":
-                    imgsz = 640
-
-                imgsz = int(imgsz)
-
-                if imgsz < 1:
-                    print("1以上の数字を入力してください。\n")
-                    continue
-
-                iou = input("IoU? (デフォルト: 0.5): ")
-
-                if iou == "":
-                    iou = 0.5
-
-                iou = float(iou)
-
-                if iou < 0 or iou > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                hsv_s = input("HSV S値? (デフォルト: 0.2): ")
-
-                if hsv_s == "":
-                    hsv_s = 0.2
-
-                hsv_s = float(hsv_s)
-
-                if hsv_s < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue
-
-                hsv_v = input("HSV V値? (デフォルト: 0.15): ")
-
-                if hsv_v == "":
-                    hsv_v = 0.15
-
-                hsv_v = float(hsv_v)
-
-                if hsv_v < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue    
-
-                mosaic = input("Mosaic? (True / False) (デフォルト: False): ")
-
-                if mosaic == "":
-                    mosaic = False
-                elif mosaic == "True" or mosaic == "true" :
-                    mosaic = True
-                elif mosaic == "False" or mosaic == "false":
-                    mosaic = False
-                else:
-                    print("TrueかFalseを入力してください。\n")
-                    continue
-
-                scale = input("Scale? (デフォルト: 0.08): ")
-
-                if scale == "":
-                    scale = 0.08
-
-                scale = float(scale)
-
-                if scale < 0 or scale > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                translate = input("Translate? (デフォルト: 0.03): ")
-
-                if translate == "":
-                    translate = 0.03
-
-                translate = float(translate)
-
-                if translate < 0 or translate > 1:
-                    print("0以上1以下の数字を入力してください。\n")
-                    continue
-
-                fliplr = input("Fliplr? (デフォルト: 0): ")
-
-                if fliplr == "":
-                    fliplr = 0
-
-                fliplr = float(fliplr)
-
-                if fliplr < 0 or fliplr > 1:
-                    print("TrueかFalseを入力してください。\n")
-                    continue
-
-                close_mosaic = input("Close Mosaic? (デフォルト: 0): ")
-
-                if close_mosaic == "":
-                    close_mosaic = 0
-                else:
-                    close_mosaic = int(close_mosaic)
-
-                if close_mosaic < 0:
-                    print("0以上の数字を入力してください。\n")
-                    continue
-
-                retina_masks = input("Retina Masks? (デフォルト: False): ")
-
-                if retina_masks == "":
-                    retina_masks = False
-                elif retina_masks == "True" or retina_masks == "true" :
-                    retina_masks = True
-                elif retina_masks == "False" or retina_masks == "false":
-                    retina_masks = False
-                else:
-                    print("TrueかFalseを入力してください。\n")
-                    continue
-
+            except ValueError:
+                print("TrueかFalseを入力してください。\n")
+                continue
 
             TRAIN(
                 dataSetNumber = dataSetNumber,
                 trainingNumber= trainingNumber,
                 patience = patience,
                 batch_size = batchSize,
-                optimizer = optimizer,
-                learning_rate = learning_rate,
-                cos_lr = cos_lr,
-                hsv_s = hsv_s,
-                hsv_v = hsv_v,
-                imgsz = imgsz,
-                mosaic = mosaic,
-                scale = scale,
-                translate = translate,
-                augment = augment,
-                fliplr = fliplr,
-                close_mosaic = close_mosaic,
-                iou = iou,
-                retina_masks = retina_masks,
                 workers = workers,
                 cache = cache
             )
@@ -521,10 +238,10 @@ def main():
                         print("1以上の数字を入力してください。\n")
                         continue
 
-                    imgszForOCR = input("ナンバープレート検出画像サイズ? (デフォルト: 640): ")
+                    imgszForOCR = input("OCR画像サイズ? (デフォルト: 1024): ")
 
                     if imgszForOCR == "":
-                        imgszForOCR = 640
+                        imgszForOCR = 1024
                     else:
                         imgszForOCR = int(imgszForOCR)
 

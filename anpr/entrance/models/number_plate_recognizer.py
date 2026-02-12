@@ -18,7 +18,7 @@ class NumberPlateRecognizer:
         self.model = YOLO(model = config.DETECTION_MODEL)
 
     def detect_number_plate(self, image: Image.Image) -> Image.Image | None:
-        # yolo11n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
+        # yolo26n-seg-anpr-jp-detect.ptを使用してナンバープレートを検出
         detection_result = self.model(
             source = image,
             imgsz = config.DETECTION_IMG_SIZE,
@@ -72,14 +72,14 @@ class NumberPlateRecognizer:
                     # アンシャープマスキング
                     np_image = self._unsharp_masking(np_image)
 
-                    # バイラテラルフィルタ
-                    np_image = self._bilateral_filter(np_image)
+                    # # バイラテラルフィルタ
+                    # np_image = self._bilateral_filter(np_image)
 
-                    # ディテールエンハンス
-                    np_image = self._detail_enhance(np_image)
+                    # # ディテールエンハンス
+                    # np_image = self._detail_enhance(np_image)
 
-                    # ノイズ除去
-                    np_image = self._noise_removal(np_image)
+                    # # ノイズ除去
+                    # np_image = self._noise_removal(np_image)
 
                     cv2.imwrite(file_name, np_image)
                     
@@ -140,11 +140,11 @@ class NumberPlateRecognizer:
         gaussian = cv2.GaussianBlur(src = image, ksize = (0, 0), sigmaX = 2)
         return cv2.addWeighted(src1 = image, alpha = 1.5, src2 = gaussian, beta = -0.5, gamma = 0)
 
-    def _bilateral_filter(self, image: np.ndarray) -> np.ndarray:
-        return cv2.bilateralFilter(src = image, d = 9, sigmaColor = 75, sigmaSpace = 75)
+    # def _bilateral_filter(self, image: np.ndarray) -> np.ndarray:
+    #     return cv2.bilateralFilter(src = image, d = 9, sigmaColor = 75, sigmaSpace = 75)
 
-    def _detail_enhance(self, image: np.ndarray) -> np.ndarray:
-        return cv2.detailEnhance(src = image, sigma_s = 10, sigma_r = 0.15)
+    # def _detail_enhance(self, image: np.ndarray) -> np.ndarray:
+    #     return cv2.detailEnhance(src = image, sigma_s = 10, sigma_r = 0.15)
 
-    def _noise_removal(self, image: np.ndarray) -> np.ndarray:
-        return cv2.fastNlMeansDenoisingColored(src = image, h = 10, hColor = 10, templateWindowSize = 7, searchWindowSize = 21)
+    # def _noise_removal(self, image: np.ndarray) -> np.ndarray:
+    #     return cv2.fastNlMeansDenoisingColored(src = image, h = 10, hColor = 10, templateWindowSize = 7, searchWindowSize = 21)

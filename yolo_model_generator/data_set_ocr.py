@@ -493,39 +493,39 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
 
         # 画像加工処理
         # ガウシアンノイズ付与
-        # 50%の確率でノイズを付与
-        if random.random() < 0.5:
+        # 20%の確率でノイズを付与
+        if random.random() < 0.2:
             levelOfGaussianNoise = random.randint(0, 50)
             img = self.makeGaussianNoise(img, levelOfGaussianNoise)
 
         # ぼかし付与
-        # 50%の確率でぼかしを付与
-        if random.random() < 0.5:
+        # 20%の確率でぼかしを付与
+        if random.random() < 0.2:
             levelOfBlur = random.randint(0, 4)
             img = self.makeBlur(img, levelOfBlur)
 
         # モーションブラー付与
-        # 50%の確率でモーションブラーを付与
-        if random.random() < 0.5:
+        # 20%の確率でモーションブラーを付与
+        if random.random() < 0.2:
             levelOfMotionBlur = random.randint(0, 5)
             img = self.makeMotionBlur(img, levelOfMotionBlur)
 
         # ペッパー・ソルトノイズ付与
-        # 50%の確率でソルトノイスを付与
-        if random.random() < 0.5:
+        # 20%の確率でソルトノイスを付与
+        if random.random() < 0.2:
             levelOfPepperAndSaltNoise = random.randint(0, 2)
             img = self.makePepperAndSaltNoise(img, levelOfPepperAndSaltNoise)
 
         # 雲光付与
-        # 50%の確率で雲光を付与
-        if random.random() < 0.5:
+        # 20%の確率で雲光を付与
+        if random.random() < 0.2:
             maxRadiusRatio = random.uniform(0, 0.8)
             maxIntensity = random.randint(50, 200)
             img = self.makeSunGlare(img, maxRadiusRatio, maxIntensity)
 
         # 阴影付与
-        # 50%の確率で陰影を付与
-        if random.random() < 0.5:
+        # 20%の確率で陰影を付与
+        if random.random() < 0.2:
             maxOpacity = random.uniform(0, 0.7)
             img = self.makeRandomShadow(img, maxOpacity)
 
@@ -572,8 +572,8 @@ names: {DATA_SET_OCR.CHARACTER_NAMES}
             img = self.makeResolutionChange(img, levelOfResolutionChange)
 
         # 射影変換付与
-        # 80%の確率で射影変換を付与
-        if random.random() < 0.8:
+        # 50%の確率で射影変換を付与
+        if random.random() < 0.5:
             levelOfPerspectiveUp = random.uniform(-40, 40)
             levelOfPerspectiveDown = random.uniform(-40, 40)
             levelOfPerspectiveRight = random.uniform(-40, 40)

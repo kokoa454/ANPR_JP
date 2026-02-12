@@ -20,7 +20,7 @@ class NumberPlateTextRecognizer:
         upper_row_text = []
         lower_row_text = []
 
-        # yolo11n-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
+        # yolo26m-anpr-jp-ocr.ptを使用してナンバープレートの文字を認識
         ocr_result = self.model(
             source = detect_result,
             imgsz = config.OCR_IMG_SIZE,

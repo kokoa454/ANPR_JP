@@ -16,19 +16,22 @@ class TEST_OCR:
     TEST_DIR = "./test_ocr"
     OUTPUT_DETECT_DIR = f"{TRAIN.OUTPUT_DIR}_detect"
     OUTPUT_OCR_DIR = f"{TRAIN.OUTPUT_DIR}_ocr"
-    MODEL_NAME = "yolo26n"
+    MODEL_NAME_DETECT = "yolo26n"
+    MODEL_NAME_OCR = "yolo26m"
     MODEL_DETECT = None
     MODEL_OCR = None
     NAME_DETECT = "number_plate_26n_detect"
-    NAME_OCR = "number_plate_26n_ocr"
+    NAME_OCR = "number_plate_26m_ocr"
     FONT_PATH = "./fonts/HiraginoMaruGothicProNW4.otf"
 
     def __init__(self, confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR):
-        confNumberForDetect = float(confNumberForDetect) / 100.0
-        confNumberForOCR = float(confNumberForOCR) / 100.0
+        self.confNumberForDetect = float(confNumberForDetect) / 100.0
+        self.confNumberForOCR = float(confNumberForOCR) / 100.0
+        self.imgszForDetect = int(imgszForDetect)
+        self.imgszForOCR = int(imgszForOCR)
         
         self.loadModel()
-        self.runTest(confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR)
+        self.runTest()
         
     def loadModel(self):
         try:
@@ -105,7 +108,7 @@ class TEST_OCR:
         except FileNotFoundError:
             raise RuntimeError("ERROR: OCRモデルが見つかりません。")
 
-    def runTest(self, confNumberForDetect, confNumberForOCR, imgszForDetect, imgszForOCR):
+    def runTest(self):
         try:
             testImagesDir = os.path.join(self.TEST_DIR, "test_images")
             resultImagesDir = os.path.join(self.TEST_DIR, "results_images")
@@ -129,12 +132,12 @@ class TEST_OCR:
             for file in os.listdir(testImagesDir):
                 image = cv2.imread(os.path.join(testImagesDir, file))
 
-                if image.shape[0] < imgszForDetect * 1.5:
-                    newHeight = int(imgszForDetect * 1.5)
+                if image.shape[0] < self.imgszForDetect * 1.5:
+                    newHeight = int(self.imgszForDetect * 1.5)
                     newWidth = int(image.shape[1] * (newHeight / image.shape[0]))
                     image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
-                if image.shape[1] < imgszForDetect * 1.5:
-                    newWidth = int(imgszForDetect * 1.5)
+                if image.shape[1] < self.imgszForDetect * 1.5:
+                    newWidth = int(self.imgszForDetect * 1.5)
                     newHeight = int(image.shape[0] * (newWidth / image.shape[1]))
                     image = cv2.resize(image, (newWidth, newHeight), interpolation=cv2.INTER_CUBIC)
                 
@@ -143,8 +146,8 @@ class TEST_OCR:
                 # 位置検知推論
                 detectResult = self.MODEL_DETECT(
                     image, 
-                    conf=confNumberForDetect, 
-                    imgsz=imgszForDetect, 
+                    conf=self.confNumberForDetect, 
+                    imgsz=self.imgszForDetect, 
                     iou=0.5,
                     save=False
                 )
@@ -211,28 +214,28 @@ class TEST_OCR:
                                 continue
 
                             # 射影変換後の画像のリサイズ
-                            if plateImage.shape[0] < imgszForOCR:
-                                plateImage = cv2.resize(plateImage, (imgszForOCR, int(imgszForOCR / 2)), interpolation=cv2.INTER_AREA)
+                            if plateImage.shape[0] < self.imgszForOCR:
+                                plateImage = cv2.resize(plateImage, (self.imgszForOCR, int(self.imgszForOCR / 2)), interpolation=cv2.INTER_AREA)
                             
                             # アンシャープマスキング
                             gaussian = cv2.GaussianBlur(plateImage, (0, 0), 2)
                             plateImage = cv2.addWeighted(plateImage, 1.5, gaussian, -0.5, 0)
 
-                            # バイラテラルフィルタ
-                            plateImage = cv2.bilateralFilter(plateImage, d=9, sigmaColor=75, sigmaSpace=75)
+                            # # バイラテラルフィルタ
+                            # plateImage = cv2.bilateralFilter(plateImage, d=9, sigmaColor=75, sigmaSpace=75)
 
-                            # ディテールエンハンス
-                            plateImage = cv2.detailEnhance(plateImage, sigma_s=10, sigma_r=0.15)
+                            # # ディテールエンハンス
+                            # plateImage = cv2.detailEnhance(plateImage, sigma_s=10, sigma_r=0.15)
 
-                            # ノイズ除去
-                            plateImage = cv2.fastNlMeansDenoisingColored(plateImage, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
+                            # # ノイズ除去
+                            # plateImage = cv2.fastNlMeansDenoisingColored(plateImage, None, h=10, hColor=10, templateWindowSize=7, searchWindowSize=21)
 
                             cv2.imwrite(f"{resultImagesDir}/result_perspective{i + 1}_{file}", plateImage)
 
                             ocrResult = self.MODEL_OCR(
                                 plateImage, 
-                                conf=confNumberForOCR, 
-                                imgsz=imgszForOCR, 
+                                conf=self.confNumberForOCR, 
+                                imgsz=self.imgszForOCR, 
                                 save=False
                             )
 
@@ -293,8 +296,8 @@ class TEST_OCR:
         return np.array([top[0], top[1], bottom[0], bottom[1]], dtype="float32")
 
     def perspectiveTransform(self, image, sourcePoints):
-        TARGET_WIDTH = 440 * 2
-        TARGET_HEIGHT = 220 * 2
+        TARGET_WIDTH = self.imgszForOCR
+        TARGET_HEIGHT = int(self.imgszForOCR / 2)
 
         destination = np.array([
             [0, 0], 
@@ -337,13 +340,22 @@ class TEST_OCR:
         if officeCode == "" or officeCode not in DATA_SET_OCR.PLACE_CODE_LIST:
             officeCode = "??"
 
-        if classNum == "" or len(classNum) < 2 or len(classNum) > 3:
+        if len(classNum) > 3:
+            classNum = classNum[1:]
+        
+        if classNum == "" or len(classNum) < 2:
             classNum = "???"
 
+        if len(hiraganaCode) > 1:
+            hiraganaCode = hiraganaCode[1:]
+        
         if hiraganaCode == "" or hiraganaCode not in DATA_SET_OCR.HIRAGANA_LIST_ALL:
             hiraganaCode = "?"
 
-        if regiNum == "" or (len(regiNum) != 4 and len(regiNum) != 5) or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', regiNum) is None:
+        if len(regiNum) == 4 and regiNum[0] != "・":
+            regiNum = regiNum[:2] + "-" + regiNum[2:]
+
+        if regiNum == "" or re.match(r'・\d{3}|・{2}\d{2}|・{3}\d{1}|\d{2}-\d{2}$', regiNum) is None:
             regiNum = "????"
 
         return f"{officeCode} {classNum} {hiraganaCode} {regiNum}"
