@@ -3,7 +3,7 @@ import config.constance as constance
 from data_models.entrance import Entrance
 from data_models.error import Error
 from databases import Database
-from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends
+from fastapi import FastAPI, Header, HTTPException, Body ,Path, Depends, Request
 from pydantic import BaseModel, field_validator
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -25,6 +25,12 @@ from uvicorn.logging import ColourizedFormatter
 from datetime import timedelta
 from data_models.attraction_comparison_chart import ATTRACTION_COMPARISON_CHART
 from data_models.attraction_status import AttractionStatus
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache import FastAPICache
+from fastapi_cache.decorator import cache
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # 環境変数確認
 if config.DATABASE_URL is None:
@@ -236,6 +242,9 @@ async def refer_waiting_time() -> None:
 # DBライフサイクル
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    FastAPICache.init(backend=InMemoryBackend(), prefix="fastapi-cache")
+    logger_info.info("Completed to initialize FastAPI Cache")
+
     try:
         await database.connect()
         logger_info.info("Completed to connect to database")
@@ -329,8 +338,15 @@ def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
         raise HTTPException(status_code=401, detail="Invalid API Key")
     return True
 
+# SlowAPI初期化
+limiter = Limiter(key_func = get_remote_address)
+
 # FastAPIアプリケーション起動
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan = lifespan)
+
+# SlowAPI初期化の続き
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # APIエンドポイント
 # API生存確認
@@ -558,8 +574,10 @@ async def record_attraction_status(items: AttractionStatus | list[AttractionStat
         raise HTTPException(status_code=500, detail=f"Failed to record data into attraction_status table: {e}")
 
 # 現在の待ち時間
-@app.get("/api/waiting_time", status_code=200)
-async def get_waiting_time(auth: bool = Depends(authenticate_api_key)):
+@app.get("/api/waiting_time", status_code = 200)
+@limiter.limit("30/minute")
+@cache(expire = 60)
+async def get_waiting_time(request: Request):
     select_query = """
         SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time WHERE CAST(timestamp AS DATE) = CURRENT_DATE)
     """
