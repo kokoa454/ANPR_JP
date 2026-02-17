@@ -1,7 +1,7 @@
 beautifulsoup4
 databases
 fastapi
-fastapi_cache
+fastapi_cache2
 httpx
 pandas
 pydantic
