@@ -61,27 +61,27 @@ class Main:
                         
                         if recognized_number_plate is not None:
                             number_plate_object = recognized_number_plate
-                            print(f"ナンバープレートの文字認識結果: {number_plate_object.get_region_code()}{number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
+                            print(f"ナンバープレートの文字認識結果: {number_plate_object.get_region_code()} {number_plate_object.get_class_num()} {number_plate_object.get_hiragana_code()} {number_plate_object.get_regist_num()}\n")
+
+                            if self.datastore_controller.check_buffer() == True:
+                                if self.datastore_controller.insert_buffer_data_to_db() == True:
+                                    print("ナンバープレートデータをバッファからDBに保存しました")
+                                else:
+                                    print("ナンバープレートデータをバッファからDBに保存できませんでした")
+
+                            if self.datastore_controller.insert_data_to_dB(timestamp = timestamp, number_plate_object = number_plate_object) == True:
+                                print("ナンバープレートデータをDBに保存しました")
+                            else:
+                                print("ナンバープレートデータをDBに保存できませんでした")
+                                
+                                if self.datastore_controller.insert_data_to_buffer(timestamp = timestamp, number_plate_object = number_plate_object) == True:
+                                    print("ナンバープレートデータをバッファに保存しました")
+                                else:
+                                    print("ナンバープレートデータをバッファに保存できませんでした")
 
                         else:
                             print("ナンバープレート上の文字を認識できませんでした")
-
-                    if self.datastore_controller.check_buffer() == True:
-                        if self.datastore_controller.insert_buffer_data_to_db() == True:
-                            print("ナンバープレートデータをバッファからDBに保存しました")
-                        else:
-                            print("ナンバープレートデータをバッファからDBに保存できませんでした")
-
-                    if self.datastore_controller.insert_data_to_dB(timestamp = timestamp, number_plate_object = number_plate_object) == True:
-                        print("ナンバープレートデータをDBに保存しました")
-                    else:
-                        print("ナンバープレートデータをDBに保存できませんでした")
-                        
-                        if self.datastore_controller.insert_data_to_buffer(timestamp = timestamp, number_plate_object = number_plate_object) == True:
-                            print("ナンバープレートデータをバッファに保存しました")
-                        else:
-                            print("ナンバープレートデータをバッファに保存できませんでした")
-
+                    
                     del number_plate_object
                     
                 time.sleep(config.MAIN_LOOP_DELAY_SEC)
