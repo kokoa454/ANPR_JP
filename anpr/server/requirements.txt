@@ -1,0 +1,11 @@
+beautifulsoup4
+databases
+fastapi
+fastapi_cache
+httpx
+pandas
+pydantic
+python-dotenv
+Requests
+slowapi
+uvicorn
