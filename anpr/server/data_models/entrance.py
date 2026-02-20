@@ -1,5 +1,6 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class Entrance(BaseModel):
-    timestamp: str
+    timestamp: datetime
     region_code: str

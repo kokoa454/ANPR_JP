@@ -366,20 +366,21 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
         items = [items]
 
     data = []
+    error_data = []
 
     try:
         logger_info.info("Started to record entrance data into entrance table")
+
         for item in items:
-            # timestamp_pattern = "%Y-%m-%d_%H:%M:%S"
-            item.timestamp = item.timestamp.replace("_", " ")
-            year = str(item.timestamp.split(" ")[0].split("-")[0])
-            month = str(item.timestamp.split(" ")[0].split("-")[1])
-            day = str(item.timestamp.split(" ")[0].split("-")[2])
+            if item.region_code == "":
+                error_data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                continue
 
-            if month[0] == "0":
-                month = month[1:]
+            year = item.timestamp.year
+            month = item.timestamp.month
+            day = item.timestamp.day
 
-            working_hours = await check_open_or_closed(year = year, month = month, day = day)
+            working_hours = await check_open_or_closed(year = str(year), month = str(month), day = str(day))
             
             if working_hours == "Closed":
                 logger_info.info(f"Skipped entrance data: {item.timestamp}, {item.region_code}")
@@ -389,6 +390,10 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
 
         await database.execute_many(insert_query, values=data)
         logger_info.info("Completed to record entrance data into entrance table")
+
+        if error_data:
+            raise HTTPException(status_code=400, detail=f"Invalid entrance data: {error_data}")
+        
         return {"message": "Entrance data recorded successfully"}
     except Exception as e:
         logger_error.error(f"Failed to record entrance data into entrance table: {e}")
@@ -426,8 +431,17 @@ async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(auth
     # date_to: "2025-12-31"
     
     select_query = """
-        SELECT * FROM entrance WHERE DATE(timestamp) BETWEEN DATE(:date_from) AND DATE(:date_to)
+        SELECT timestamp, region_code FROM entrance WHERE DATE(timestamp) BETWEEN DATE(:date_from) AND DATE(:date_to)
     """
+
+    if date_from > date_to:
+        raise HTTPException(status_code=400, detail="Invalid date range")
+
+    try:
+        datetime.fromisoformat(str(date_from))
+        datetime.fromisoformat(str(date_to))
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {date_from}, {date_to}")
     
     try:
         logger_info.info("Started to fetch data from entrance table")
@@ -491,10 +505,13 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
         INSERT INTO error (timestamp, raspberry_pi_num, error_type, error)
         VALUES (:timestamp, :raspberry_pi_num, :error_type, :error)
     """
+    
+    if error.error_type == "" or error.raspberry_pi_num == "" or error.error == "":
+        logger_error.error(f"Invalid error type or error: {error.timestamp}, {error.error_type}, {error.error}, {error.raspberry_pi_num}")
+        raise HTTPException(status_code=400, detail="Invalid error type or error")
 
     try:
         logger_info.info("Started to record error data into error table")
-        error.timestamp = error.timestamp.replace("_", " ")
         await database.execute(insert_query, values={"timestamp": error.timestamp, "raspberry_pi_num": error.raspberry_pi_num, "error_type": error.error_type, "error": error.error})
         logger_info.info(f"Error recorded successfully: {error.timestamp}, {error.raspberry_pi_num}, {error.error_type}, {error.error}")
         return {"message": "Error recorded successfully"}
@@ -506,7 +523,7 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
 @app.get("/api/error/status", status_code=200)
 async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)):
     select_query = """
-        SELECT * FROM error WHERE timestamp >= CURDATE()
+        SELECT timestamp, error_type, error, raspberry_pi_num FROM error WHERE timestamp >= CURDATE()
     """
 
     try:
@@ -535,11 +552,21 @@ async def record_attraction_status(items: AttractionStatus | list[AttractionStat
         items = [items]
 
     data = []
+    error_data = []
 
     try:
         logger_info.info("Started to record attraction status data into attraction_status table")
+
         for item in items:
             item.buttonId = item.buttonId.replace("status-", "")
+
+            if item.buttonId not in [attraction["attraction_name_local"] for attraction in ATTRACTION_COMPARISON_CHART]:
+                logger_error.error(f"Invalid attraction name: {item.buttonId} {item.status}")
+                error_data.append({"timestamp": timestamp, "attraction_name": item.buttonId, "error": "Invalid attraction name"})
+            
+            if item.status != "運行" and item.status != "点検" and item.status != "休止" and item.status != "雨天" and item.status != "雷" and item.status != "強風" and item.status != "繰上" and item.status != "悪天":
+                logger_error.error(f"Invalid attraction status: {item.buttonId} {item.status}")
+                error_data.append({"timestamp": timestamp, "attraction_name": item.buttonId, "error": "Invalid attraction status"})
             
             for attraction in ATTRACTION_COMPARISON_CHART:
                 if item.buttonId == attraction["attraction_name_local"]:
@@ -568,10 +595,38 @@ async def record_attraction_status(items: AttractionStatus | list[AttractionStat
             
         await database.execute_many(query=insert_query, values=data)
         logger_info.info("Completed to record attraction status data into attraction_status table")
+
+        if error_data:
+            raise HTTPException(status_code=400, detail=f"Invalid attraction name or status: {error_data}") 
+
         return {"message": "Attraction status recorded successfully"}
     except Exception as e:
         logger_error.error(f"Failed to record data into attraction_status table: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to record data into attraction_status table: {e}")
+
+@app.get("/api/attraction_status/status", status_code = 200)
+async def get_attraction_status_status(auth: bool = Depends(authenticate_api_key)):
+    select_query = """
+        SELECT timestamp, attraction_name, status FROM attraction_status WHERE attraction_name = :attraction_name ORDER BY timestamp DESC LIMIT 1
+    """
+
+    data = []
+
+    try:
+        logger_info.info("Started to fetch attraction status data from attraction_status table")
+
+        for attraction in ATTRACTION_COMPARISON_CHART:
+            data.append(await database.fetch_one(select_query, values={"attraction_name": attraction["attraction_name_server"]}))
+
+        if len(data) == 0:
+            logger_info.info("No attraction status data found")
+            return {"message": "No attraction status data found", "data": []}
+        else:
+            logger_info.info("Attraction status data fetched successfully")
+            return {"message": "Attraction status data fetched successfully", "data": data}
+    except Exception as e:
+        logger_error.error(f"Failed to fetch data from attraction_status table: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch data from attraction_status table: {e}")
 
 # 現在の待ち時間
 @app.get("/api/waiting_time", status_code = 200)
@@ -579,7 +634,7 @@ async def record_attraction_status(items: AttractionStatus | list[AttractionStat
 @cache(expire = 60)
 async def get_waiting_time(request: Request):
     select_query = """
-        SELECT * FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time WHERE CAST(timestamp AS DATE) = CURRENT_DATE)
+        SELECT timestamp, attraction_name, waiting_time, attraction_status FROM waiting_time WHERE timestamp = (SELECT MAX(timestamp) FROM waiting_time WHERE CAST(timestamp AS DATE) = CURRENT_DATE)
     """
 
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
