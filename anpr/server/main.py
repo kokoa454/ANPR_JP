@@ -146,12 +146,14 @@ async def refer_waiting_time() -> None:
         working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
 
         if working_hours != "Closed" and working_hours != "Error":
-            start_working_hour = working_hours.split("~")[0]
-            end_working_hour = working_hours.split("~")[1]
+            start_working_hour = datetime.strptime(working_hours.split("~")[0], "%H:%M")
+            end_working_hour = datetime.strptime(working_hours.split("~")[1], "%H:%M")
 
-            current_hm = datetime.now().strftime("%H:%M")
+            start_working_hour = start_working_hour.time()
+            end_working_hour = end_working_hour.time()
+            current_hm = datetime.now().time()
             
-            if current_hm >= start_working_hour and current_hm <= end_working_hour:
+            if start_working_hour <= current_hm <= end_working_hour:
                 logger_info.info("Started to refer waiting time")
                 select_car_count_query = """
                     SELECT COUNT(*) FROM entrance WHERE timestamp >= CURDATE()
@@ -167,7 +169,6 @@ async def refer_waiting_time() -> None:
                 """
 
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                now = datetime.now()
                 
                 try:
                     data = await database.fetch_all(select_car_count_query)
@@ -367,6 +368,7 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
 
     data = []
     error_data = []
+    skipped_data = []
 
     try:
         logger_info.info("Started to record entrance data into entrance table")
@@ -381,18 +383,30 @@ async def record_entrance(items: Entrance | list[Entrance] = Body(...), auth: bo
             day = item.timestamp.day
 
             working_hours = await check_open_or_closed(year = str(year), month = str(month), day = str(day))
+
+            if working_hours != "Closed" and working_hours != "Error":
+                start_working_hour = datetime.strptime(working_hours.split("~")[0], "%H:%M")
+                end_working_hour = datetime.strptime(working_hours.split("~")[1], "%H:%M")
+
+                start_working_hour = start_working_hour.time()
+                end_working_hour = end_working_hour.time()
+                timestamp_hm = item.timestamp.time()
             
-            if working_hours == "Closed":
-                logger_info.info(f"Skipped entrance data: {item.timestamp}, {item.region_code}")
-            else:
-                data.append({"timestamp": item.timestamp, "region_code": item.region_code})
-                logger_info.info(f"Recorded entrance data: {item.timestamp}, {item.region_code}")
+                if start_working_hour > timestamp_hm or end_working_hour < timestamp_hm:
+                    logger_info.info(f"Skipped entrance data: {item.timestamp}, {item.region_code}")
+                    skipped_data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                elif working_hours == "Closed":
+                    logger_info.info(f"Skipped entrance data: {item.timestamp}, {item.region_code}")
+                    skipped_data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                elif working_hours == "Error":
+                    logger_error.error(f"Failed to check open or closed: {item.timestamp}, {item.region_code}")
+                    error_data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                else:
+                    data.append({"timestamp": item.timestamp, "region_code": item.region_code})
+                    logger_info.info(f"Recorded entrance data: {item.timestamp}, {item.region_code}")
 
         await database.execute_many(insert_query, values=data)
         logger_info.info("Completed to record entrance data into entrance table")
-
-        if error_data:
-            raise HTTPException(status_code=400, detail=f"Invalid entrance data: {error_data}")
         
         return {"message": "Entrance data recorded successfully"}
     except Exception as e:
@@ -409,7 +423,7 @@ async def get_entrance(auth: bool = Depends(authenticate_api_key)):
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
     
     if working_hours == "Closed":
-        raise HTTPException(status_code=401, detail="The park is closed today")
+        raise HTTPException(status_code=422, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
@@ -435,20 +449,20 @@ async def get_entrance(date_from: date, date_to: date, auth: bool = Depends(auth
     """
 
     if date_from > date_to:
-        raise HTTPException(status_code=400, detail="Invalid date range")
+        raise HTTPException(status_code=422, detail="Invalid date range")
 
     try:
         datetime.fromisoformat(str(date_from))
         datetime.fromisoformat(str(date_to))
     except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {date_from}, {date_to}")
+        raise HTTPException(status_code=422, detail=f"Invalid date format: {date_from}, {date_to}")
     
     try:
         logger_info.info("Started to fetch data from entrance table")
         data = await database.fetch_all(select_query, values={"date_from": date_from, "date_to": date_to})
         if len(data) == 0:
             logger_info.info("No data found")
-            raise HTTPException(status_code=404, detail="No data found")
+            raise HTTPException(status_code=422, detail="No data found")
         
         df = pd.DataFrame(dict(row) for row in data)
         stream = io.StringIO()
@@ -472,7 +486,7 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day))
     
     if working_hours == "Closed":
-        raise HTTPException(status_code=401, detail="The park is closed today")
+        raise HTTPException(status_code=422, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
@@ -490,7 +504,7 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
         for item in data:
             if item not in region_code_list and item != config.UNDEFINED_TEXT:
                 logger_error.error(f"Invalid region code: {item}")
-                raise HTTPException(status_code=500, detail="Invalid region code")
+                raise HTTPException(status_code=422, detail="Invalid region code")
 
         logger_info.info("Entrance data fetched successfully")
         return {"message": "Entrance data fetched successfully", "data": data}
@@ -508,7 +522,7 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
     
     if error.error_type == "" or error.raspberry_pi_num == "" or error.error == "":
         logger_error.error(f"Invalid error type or error: {error.timestamp}, {error.error_type}, {error.error}, {error.raspberry_pi_num}")
-        raise HTTPException(status_code=400, detail="Invalid error type or error")
+        raise HTTPException(status_code=422, detail="Invalid error type or error")
 
     try:
         logger_info.info("Started to record error data into error table")
@@ -597,7 +611,7 @@ async def record_attraction_status(items: AttractionStatus | list[AttractionStat
         logger_info.info("Completed to record attraction status data into attraction_status table")
 
         if error_data:
-            raise HTTPException(status_code=400, detail=f"Invalid attraction name or status: {error_data}") 
+            raise HTTPException(status_code=422, detail=f"Invalid attraction name or status: {error_data}") 
 
         return {"message": "Attraction status recorded successfully"}
     except Exception as e:
@@ -638,9 +652,19 @@ async def get_waiting_time(request: Request):
     """
 
     working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
+
+    start_working_hour = datetime.strptime(working_hours.split("~")[0], "%H:%M")
+    end_working_hour = datetime.strptime(working_hours.split("~")[1], "%H:%M")
+
+    start_working_hour = start_working_hour.time()
+    end_working_hour = end_working_hour.time()
+    current_hm = datetime.now().time()
     
+    if current_hm < start_working_hour or current_hm > end_working_hour:
+        raise HTTPException(status_code=422, detail="The park is closed now")
+
     if working_hours == "Closed":
-        raise HTTPException(status_code=401, detail="The park is closed today")
+        raise HTTPException(status_code=422, detail="The park is closed today")
     
     if working_hours == "Error":
         raise HTTPException(status_code=500, detail="Failed to check open or closed")
