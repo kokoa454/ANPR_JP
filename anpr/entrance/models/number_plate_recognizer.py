@@ -133,8 +133,7 @@ class NumberPlateRecognizer:
 
         warped_perspective = cv2.warpPerspective(image, homography_matrix, (target_width, target_height), cv2.INTER_CUBIC)
 
-        final_image = cv2.cvtColor(src = warped_perspective, code = cv2.COLOR_BGR2RGB)
-        return final_image
+        return warped_perspective
 
     def _unsharp_masking(self, image: np.ndarray) -> np.ndarray:
         gaussian = cv2.GaussianBlur(src = image, ksize = (0, 0), sigmaX = 2)
