@@ -1,29 +1,29 @@
 from enum import Enum, auto
 
 class Attraction(Enum):
-    BALLOON_RACE = "バルーンレース"
-    MEGA_COASTER = "メガコースター"
-    HIDE_AND_SEEK_WITH_BAKKE = "ばっけとかくれんぼ"
-    GURURI_FOREST = "ぐるり森"
-    KURUKURU_CRUISE = "くるくるクルーズ"
-    MINI_COASTER = "ミニコースター"
-    MINI_Q_RACING = "ミニQレーシング"
-    BLOCK_CART = "ブロックカート"
-    LOG_RIDE = "急流すべり"
-    DETEMIYA = "デテミーヤ"
-    POPCORN_PANIC = "ポップコーンパニック"
-    DRAGON_FIGHTER = "ドラゴンファイター"
-    MAWATTAWA = "まわったわー"
-    GOOD_JOB_OPERATION = "グッジョブ大作戦"
-    PALPAL_STADIUM = "パルパルスタジアム"
-    MERRY_GO_ROUND = "メリーゴーランド"
-    FOUR_D_THEATER = "4Dシアター"
-    TOMATORE = "トマトーレ"
-    PIRATE_SHIP = "海賊船"
-    HANGING_OUT_DUCKS = "おでかけダックス"
-    FERRIS_WHEEL = "観覧車"
-    DONGURINO = "どんぐりーの"
-    PALKKIO = "パルッキオ"
-    WILD_STORM = "ワイルドストーム"
-    PARACHUTE_TOWER = "パラシュートタワー"
-    
+    BALLOON_RACE = "balloon_race" # バルーンレース
+    MEGA_COASTER = "mega_coaster" # メガコースター
+    HIDE_AND_SEEK_WITH_BAKKE = "hide_and_seek_with_bakke" # ばっけとかくれんぼ
+    GURURI_FOREST = "gururi_forest" # ぐるり森
+    KURUKURU_CRUISE = "kurukuru_cruise" # くるくるクルーズ
+    MINI_COASTER = "mini_coaster" # ミニコースター
+    MINI_Q_RACING = "mini_q_racing" # ミニQレーシング
+    BLOCK_CART = "block_cart" # ブロックカート
+    LOG_RIDE = "log_ride" # 急流すべり
+    DETEMIYA = "detemiya" # デテミーヤ
+    POPCORN_PANIC = "popcorn_panic" # ポップコーンパニック
+    DRAGON_FIGHTER = "dragon_fighter" # ドラゴンファイター
+    MAWATTAWA = "mawatttawa" # まわったわー
+    GOOD_JOB_OPERATION = "good_job_operation" # グッジョブ大作戦
+    PALPAL_STADIUM = "palpal_stadium" # パルパルスタジアム
+    MERRY_GO_ROUND = "merry_go_round" # メリーゴーランド
+    FOUR_D_THEATER = "four_d_theater" # 4Dシアター
+    TOMATORE = "tomatore" # トマトーレ
+    PIRATE_SHIP = "pirate_ship" # 海賊船
+    HANGING_OUT_DUCKS = "hanging_out_ducks" # おでかけダックス
+    FERRIS_WHEEL = "ferris_wheel" # 観覧車
+    DONGURINO = "dongurino" # どんぐりーの
+    PALKKIO = "palkkio" # パルッキオ
+    WILD_STORM = "wild_storm" # ワイルドストーム
+    PARACHUTE_TOWER = "parachute_tower" # パラシュートタワー
+    GO_CART = "go_cart" # ゴーカート

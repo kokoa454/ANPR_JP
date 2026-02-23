@@ -104,5 +104,9 @@ ATTRACTION_COMPARISON_CHART = [
     {
         "attraction_name_server": Attraction.PARACHUTE_TOWER.value, 
         "attraction_name_local": "parachute"
+    },
+    {
+        "attraction_name_server": Attraction.GO_CART.value, 
+        "attraction_name_local": "gocart"
     }
 ]
