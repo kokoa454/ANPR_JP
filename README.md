@@ -203,7 +203,7 @@ ATTRACTION_WAITING_TIME_ERROR = 999
 UNDEFINED_TEXT = UNDEFINED
 ```
 
-### 2. Run `uvicorn main:app --host 0.0.0.0 --port 8000`
+### 2. Run `uvicorn main:app --host 0.0.0.0 --port YOUR_PORT_NUMBER`
 
 
 [^1]: About Number Plate Color. In addition, there are special number plates in Japan, such as number plates with graphic backgrounds and diplomatic number plates, but the YOLO models included in this program cannot recognize number plates that are not listed in the table.
