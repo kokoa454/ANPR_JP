@@ -133,7 +133,7 @@ BUFFER_JSON_FILE_NAME = buffer.json
 # GMAIL SETTINGS
 APP_PASSWORD = YOUR_APP_PASSWORD
 GMAIL_SERVER = YOUR_GMAIL_SERVER
-GMAIL_SMTP_ADDRESS = YOUR_GMAIL_SMTP_ADDRESS
+GMAIL_SMTP_ADDRESS = 587
 GMAIL_RECEIVER = YOUR_RECEIVER_EMAIL_ADDRESS
 GMAIL_SENDER = YOUR_SENDER_EMAIL_ADDRESS
 GMAIL_SCOPES = https://mail.google.com/
@@ -201,7 +201,45 @@ ATTRACTION_WAITING_TIME_ERROR = 999
 UNDEFINED_TEXT = UNDEFINED
 ```
 
-### 2. Run `uvicorn main:app --host 0.0.0.0 --port YOUR_PORT_NUMBER`
+### 2. Check if Nginx and SSL are properly configured
+#### if not, you can install and setup with following command [^8]
+##### Install Nginx
+```
+sudo apt install nginx -y
+```
+##### Install Certbot
+```
+sudo apt install certbot python3-certbot-nginx -y
+```
+##### Setup Nginx template
+```
+sudo vi /etc/nginx/sites-available/default
+```
+```
+server {
+    server_name YOUR_DOMAIN.com;
+    ･･･
+}
+```
+##### Check Nginx
+```
+sudo nginx -t
+```
+##### Setup SSL
+```
+sudo certbot --nginx -d YOUR_DOMAIN.com
+```
+##### Restart Nginx
+```
+sudo systemctl restart nginx
+```
+##### Allow HTTP and HTTPS traffic
+```
+sudo iptables -I INPUT -p TCP --dport 80 -j ACCEPT
+sudo iptables -I INPUT -p TCP --dport 443 -j ACCEPT
+```
+
+### 3. Run `nohup uvicorn main:app --host 127.0.0.1 --port 8000 &` [^9]
 
 
 [^1]: About Number Plate Color. In addition, there are special number plates in Japan, such as number plates with graphic backgrounds and diplomatic number plates, but the YOLO models included in this program cannot recognize number plates that are not listed in the table.
@@ -217,3 +255,7 @@ UNDEFINED_TEXT = UNDEFINED
 [^6]: About Machine Learning For OCR. The author recommends users of this program to rename best.pt in `./yolo_model_generator/yolo_output_ocr/number_plate_26m{n}_ocr/weights` into `yolo26m-anpr-jp-ocr.pt`.
 
 [^7]: About Test Result for OCR. The test results will be put in `./yolo_model_generator/test_ocr/results_images/`.
+
+[^8]: About Nginx and SSL. The author recommends users of this program to use Certbot for installing and setting up Nginx and SSL.
+
+[^9]: About Running API. The author recommends users of this program to run the API in the background with `nohup` command. If not, the API will stop when the user logs out. You can follow the log with `tail -f nohup.out`.
