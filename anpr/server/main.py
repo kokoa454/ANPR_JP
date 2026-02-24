@@ -14,6 +14,7 @@ from fastapi.responses import StreamingResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import httpx
 import pandas as pd
 from pydantic import BaseModel, field_validator
@@ -362,10 +363,23 @@ async def lifespan(app: FastAPI):
         logger_error.error(f"[lifespan] Error during shutdown: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to disconnect from database: {e}") from e
 
+# SlowAPI初期化
+limiter = Limiter(key_func = get_remote_address)
+
+# FastAPIアプリケーション起動
+app = FastAPI(lifespan = lifespan)
+
+# Bearer認証スキームの定義
+oauth2_scheme = HTTPBearer()
+
+# SlowAPI初期化の続き
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # API認証
-def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
+def authenticate_api_key(credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
     try:
-        if user_api_key != api_key:
+        if credentials.credentials != api_key:
             raise HTTPException(status_code=401, detail="Invalid API Key")
         return True
     except HTTPException:
@@ -373,16 +387,6 @@ def authenticate_api_key(user_api_key: str = Header(None, alias=api_name)):
     except Exception as e:
         logger_error.error(f"[authenticate_api_key] Error validating API key: {e}")
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
-
-# SlowAPI初期化
-limiter = Limiter(key_func = get_remote_address)
-
-# FastAPIアプリケーション起動
-app = FastAPI(lifespan = lifespan)
-
-# SlowAPI初期化の続き
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # APIエンドポイント
 # API生存確認
