@@ -25,4 +25,9 @@ class RecognizerController:
                 upper_row_text, lower_row_text = text_result[0], text_result[1]
                 number_plate_object.format_number_plate_text("".join(upper_row_text), "".join(lower_row_text))
                 return number_plate_object
+            else:
+                print("ナンバープレート上の文字を認識できませんでした")
+        else:
+            print("ナンバープレートを検出しませんでした")
+            
         return None

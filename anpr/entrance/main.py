@@ -51,7 +51,7 @@ class Main:
                             self.daily_first_detection = False
                             self.daily_first_detection_date = None
 
-                    image = self.device_controller.capture_number_plate()
+                    image, captured_file_path = self.device_controller.capture_number_plate()
                     
                     number_plate_object = NumberPlate()
                     timestamp = Utilities.get_timestamp()
@@ -80,7 +80,7 @@ class Main:
                                     print("ナンバープレートデータをバッファに保存できませんでした")
 
                         else:
-                            print("ナンバープレート上の文字を認識できませんでした")
+                            os.remove(captured_file_path)
                     
                     del number_plate_object
                     

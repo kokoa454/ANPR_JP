@@ -52,16 +52,16 @@ class NumberPlateTextRecognizer:
                 height = detect_result.height
                 center_y = height / 2
 
-                # 二分割した部分をつなげて確認用としてファイル保存
-                upper_img = detect_result.crop((0, 0, detect_result.width, int(center_y)))
-                lower_img = detect_result.crop((0, int(center_y), detect_result.width, height))
+                # # 二分割した部分をつなげて確認用としてファイル保存
+                # upper_img = detect_result.crop((0, 0, detect_result.width, int(center_y)))
+                # lower_img = detect_result.crop((0, int(center_y), detect_result.width, height))
 
-                concat_img = Image.new('RGB', (upper_img.width + lower_img.width, max(upper_img.height, lower_img.height)))
-                concat_img.paste(upper_img, (0, 0))
-                concat_img.paste(lower_img, (upper_img.width, 0))
+                # concat_img = Image.new('RGB', (upper_img.width + lower_img.width, max(upper_img.height, lower_img.height)))
+                # concat_img.paste(upper_img, (0, 0))
+                # concat_img.paste(lower_img, (upper_img.width, 0))
 
-                file_name = f"{config.OUTPUT_OCR_DIR}/{Utilities.get_timestamp()}.png"
-                concat_img.save(file_name)
+                # file_name = f"{config.OUTPUT_OCR_DIR}/{Utilities.get_timestamp()}.png"
+                # concat_img.save(file_name)
 
                 # OCRの検出結果を取得
                 for char, x, y in detected_chars:
