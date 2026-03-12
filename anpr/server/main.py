@@ -249,6 +249,8 @@ async def refer_waiting_time() -> None:
                         for error_attraction in error_attractions_list:
                             try:
                                 attraction_status_data = await database.fetch_one(select_attraction_status_query, values = {"attraction_name": error_attraction})
+                                if attraction_status_data is None:
+                                    continue
                                 await database.execute(insert_query, values={"timestamp": timestamp, "attraction_name": error_attraction, "waiting_time": config.ATTRACTION_WAITING_TIME_ERROR, "attraction_status": attraction_status_data.status})
                             except Exception as e:
                                 logger_error.error(f"[refer_waiting_time] Failed to record fallback error state for {error_attraction}: {e}")
