@@ -711,6 +711,12 @@ async def get_waiting_time(request: Request):
 
         working_hours = await check_open_or_closed(year = str(datetime.now().year), month = str(datetime.now().month), day = str(datetime.now().day), transform = False)
 
+        if working_hours == "Closed":
+            raise HTTPException(status_code=422, detail="The park is closed today")
+        
+        if working_hours == "Error":
+            raise HTTPException(status_code=500, detail="Failed to check open or closed")
+
         start_working_hour = datetime.strptime(working_hours.split("~")[0], "%H:%M")
         end_working_hour = datetime.strptime(working_hours.split("~")[1], "%H:%M")
 
@@ -720,12 +726,6 @@ async def get_waiting_time(request: Request):
         
         if current_hm < start_working_hour or current_hm > end_working_hour:
             raise HTTPException(status_code=422, detail="The park is closed now")
-
-        if working_hours == "Closed":
-            raise HTTPException(status_code=422, detail="The park is closed today")
-        
-        if working_hours == "Error":
-            raise HTTPException(status_code=500, detail="Failed to check open or closed")
 
         logger_info.info("[get_waiting_time] Started fetching latest waiting time data")
         data = await database.fetch_all(select_query)
