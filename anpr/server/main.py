@@ -510,7 +510,7 @@ async def get_entrance_csv(date_from: date, date_to: date, auth: bool = Depends(
         data = await database.fetch_all(select_query, values={"date_from": date_from, "date_to": date_to})
         if len(data) == 0:
             logger_info.warning("[get_entrance_csv] No entrance data found for the specified range")
-            raise HTTPException(status_code=422, detail="No data found")
+            return {"message": "Entrance data fetched successfully", "data": data}
         
         df = pd.DataFrame(dict(row) for row in data)
         stream = io.StringIO()
@@ -545,11 +545,11 @@ async def get_today_region_code_from_entrance(auth: bool = Depends(authenticate_
         logger_info.info("[get_today_region_code_from_entrance] Started fetching region code data")
         region_code_list = constance.REGION_CODE_LIST        
         data = await database.fetch_all(select_query)
-        data = {row["region_code"]: row["count"] for row in data}
-        
+
         if len(data) == 0:
             logger_info.warning("[get_today_region_code_from_entrance] No entrance data found today")
-            return {"message": "Entrance data fetched successfully", "data": []}
+            return {"message": "No entrance data found", "data": []}
+        data = {row["region_code"]: row["count"] for row in data}
 
         for item in data:
             if item not in region_code_list and item != config.UNDEFINED_TEXT:
@@ -572,10 +572,6 @@ async def record_error(error: Error, auth: bool = Depends(authenticate_api_key))
             INSERT INTO error (timestamp, raspberry_pi_num, error_type, error)
             VALUES (:timestamp, :raspberry_pi_num, :error_type, :error)
         """
-        
-        if error.error_type == "" or error.raspberry_pi_num == "" or error.error == "":
-            logger_error.error(f"[record_error] Invalid error payload: {error.timestamp}, {error.error_type}, {error.error}, {error.raspberry_pi_num}")
-            raise HTTPException(status_code=422, detail="Invalid error type or error")
 
         logger_info.info("[record_error] Started recording error data reported by device")
         await database.execute(insert_query, values={"timestamp": error.timestamp, "raspberry_pi_num": error.raspberry_pi_num, "error_type": error.error_type, "error": error.error})
@@ -598,7 +594,7 @@ async def get_today_status_from_error(auth: bool = Depends(authenticate_api_key)
         logger_info.info("[get_today_status_from_error] Started fetching today's error logs")
         data = await database.fetch_all(select_query)
         if len(data) == 0:
-            logger_info.info("[get_today_status_from_error] No error data found today")
+            logger_info.warning("[get_today_status_from_error] No error data found today")
             return {"message": "No error data found", "data": []}
         else:
             logger_info.info("[get_today_status_from_error] Successfully fetched error status logs")
